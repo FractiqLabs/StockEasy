@@ -183,17 +183,20 @@ def create_equipment():
         
         conn.commit()
         conn.close()
-        return jsonify({'success': True, 'message': '備品が登録されました'})
+        response_data = {'success': True, 'message': '備品が登録されました'}
+        return jsonify(response_data)
         
     except sqlite3.IntegrityError:
         if conn:
             conn.close()
-        return jsonify({'success': False, 'message': 'このIDは既に使用されています'}), 400
+        error_data = {'success': False, 'message': 'このIDは既に使用されています'}
+        return jsonify(error_data), 400
     except Exception as e:
         if conn:
             conn.close()
         print(f"備品登録エラー: {e}")
-        return jsonify({'success': False, 'message': f'登録に失敗しました: {str(e)}'}), 500
+        error_data = {'success': False, 'message': f'登録に失敗しました: {str(e)}'}
+        return jsonify(error_data), 500
 
 # 備品情報更新
 @app.route('/api/equipment/<item_id>', methods=['PUT'])
