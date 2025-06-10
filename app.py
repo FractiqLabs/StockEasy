@@ -68,12 +68,24 @@ def get_db_connection():
 # 静的ファイル配信（HTML）
 @app.route('/')
 def home():
-    return send_from_directory('static', 'index.html')
+    try:
+        return send_from_directory('static', 'index.html')
+    except:
+        # ファイルが見つからない場合の緊急対応
+        return '''
+        <h1>StockEasy</h1>
+        <p>static/index.html ファイルが見つかりません</p>
+        <p>ファイル構造を確認してください</p>
+        <a href="/api/test">API テスト</a>
+        '''
 
 # ファビコンやその他の静的ファイル配信
 @app.route('/static/<path:filename>')
 def static_files(filename):
-    return send_from_directory('static', filename)
+    try:
+        return send_from_directory('static', filename)
+    except:
+        return f'ファイル {filename} が見つかりません', 404
 @app.route('/api/test')
 def test_api():
     return jsonify({'status': 'OK', 'message': 'APIは正常に動作しています'})
