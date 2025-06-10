@@ -23,40 +23,58 @@ def force_https():
 
 # データベース初期化
 def init_db():
-    conn = sqlite3.connect('equipment.db')
-    cursor = conn.cursor()
-    
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS equipment (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            item_id TEXT UNIQUE NOT NULL,
-            name TEXT NOT NULL,
-            location TEXT NOT NULL,
-            category TEXT NOT NULL,
-            current_location TEXT DEFAULT '',
-            user_location TEXT DEFAULT '',
-            status TEXT DEFAULT '待機',
-            note TEXT DEFAULT '',
-            image TEXT DEFAULT '',
-            history TEXT DEFAULT '[]',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-    
-    conn.commit()
-    conn.close()
+    try:
+        conn = sqlite3.connect('equipment.db')
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS equipment (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                item_id TEXT UNIQUE NOT NULL,
+                name TEXT NOT NULL,
+                location TEXT NOT NULL,
+                category TEXT NOT NULL,
+                current_location TEXT DEFAULT '',
+                user_location TEXT DEFAULT '',
+                status TEXT DEFAULT '待機',
+                note TEXT DEFAULT '',
+                image TEXT DEFAULT '',
+                history TEXT DEFAULT '[]',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        
+        conn.commit()
+        conn.close()
+        print("データベース初期化完了")
+    except Exception as e:
+        print(f"データベース初期化エラー: {e}")
 
 # データベース接続のヘルパー関数
 def get_db_connection():
-    conn = sqlite3.connect('equipment.db')
-    conn.row_factory = sqlite3.Row  # 辞書形式でアクセス可能にする
-    return conn
+    try:
+        conn = sqlite3.connect('equipment.db')
+        conn.row_factory = sqlite3.Row  # 辞書形式でアクセス可能にする
+        return conn
+    except Exception as e:
+        print(f"データベース接続エラー: {e}")
+        return None
 
 # 静的ファイル配信（HTML）
 @app.route('/')
 def home():
     return send_from_directory('static', 'index.html')
+
+# テスト用エンドポイント
+@app.route('/api/test')
+def test_api():
+    return jsonify({'status': 'OK', 'message': 'APIは正常に動作しています'})
+
+# ヘルスチェック用
+@app.route('/health')
+def health_check():
+    return jsonify({'status': 'healthy', 'timestamp': datetime.now().isoformat()})
 
 # ファビコンやその他の静的ファイル配信
 @app.route('/static/<path:filename>')
@@ -66,50 +84,67 @@ def static_files(filename):
 # 全備品データ取得
 @app.route('/api/equipment', methods=['GET'])
 def get_equipment():
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    cursor.execute('SELECT * FROM equipment ORDER BY created_at DESC')
-    rows = cursor.fetchall()
-    
-    equipment_list = []
-    for row in rows:
-        equipment = {
-            'name': row['name'],
-            'id': row['item_id'],
-            'location': row['location'],
-            'category': row['category'],
-            'current': row['current_location'],
-            'user': row['user_location'],
-            'status': row['status'],
-            'note': row['note'],
-            'image': row['image'],
-            'history': json.loads(row['history']) if row['history'] else [],
-            'createdAt': row['created_at']
-        }
-        equipment_list.append(equipment)
-    
-    conn.close()
-    return jsonify(equipment_list)
+    try:
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({'error': 'データベース接続失敗'}), 500
+            
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM equipment ORDER BY created_at DESC')
+        rows = cursor.fetchall()
+        
+        equipment_list = []
+        for row in rows:
+            try:
+                history_data = json.loads(row['history']) if row['history'] else []
+            except:
+                history_data = []
+                
+            equipment = {
+                'name': row['name'],
+                'id': row['item_id'],
+                'location': row['location'],
+                'category': row['category'],
+                'current': row['current_location'] or '',
+                'user': row['user_location'] or '',
+                'status': row['status'],
+                'note': row['note'] or '',
+                'image': row['image'] or '',
+                'history': history_data,
+                'createdAt': row['created_at']
+            }
+            equipment_list.append(equipment)
+        
+        conn.close()
+        return jsonify(equipment_list)
+        
+    except Exception as e:
+        print(f"備品データ取得エラー: {e}")
+        return jsonify({'error': 'データ取得に失敗しました', 'details': str(e)}), 500
 
 # 新規備品登録
 @app.route('/api/equipment', methods=['POST'])
 def create_equipment():
-    data = request.json
-    
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
     try:
+        data = request.json
+        if not data:
+            return jsonify({'success': False, 'message': 'データが送信されていません'}), 400
+        
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({'success': False, 'message': 'データベース接続失敗'}), 500
+            
+        cursor = conn.cursor()
+        
         cursor.execute('''
             INSERT INTO equipment (
                 item_id, name, location, category, image, history
             ) VALUES (?, ?, ?, ?, ?, ?)
         ''', (
-            data['id'],
-            data['name'],
-            data['location'],
-            data['category'],
+            data.get('id', ''),
+            data.get('name', ''),
+            data.get('location', ''),
+            data.get('category', ''),
             data.get('image', ''),
             json.dumps(data.get('history', []))
         ))
@@ -119,8 +154,14 @@ def create_equipment():
         return jsonify({'success': True, 'message': '備品が登録されました'})
         
     except sqlite3.IntegrityError:
-        conn.close()
+        if conn:
+            conn.close()
         return jsonify({'success': False, 'message': 'このIDは既に使用されています'}), 400
+    except Exception as e:
+        if conn:
+            conn.close()
+        print(f"備品登録エラー: {e}")
+        return jsonify({'success': False, 'message': f'登録に失敗しました: {str(e)}'}), 500
 
 # 備品情報更新
 @app.route('/api/equipment/<item_id>', methods=['PUT'])
