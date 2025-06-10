@@ -13,7 +13,22 @@ from datetime import datetime
 app = Flask(__name__)
 CORS(app)  # CORSを有効にする
 
-# データベース初期化
+# 本番環境でHTTPS強制
+@app.before_request
+def force_https():
+    if os.environ.get('ENVIRONMENT') == 'production':
+        if request.headers.get('X-Forwarded-Proto') != 'https':
+            return redirect(request.url.replace('http://', 'https://'), code=301)
+
+# ルート（/）でstatic/index.htmlを返す
+@app.route('/')
+def index():
+    return send_from_directory('static', 'index.html')
+
+# 他の静的ファイル用
+@app.route('/static/<path:filename>')
+def serve_static(filename):
+    return send_from_directory('static', filename)
 def init_db():
     conn = sqlite3.connect('equipment.db')
     cursor = conn.cursor()
@@ -50,10 +65,7 @@ def get_db_connection():
 def index():
     return send_from_directory('static', 'index.html')
 
-# ファビコンやその他の静的ファイル配信
-@app.route('/static/<path:filename>')
-def static_files(filename):
-    return send_from_directory('static', filename)
+# 全備品データ取得
 
 # 全備品データ取得
 @app.route('/api/equipment', methods=['GET'])
