@@ -1,9 +1,4 @@
-from flask import Flask, request, jsonify, send_from_directory
-from flask_cors import CORS
-import sqlite3
-import json
-import os
-from datetime import datetime
+from flask import Flask, request, jsonify, send_from_directory, redirect
 from flask_cors import CORS
 import sqlite3
 import json
@@ -11,7 +6,13 @@ import os
 from datetime import datetime
 
 app = Flask(__name__)
-CORS(app)  # CORSを有効にする
+CORS(app)
+
+# 本番環境対応
+if os.environ.get('ENVIRONMENT') == 'production':
+    app.config['DEBUG'] = False
+else:
+    app.config['DEBUG'] = True
 
 # 本番環境でHTTPS強制
 @app.before_request
@@ -20,15 +21,7 @@ def force_https():
         if request.headers.get('X-Forwarded-Proto') != 'https':
             return redirect(request.url.replace('http://', 'https://'), code=301)
 
-# ルート（/）でstatic/index.htmlを返す
-@app.route('/')
-def index():
-    return send_from_directory('static', 'index.html')
-
-# 他の静的ファイル用
-@app.route('/static/<path:filename>')
-def serve_static(filename):
-    return send_from_directory('static', filename)
+# データベース初期化
 def init_db():
     conn = sqlite3.connect('equipment.db')
     cursor = conn.cursor()
@@ -62,10 +55,13 @@ def get_db_connection():
 
 # 静的ファイル配信（HTML）
 @app.route('/')
-def index():
+def home():
     return send_from_directory('static', 'index.html')
 
-# 全備品データ取得
+# ファビコンやその他の静的ファイル配信
+@app.route('/static/<path:filename>')
+def static_files(filename):
+    return send_from_directory('static', filename)
 
 # 全備品データ取得
 @app.route('/api/equipment', methods=['GET'])
