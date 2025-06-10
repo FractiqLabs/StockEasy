@@ -8,6 +8,10 @@ from datetime import datetime
 app = Flask(__name__)
 CORS(app)
 
+# JSON文字化け対策
+app.config['JSON_AS_ASCII'] = False
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
+
 # 本番環境対応
 if os.environ.get('ENVIRONMENT') == 'production':
     app.config['DEBUG'] = False
@@ -80,6 +84,22 @@ def init_database():
     except Exception as e:
         return jsonify({'status': 'error', 'message': f'初期化失敗: {str(e)}'}), 500
 
+# データベースリセット用エンドポイント
+@app.route('/api/reset-db')
+def reset_database():
+    try:
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({'status': 'error', 'message': 'データベース接続失敗'}), 500
+            
+        cursor = conn.cursor()
+        cursor.execute('DELETE FROM equipment')
+        conn.commit()
+        conn.close()
+        return jsonify({'status': 'success', 'message': 'データベースをリセットしました'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': f'リセット失敗: {str(e)}'}), 500
+
 # ヘルスチェック用
 @app.route('/health')
 def health_check():
@@ -128,7 +148,7 @@ def get_equipment():
             equipment_list.append(equipment)
         
         conn.close()
-        return jsonify(equipment_list, ensure_ascii=False)
+        return jsonify(equipment_list)
         
     except Exception as e:
         print(f"備品データ取得エラー: {e}")
@@ -274,7 +294,7 @@ def export_data():
         equipment_list.append(equipment)
     
     conn.close()
-    return jsonify(equipment_list, ensure_ascii=False)
+    return jsonify(equipment_list)
 
 # データインポート
 @app.route('/api/import', methods=['POST'])
