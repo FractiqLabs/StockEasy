@@ -128,7 +128,7 @@ def get_equipment():
             equipment_list.append(equipment)
         
         conn.close()
-        return jsonify(equipment_list)
+        return jsonify(equipment_list, ensure_ascii=False)
         
     except Exception as e:
         print(f"備品データ取得エラー: {e}")
@@ -274,7 +274,7 @@ def export_data():
         equipment_list.append(equipment)
     
     conn.close()
-    return jsonify(equipment_list)
+    return jsonify(equipment_list, ensure_ascii=False)
 
 # データインポート
 @app.route('/api/import', methods=['POST'])
