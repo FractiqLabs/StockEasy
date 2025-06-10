@@ -1081,12 +1081,20 @@
     // データの読み込み
     async function loadItems() {
       try {
+        // ログインしていない状態では読み込まない
+        if (!isLoggedIn()) return;
+        
         items = await apiCall(`${API_BASE}/equipment`);
         console.log('データを読み込みました');
       } catch (error) {
         console.error('データの読み込みに失敗しました:', error);
         items = [];
       }
+    }
+    
+    // ログイン状態確認
+    function isLoggedIn() {
+      return document.getElementById('mainContent').style.display === 'block';
     }
 
     // データのエクスポート・インポート機能
