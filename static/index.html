@@ -1,1552 +1,327 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>StockEasy｜らくらく備品管理システム</title>
-  <link href="https://fonts.googleapis.com/css2?family=Kaisei+Tokumin&family=Noto+Sans+JP&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c&display=swap" rel="stylesheet">
-  
-  <!-- ファビコン設定（シンプル版） -->
-  <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
-  <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+from flask import Flask, request, jsonify, send_from_directory, redirect
+from flask_cors import CORS
+import sqlite3
+import json
+import os
+from datetime import datetime
 
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-  font-family: "Noto Sans JP", "Segoe UI", sans-serif;
-  margin: 0;
-  background: linear-gradient(to bottom right, #f3e8ff, #ede9fe);
-}
+app = Flask(__name__)
+CORS(app)
 
-.sub-heading {
-  font-family: 'M PLUS Rounded 1c', sans-serif;
-  font-size: 1rem;
-  color: #6d6f788f;
-  font-weight: 500;
-  margin-bottom: 1.5rem;
-}
-    
-    /* ヒーローセクション */
-    .hero-section {
-      min-height: 100vh;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      display: flex;
-      align-items: center;
-      position: relative;
-      overflow: hidden;
-    }
-    .hero-section::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: radial-gradient(circle at 30% 50%, rgba(255,255,255,0.1) 0%, transparent 50%);
-    }
-    .hero-content {
-      width: 100%;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 2rem;
-      display: grid;
-      grid-template-columns: 1fr 400px;
-      gap: 4rem;
-      align-items: center;
-      position: relative;
-      z-index: 1;
-    }
-    .hero-text {
-      color: white;
-    }
-    .hero-title {
-      font-size: 3.5rem;
-      font-weight: 700;
-      margin-bottom: 1rem;
-      background: linear-gradient(45deg, #fff, #e0e7ff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .hero-subtitle {
-      font-size: 1.5rem;
-      margin-bottom: 1.5rem;
-      opacity: 0.9;
-      font-weight: 300;
-    }
-    .hero-description {
-      font-size: 1.1rem;
-      opacity: 0.8;
-      line-height: 1.8;
-    }
-    
-    /* ログインカード */
-    .login-card {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border-radius: 20px;
-      padding: 2.5rem;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    .login-card h3 {
-      font-size: 1.5rem;
-      margin-bottom: 2rem;
-      color: #333;
-      text-align: center;
-      font-weight: 600;
-    }
-    .role-select {
-      width: 100%;
-      padding: 1rem;
-      border: 2px solid #e1e5e9;
-      border-radius: 12px;
-      font-size: 1rem;
-      margin-bottom: 1rem;
-      background: white;
-      transition: all 0.3s ease;
-    }
-    .role-select:focus {
-      outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-    .password-area {
-      margin-bottom: 1.5rem;
-      display: none;
-    }
-    .password-area input {
-      width: 100%;
-      padding: 1rem;
-      border: 2px solid #e1e5e9;
-      border-radius: 12px;
-      font-size: 1rem;
-      transition: all 0.3s ease;
-    }
-    .password-area input:focus {
-      outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-    .login-btn {
-      width: 100%;
-      padding: 1rem 2rem;
-      background: linear-gradient(45deg, #667eea, #764ba2);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-size: 1.1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    .login-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
-    }
-    
-    /* 機能セクション */
-    .features-section {
-      padding: 6rem 0;
-      background: white;
-    }
-    .section-title {
-      text-align: center;
-      font-size: 2.5rem;
-      margin-bottom: 3rem;
-      color: #333;
-      font-weight: 700;
-    }
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 2rem;
-    }
-    .feature-card {
-      text-align: center;
-      padding: 2.5rem 1.5rem;
-      background: #f8fafc;
-      border-radius: 16px;
-      transition: all 0.3s ease;
-      border: 1px solid #e2e8f0;
-    }
-    .feature-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-      background: white;
-    }
-    .feature-icon {
-      font-size: 3rem;
-      margin-bottom: 1.5rem;
-    }
-    .feature-card h3 {
-      font-size: 1.3rem;
-      margin-bottom: 1rem;
-      color: #333;
-      font-weight: 600;
-    }
-    .feature-card p {
-      color: #666;
-      line-height: 1.6;
-    }
-    
-    /* 利用者の声セクション */
-    .testimonials-section {
-      padding: 6rem 0;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-    }
-    
-    .testimonials-section .section-title {
-      color: white;
-      text-align: center;
-      font-size: 2.5rem;
-      margin-bottom: 3rem;
-      font-weight: 700;
-    }
-    
-    .testimonials-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      gap: 2rem;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    
-    .testimonial-card {
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 20px;
-      padding: 2rem;
-      color: #333;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-      transition: all 0.3s ease;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    
-    .testimonial-card:hover {
-      transform: translateY(-10px);
-      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
-    }
-    
-    .testimonial-content {
-      margin-bottom: 1.5rem;
-    }
-    
-    .quote-icon {
-      font-size: 2rem;
-      margin-bottom: 1rem;
-      text-align: center;
-    }
-    
-    .testimonial-text {
-      font-size: 1rem;
-      line-height: 1.7;
-      color: #555;
-      font-style: italic;
-      margin-bottom: 1.5rem;
-      text-align: center;
-    }
-    
-    .testimonial-author {
-      border-top: 1px solid #e1e5e9;
-      padding-top: 1rem;
-    }
-    
-    .author-info h4 {
-      color: #667eea;
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-bottom: 0.3rem;
-    }
-    
-    .author-info span {
-      display: block;
-      color: #666;
-      font-size: 0.9rem;
-      margin-bottom: 0.2rem;
-    }
-    
-    .author-info .role {
-      color: #8b5cf6;
-      font-weight: 500;
-      font-size: 0.85rem;
-    }
-    
-    /* 利用者別機能セクション */
-    .roles-section {
-      padding: 6rem 0;
-      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-    }
-    .roles-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-      gap: 3rem;
-    }
-    .role-card {
-      background: white;
-      padding: 3rem;
-      border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-      transition: all 0.3s ease;
-    }
-    .role-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-    }
-    .role-card h3 {
-      font-size: 1.5rem;
-      margin-bottom: 2rem;
-      font-weight: 600;
-    }
-    .staff-card h3 {
-      color: #10b981;
-    }
-    .admin-card h3 {
-      color: #8b5cf6;
-    }
-    .role-card ul {
-      list-style: none;
-    }
-    .role-card li {
-      padding: 0.8rem 0;
-      border-bottom: 1px solid #f1f5f9;
-      position: relative;
-      padding-left: 2rem;
-    }
-    .role-card li:before {
-      content: '✓';
-      position: absolute;
-      left: 0;
-      color: #10b981;
-      font-weight: bold;
-    }
-    .admin-card li:before {
-      color: #8b5cf6;
-    }
-    
-    /* メインコンテンツ用スタイル */
-    .main-content {
-      margin: 1rem;
-      background: linear-gradient(135deg, #faf8ff 0%, #f5f3ff 100%);
-      min-height: 100vh;
-      padding: 1rem;
-      border-radius: 20px;
-    }
-    
-    .compact-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: white;
-      padding: 1rem 1.5rem;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(139, 92, 246, 0.08);
-      margin-bottom: 1.5rem;
-      flex-wrap: wrap;
-      gap: 1rem;
-      border: 1px solid rgba(139, 92, 246, 0.1);
-    }
-    
-    .logo-section {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    
-    .compact-header h1 {
-      font-size: 1.8rem;
-      background: linear-gradient(45deg, #667eea, #764ba2);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin: 0;
-      font-weight: 700;
-    }
-    
-    .compact-header .sub-heading {
-      color: #a78bfa;
-      margin: 0;
-      font-size: 0.85rem;
-    }
-    
-    .header-controls {
-      display: flex;
-      align-items: center;
-      gap: 0.8rem;
-      flex-wrap: wrap;
-    }
-    
-    .admin-section {
-      background: white;
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 8px 25px rgba(139, 92, 246, 0.08);
-      margin-bottom: 2rem;
-      border-left: 4px solid #a78bfa;
-      border: 1px solid rgba(139, 92, 246, 0.1);
-    }
-    
-    .admin-section h2 {
-      color: #7c3aed;
-      margin-bottom: 1.5rem;
-      font-size: 1.3rem;
-      font-weight: 600;
-    }
-    
-    .status-available {
-      color: #7c3aed;
-      font-weight: 600;
-      background: rgba(124, 58, 237, 0.1);
-      padding: 0.3rem 0.8rem;
-      border-radius: 20px;
-      font-size: 0.85rem;
-    }
-    
-    .status-in-use {
-      color: #dc2626;
-      font-weight: 600;
-      background: rgba(220, 38, 38, 0.1);
-      padding: 0.3rem 0.8rem;
-      border-radius: 20px;
-      font-size: 0.85rem;
-    }
-    
-    button {
-      margin: 0.2rem;
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 8px;
-      background: linear-gradient(45deg, #a78bfa, #c4b5fd);
-      color: white;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-weight: 500;
-      font-size: 0.85rem;
-      white-space: nowrap;
-    }
-    button:hover {
-      transform: translateY(-1px);
-      background: linear-gradient(45deg, #8b5cf6, #a78bfa);
-      box-shadow: 0 6px 20px rgba(139, 92, 246, 0.3);
-    }
-    
-    /* ヘッダー内のボタン（ログアウト、エクスポート、インポート）も同じスタイル */
-    .header-controls button {
-      background: linear-gradient(45deg, #a78bfa, #c4b5fd);
-      color: white;
-    }
-    .header-controls button:hover {
-      background: linear-gradient(45deg, #8b5cf6, #a78bfa);
-      box-shadow: 0 6px 20px rgba(139, 92, 246, 0.3);
-    }
-    
-    .delete-button {
-      background: linear-gradient(45deg, #f87171, #ef4444);
-    }
-    .delete-button:hover {
-      background: linear-gradient(45deg, #ef4444, #dc2626);
-      box-shadow: 0 6px 20px rgba(244, 67, 54, 0.3);
-    }
-    
-    input, select {
-      padding: 0.6rem 1rem;
-      margin: 0.2rem;
-      border-radius: 8px;
-      border: 2px solid #e9d5ff;
-      transition: all 0.3s ease;
-      font-size: 0.9rem;
-      background: white;
-    }
-    
-    input:focus, select:focus {
-      outline: none;
-      border-color: #a78bfa;
-      box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.1);
-    }
-    
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1rem;
-      background: white;
-      box-shadow: 0 8px 30px rgba(139, 92, 246, 0.08);
-      border-radius: 12px;
-      overflow: hidden;
-      border: 1px solid rgba(139, 92, 246, 0.1);
-    }
-    th, td {
-      border: 1px solid #f3f0ff;
-      padding: 1rem 0.8rem;
-      text-align: left;
-    }
-    th {
-      background: linear-gradient(135deg, #a78bfa 0%, #c4b5fd 100%);
-      color: white;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      font-size: 0.85rem;
-    }
-    
-    tbody tr {
-      transition: all 0.3s ease;
-    }
-    
-    tbody tr:hover {
-      background: linear-gradient(135deg, #faf8ff 0%, #f3f0ff 100%);
-      transform: scale(1.01);
-    }
-    
-    .image-preview {
-      width: 100px;
-      height: 100px;
-      object-fit: cover;
-      border: 2px solid #e9d5ff;
-      border-radius: 8px;
-      transition: all 0.2s;
-    }
-    
-    .image-preview:hover {
-      transform: scale(1.05);
-      border-color: #a78bfa;
-    }
-    
-    .image-wrapper {
-      position: relative;
-      display: inline-block;
-      width: 100px;
-      height: 100px;
-    }
-    
-    .edit-button {
-      position: absolute;
-      top: 2px;
-      right: 2px;
-      background: rgba(139, 92, 246, 0.9);
-      color: white;
-      border: none;
-      padding: 0.3rem 0.5rem;
-      font-size: 0.7rem;
-      border-radius: 4px;
-      display: none;
-      cursor: pointer;
-      z-index: 2;
-      font-weight: 500;
-    }
-    .edit-button:hover {
-      background: rgba(124, 58, 237, 1);
-    }
-    .image-wrapper:hover .edit-button {
-      display: block;
-    }
-    
-    .modal {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
-    }
-    .modal-content {
-      background: white;
-      padding: 1rem;
-      border-radius: 8px;
-      width: 300px;
-    }
-    .edit-modal-content {
-      background: white;
-      padding: 2rem;
-      border-radius: 8px;
-      width: 400px;
-      max-height: 80vh;
-      overflow-y: auto;
-    }
-    .form-group {
-      margin-bottom: 1rem;
-    }
-    .form-group label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: bold;
-      color: #333;
-    }
-    .form-group input, .form-group select {
-      width: 100%;
-      padding: 0.5rem;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      box-sizing: border-box;
-    }
-    .storage-notice {
-      background: linear-gradient(45deg, #e3f2fd, #f3e5f5);
-      border: 1px solid #2196f3;
-      border-radius: 8px;
-      padding: 1rem;
-      margin-top: 1.5rem;
-      color: #1976d2;
-      font-size: 0.9rem;
-      text-align: center;
-    }
-    .button-group {
-      display: flex;
-      gap: 0.5rem;
-      justify-content: flex-end;
-      margin-top: 1.5rem;
-    }
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 2rem;
-    }
-    /* ローディング表示 */
-    .loading {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(255,255,255,0.95);
-      padding: 20px 30px;
-      border-radius: 12px;
-      z-index: 1000;
-      box-shadow: 0 10px 40px rgba(139, 92, 246, 0.2);
-      border: 1px solid rgba(139, 92, 246, 0.1);
-      color: #7c3aed;
-      font-weight: 500;
-    }
-    
-    /* レスポンシブ対応 */
-    @media (max-width: 768px) {
-      .hero-content {
-        grid-template-columns: 1fr;
-        gap: 2rem;
-        text-align: center;
-      }
-      .hero-title {
-        font-size: 2.5rem;
-      }
-      .login-card {
-        padding: 2rem;
-      }
-      .roles-grid {
-        grid-template-columns: 1fr;
-      }
-      .container {
-        padding: 0 1rem;
-      }
-      
-      .compact-header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      
-      .header-controls {
-        width: 100%;
-        justify-content: flex-start;
-      }
-      
-      .compact-header h1 {
-        font-size: 1.5rem;
-      }
-      
-      table {
-        font-size: 0.85rem;
-      }
-      
-      th, td {
-        padding: 0.5rem 0.3rem;
-      }
-      
-      .image-preview {
-        width: 60px;
-        height: 60px;
-      }
-      
-      .testimonials-grid {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-      }
-      
-      .testimonial-card {
-        padding: 1.5rem;
-      }
-      
-      .testimonials-section .section-title {
-        font-size: 2rem;
-      }
-    }
-  </style>
-</head>
-<body>
-  <!-- ランディングページ -->
-  <div id="loginArea" style="display: block;">
-    <!-- ヒーローセクション -->
-    <section class="hero-section">
-      <div class="hero-content">
-        <div class="hero-text">
-          <h1 class="hero-title">StockEasy</h1>
-          <p class="hero-subtitle">施設備品を効率的に管理するスマートなソリューション</p>
-          <p class="hero-description">
-            備品の貸出・返却から在庫管理まで、すべてをデジタル化。<br>
-            シンプルな操作で、施設運営をもっとスムーズに。
-          </p>
-        </div>
-        <div class="login-card">
-          <h3>システムにログイン</h3>
-          <select id="roleSelect" class="role-select">
-            <option value="staff">職員としてログイン</option>
-            <option value="admin">管理者としてログイン</option>
-          </select>
-          <div id="passwordArea" class="password-area">
-            <input type="password" id="adminPassword" placeholder="管理者パスワードを入力" />
-          </div>
-          <button onclick="login()" class="login-btn">ログイン</button>
-          <div class="storage-notice">
-            <strong>Ver.3.0</strong> - クラウド対応版：データはサーバーに安全に保存されます
-          </div>
-        </div>
-      </div>
-    </section>
+# JSON文字化け対策
+app.config['JSON_AS_ASCII'] = False
 
-    <!-- 機能紹介セクション -->
-    <section class="features-section">
-      <div class="container">
-        <h2 class="section-title">主な機能</h2>
-        <div class="features-grid">
-          <div class="feature-card">
-            <div class="feature-icon">📋</div>
-            <h3>備品登録・管理</h3>
-            <p>車いす、歩行器、エアマットなど様々な備品を写真付きで登録・管理できます。</p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon">🔄</div>
-            <h3>貸出・返却管理</h3>
-            <p>備品の貸出状況をリアルタイムで把握。推奨返却場所の表示で効率的な運用を実現。</p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon">📍</div>
-            <h3>場所・状態追跡</h3>
-            <p>各備品の現在地、使用状況、備考情報を一目で確認。紛失防止にも効果的。</p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon">📊</div>
-            <h3>データ管理</h3>
-            <p>備品データのエクスポート・インポート機能で、バックアップや他システムとの連携も簡単。</p>
-          </div>
-        </div>
-      </div>
-    </section>
+# 本番環境対応
+if os.environ.get('ENVIRONMENT') == 'production':
+    app.config['DEBUG'] = False
+else:
+    app.config['DEBUG'] = True
 
-    <!-- 利用者の声セクション -->
-    <section class="testimonials-section">
-      <div class="container">
-        <h2 class="section-title">利用者の声</h2>
-        <div class="testimonials-grid">
-          <div class="testimonial-card">
-            <div class="testimonial-content">
-              <div class="quote-icon">💬</div>
-              <p class="testimonial-text">
-                「備品の所在がすぐに分かるようになり、探す時間が大幅に短縮されました。職員の負担が軽減され、より利用者様のケアに集中できています。」
-              </p>
-            </div>
-            <div class="testimonial-author">
-              <div class="author-info">
-                <h4>田中 美穂 様</h4>
-                <span>特別養護老人ホーム さくら園</span>
-                <span class="role">看護師長</span>
-              </div>
-            </div>
-          </div>
-          
-          <div class="testimonial-card">
-            <div class="testimonial-content">
-              <div class="quote-icon">⭐</div>
-              <p class="testimonial-text">
-                「以前は車いすがどこにあるか分からず、利用者様をお待たせすることがありました。StockEasyのおかげで、すぐに必要な備品を見つけられるようになりました。」
-              </p>
-            </div>
-            <div class="testimonial-author">
-              <div class="author-info">
-                <h4>佐藤 健一 様</h4>
-                <span>デイサービスセンター みどりの丘</span>
-                <span class="role">介護主任</span>
-              </div>
-            </div>
-          </div>
-          
-          <div class="testimonial-card">
-            <div class="testimonial-content">
-              <div class="quote-icon">✨</div>
-              <p class="testimonial-text">
-                「備品の貸出・返却の記録が自動化されたことで、管理業務が格段に楽になりました。月末の備品チェックも短時間で完了できるようになりました。」
-              </p>
-            </div>
-            <div class="testimonial-author">
-              <div class="author-info">
-                <h4>山田 由美子 様</h4>
-                <span>グループホーム ひまわり荘</span>
-                <span class="role">施設長</span>
-              </div>
-            </div>
-          </div>
-          
-          <div class="testimonial-card">
-            <div class="testimonial-content">
-              <div class="quote-icon">🚀</div>
-              <p class="testimonial-text">
-                「写真付きで備品を登録できるので、新人職員でもすぐに備品を識別できます。研修時間の短縮にもつながっています。」
-              </p>
-            </div>
-            <div class="testimonial-author">
-              <div class="author-info">
-                <h4>鈴木 太郎 様</h4>
-                <span>介護老人保健施設 希望の里</span>
-                <span class="role">事務長</span>
-              </div>
-            </div>
-          </div>
-          
-          <div class="testimonial-card">
-            <div class="testimonial-content">
-              <div class="quote-icon">💖</div>
-              <p class="testimonial-text">
-                「備品の在庫状況がリアルタイムで把握できるため、購入計画も立てやすくなりました。無駄な購入を防げて、コスト削減にも貢献しています。」
-              </p>
-            </div>
-            <div class="testimonial-author">
-              <div class="author-info">
-                <h4>高橋 恵子 様</h4>
-                <span>特別養護老人ホーム 青空の家</span>
-                <span class="role">総務課長</span>
-              </div>
-            </div>
-          </div>
-          
-          <div class="testimonial-card">
-            <div class="testimonial-content">
-              <div class="quote-icon">🌟</div>
-              <p class="testimonial-text">
-                「システムが直感的で使いやすく、ITが苦手な職員でもすぐに操作を覚えられました。導入から1週間で全員が使いこなしています。」
-              </p>
-            </div>
-            <div class="testimonial-author">
-              <div class="author-info">
-                <h4>伊藤 正夫 様</h4>
-                <span>有料老人ホーム 陽だまりテラス</span>
-                <span class="role">ケアマネージャー</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+# 本番環境でHTTPS強制
+@app.before_request
+def force_https():
+    if os.environ.get('ENVIRONMENT') == 'production':
+        if request.headers.get('X-Forwarded-Proto') != 'https':
+            return redirect(request.url.replace('http://', 'https://'), code=301)
 
-    <!-- 利用者別機能セクション -->
-    <section class="roles-section">
-      <div class="container">
-        <h2 class="section-title">利用者別機能</h2>
-        <div class="roles-grid">
-          <div class="role-card staff-card">
-            <h3>👥 職員向け機能</h3>
-            <ul>
-              <li>備品の貸出・返却操作</li>
-              <li>備品状況の確認</li>
-              <li>備考情報の追加・編集</li>
-              <li>カテゴリ別フィルタリング</li>
-            </ul>
-          </div>
-          <div class="role-card admin-card">
-            <h3>⚙️ 管理者向け機能</h3>
-            <ul>
-              <li>新規備品の登録</li>
-              <li>備品情報の編集・削除</li>
-              <li>備品画像の管理</li>
-              <li>データのエクスポート・インポート</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </section>
-  </div>
-
-  <!-- ローディング表示 -->
-  <div id="loading" class="loading">
-    <p>データを処理中...</p>
-  </div>
-
-  <!-- メインコンテンツ -->
-  <div id="mainContent" class="main-content" style="display: none;">
-    <div class="compact-header">
-      <div class="logo-section">
-        <div>
-          <h1>StockEasy</h1>
-          <p class="sub-heading">らくらく備品管理システム</p>
-        </div>
-      </div>
-      
-      <div class="header-controls">
-        <select id="categoryFilter" onchange="filterItems()">
-          <option value="">全て表示</option>
-          <option value="車いす">車いす</option>
-          <option value="歩行器・シルバーカー">歩行器・シルバーカー</option>
-          <option value="エアマット">エアマット</option>
-          <option value="その他">その他</option>
-        </select>
-        <button onclick="exportData()">エクスポート</button>
-        <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData()" />
-        <button onclick="document.getElementById('importFile').click()">インポート</button>
-        <button onclick="logout()">ログアウト</button>
-      </div>
-    </div>
-
-    <div id="adminArea" class="admin-section" style="display: none">
-      <h2>新規登録（管理者）</h2>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
-        <input type="text" id="itemName" placeholder="備品名" />
-        <input type="text" id="itemId" placeholder="ID" />
-        <select id="itemLocation">
-          <option value="事務所">事務所</option>
-          <option value="1F">1F</option>
-          <option value="2F">2F</option>
-          <option value="3F">3F</option>
-          <option value="4F">4F</option>
-          <option value="5F">5F</option>
-          <option value="地域交流室">地域交流室</option>
-          <option value="機能訓練室">機能訓練室</option>
-        </select>
-        <select id="itemCategory">
-          <option value="車いす">車いす</option>
-          <option value="歩行器・シルバーカー">歩行器・シルバーカー</option>
-          <option value="エアマット">エアマット</option>
-          <option value="その他">その他</option>
-        </select>
-        <input type="file" id="itemImage" accept="image/*" />
-        <button onclick="registerItem()">登録</button>
-      </div>
-    </div>
-
-    <table>
-      <thead>
-        <tr>
-          <th>画像</th>
-          <th>備品名</th>
-          <th>ID</th>
-          <th>保管場所</th>
-          <th>現在地</th>
-          <th>使用者</th>
-          <th>状態</th>
-          <th>備考</th>
-          <th>種別</th>
-          <th>操作</th>
-        </tr>
-      </thead>
-      <tbody id="itemTable"></tbody>
-    </table>
-
-    <div class="modal" id="borrowModal">
-      <div class="modal-content">
-        <h3>借用先を選択</h3>
-        <select id="borrowSelect">
-          <option>事務所</option>
-          <option>1F</option>
-          <option>2F</option>
-          <option>3F</option>
-          <option>4F</option>
-          <option>5F</option>
-          <option>地域交流室</option>
-          <option>機能訓練室</option>
-        </select>
-        <button onclick="confirmBorrow()">決定</button>
-        <button onclick="closeBorrowModal()">キャンセル</button>
-      </div>
-    </div>
-
-    <div class="modal" id="returnModal">
-      <div class="modal-content">
-        <h3>返却場所を選択</h3>
-        <p id="suggestedReturn"></p>
-        <select id="returnSelect">
-          <option>事務所</option>
-          <option>1F</option>
-          <option>2F</option>
-          <option>3F</option>
-          <option>4F</option>
-          <option>5F</option>
-          <option>地域交流室</option>
-          <option>機能訓練室</option>
-        </select>
-        <button onclick="confirmReturn()">決定</button>
-        <button onclick="closeReturnModal()">キャンセル</button>
-      </div>
-    </div>
-
-    <!-- 編集モーダル -->
-    <div class="modal" id="editModal">
-      <div class="edit-modal-content">
-        <h3>備品情報編集</h3>
-        <div class="form-group">
-          <label for="editItemName">備品名</label>
-          <input type="text" id="editItemName" />
-        </div>
-        <div class="form-group">
-          <label for="editItemId">ID</label>
-          <input type="text" id="editItemId" />
-        </div>
-        <div class="form-group">
-          <label for="editItemLocation">保管場所</label>
-          <select id="editItemLocation">
-            <option value="事務所">事務所</option>
-            <option value="1F">1F</option>
-            <option value="2F">2F</option>
-            <option value="3F">3F</option>
-            <option value="4F">4F</option>
-            <option value="5F">5F</option>
-            <option value="地域交流室">地域交流室</option>
-            <option value="機能訓練室">機能訓練室</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="editItemCategory">種別</label>
-          <select id="editItemCategory">
-            <option value="車いす">車いす</option>
-            <option value="歩行器・シルバーカー">歩行器・シルバーカー</option>
-            <option value="エアマット">エアマット</option>
-            <option value="その他">その他</option>
-          </select>
-        </div>
-        <div class="button-group">
-          <button onclick="confirmEdit()">保存</button>
-          <button onclick="closeEditModal()">キャンセル</button>
-          <button class="delete-button" onclick="confirmDelete()">削除</button>
-        </div>
-      </div>
-    </div>
-
-    <input type="file" id="editImageInput" accept="image/*" style="display:none" />
-  </div>
-
-  <script>
-    let items = [];
-    let currentIndex = null;
-    let isAdmin = false;
-    let editingIndex = null;
-    const API_BASE = '/api';
-
-    // ローディング表示
-    function showLoading() {
-      document.getElementById('loading').style.display = 'block';
-    }
-
-    function hideLoading() {
-      document.getElementById('loading').style.display = 'none';
-    }
-
-    // API呼び出し用のヘルパー関数
-    async function apiCall(url, options = {}) {
-      showLoading();
-      try {
-        const response = await fetch(url, {
-          headers: {
-            'Content-Type': 'application/json',
-            ...options.headers
-          },
-          ...options
-        });
+# データベース初期化
+def init_db():
+    try:
+        conn = sqlite3.connect('equipment.db')
+        cursor = conn.cursor()
         
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.message || 'API呼び出しに失敗しました');
-        }
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS equipment (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                item_id TEXT UNIQUE NOT NULL,
+                name TEXT NOT NULL,
+                location TEXT NOT NULL,
+                category TEXT NOT NULL,
+                current_location TEXT DEFAULT '',
+                user_location TEXT DEFAULT '',
+                status TEXT DEFAULT '待機',
+                note TEXT DEFAULT '',
+                image TEXT DEFAULT '',
+                history TEXT DEFAULT '[]',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
         
-        return await response.json();
-      } catch (error) {
-        console.error('API Error:', error);
-        alert(error.message);
-        throw error;
-      } finally {
-        hideLoading();
-      }
-    }
+        conn.commit()
+        conn.close()
+        print("データベース初期化完了")
+    except Exception as e:
+        print(f"データベース初期化エラー: {e}")
 
-    // データの読み込み
-    async function loadItems() {
-      try {
-        // ログインしていない状態では読み込まない
-        if (!isLoggedIn()) return;
+# データベース接続のヘルパー関数
+def get_db_connection():
+    try:
+        conn = sqlite3.connect('equipment.db')
+        conn.row_factory = sqlite3.Row  # 辞書形式でアクセス可能にする
+        return conn
+    except Exception as e:
+        print(f"データベース接続エラー: {e}")
+        return None
+
+# 静的ファイル配信（HTML）
+@app.route('/')
+def home():
+    return send_from_directory('static', 'index.html')
+
+# テスト用エンドポイント
+@app.route('/api/test')
+def test_api():
+    return jsonify({'status': 'OK', 'message': 'APIは正常に動作しています'})
+
+# データベース初期化エンドポイント
+@app.route('/api/init-db')
+def init_database():
+    try:
+        init_db()
+        return jsonify({'status': 'success', 'message': 'データベースが初期化されました'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': f'初期化失敗: {str(e)}'}), 500
+
+# ヘルスチェック用
+@app.route('/health')
+def health_check():
+    return jsonify({'status': 'healthy', 'timestamp': datetime.now().isoformat()})
+
+# ファビコンやその他の静的ファイル配信
+@app.route('/static/<path:filename>')
+def static_files(filename):
+    return send_from_directory('static', filename)
+
+# 全備品データ取得
+@app.route('/api/equipment', methods=['GET'])
+def get_equipment():
+    try:
+        # データベース初期化を確実に実行
+        init_db()
         
-        items = await apiCall(`${API_BASE}/equipment`);
-        console.log('データを読み込みました');
-      } catch (error) {
-        console.error('データの読み込みに失敗しました:', error);
-        items = [];
-      }
-    }
-    
-    // ログイン状態確認
-    function isLoggedIn() {
-      return document.getElementById('mainContent').style.display === 'block';
-    }
-
-    // データのエクスポート・インポート機能
-    async function exportData() {
-      try {
-        const data = await apiCall(`${API_BASE}/export`);
-        const dataStr = JSON.stringify(data, null, 2);
-        const dataBlob = new Blob([dataStr], {type: 'application/json'});
-        const url = URL.createObjectURL(dataBlob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'equipment_data.json';
-        link.click();
-        URL.revokeObjectURL(url);
-      } catch (error) {
-        console.error('エクスポートに失敗しました:', error);
-      }
-    }
-
-    async function importData() {
-      const file = document.getElementById('importFile').files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = async function(e) {
-        try {
-          const importedData = JSON.parse(e.target.result);
-          if (confirm('現在のデータを置き換えますか？')) {
-            await apiCall(`${API_BASE}/import`, {
-              method: 'POST',
-              body: JSON.stringify(importedData)
-            });
-            await loadItems();
-            renderItems();
-            alert('データをインポートしました');
-          }
-        } catch (error) {
-          alert('ファイルの読み込みに失敗しました');
-        }
-      };
-      reader.readAsText(file);
-    }
-
-    function renderItems() {
-      const tbody = document.getElementById('itemTable');
-      tbody.innerHTML = '';
-      items.forEach((item, index) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>
-            <div class="image-wrapper">
-              <img src="${item.image || ''}" class="image-preview" onerror="this.style.display='none'" />
-              ${isAdmin ? `<button class="edit-button" onclick="editImage(${index})">画像</button>` : ''}
-            </div>
-          </td>
-          <td>${item.name}</td>
-          <td>${item.id}</td>
-          <td>${item.location}</td>
-          <td>${item.current || ''}</td>
-          <td>${item.user || ''}</td>
-          <td>
-            <span class="${item.status === '待機' ? 'status-available' : 'status-in-use'}">
-              ${item.status}
-            </span>
-          </td>
-          <td><input type="text" value="${item.note || ''}" onchange="updateNote(${index}, this.value)" /></td>
-          <td>${item.category}</td>
-          <td>
-            <button onclick="openBorrow(${index})">借用</button>
-            <button onclick="openReturn(${index})">返却</button>
-            ${isAdmin ? `<button onclick="openEdit(${index})">編集</button>` : ''}
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    // 備考更新
-    async function updateNote(index, note) {
-      try {
-        const item = items[index];
-        await apiCall(`${API_BASE}/equipment/${item.id}`, {
-          method: 'PUT',
-          body: JSON.stringify({ note })
-        });
-        items[index].note = note;
-      } catch (error) {
-        console.error('備考の更新に失敗しました:', error);
-      }
-    }
-
-    async function registerItem() {
-      const name = document.getElementById('itemName').value;
-      const id = document.getElementById('itemId').value;
-      const location = document.getElementById('itemLocation').value;
-      const category = document.getElementById('itemCategory').value;
-      const imageFile = document.getElementById('itemImage').files[0];
-
-      if (!name || !id || !location) {
-        alert('必要な情報を入力してください');
-        return;
-      }
-
-      const item = {
-        name: name,
-        id: id,
-        location: location,
-        category: category,
-        history: []
-      };
-
-      if (imageFile) {
-        const reader = new FileReader();
-        reader.onload = async () => {
-          item.image = reader.result;
-          try {
-            await apiCall(`${API_BASE}/equipment`, {
-              method: 'POST',
-              body: JSON.stringify(item)
-            });
-            await loadItems();
-            renderItems();
-            clearForm();
-            alert('備品を登録しました');
-          } catch (error) {
-            console.error('登録に失敗しました:', error);
-          }
-        };
-        reader.readAsDataURL(imageFile);
-      } else {
-        try {
-          await apiCall(`${API_BASE}/equipment`, {
-            method: 'POST',
-            body: JSON.stringify(item)
-          });
-          await loadItems();
-          renderItems();
-          clearForm();
-          alert('備品を登録しました');
-        } catch (error) {
-          console.error('登録に失敗しました:', error);
-        }
-      }
-    }
-
-    function clearForm() {
-      document.getElementById('itemName').value = '';
-      document.getElementById('itemId').value = '';
-      document.getElementById('itemLocation').value = '事務所';
-      document.getElementById('itemCategory').value = '車いす';
-      document.getElementById('itemImage').value = '';
-    }
-
-    async function editImage(index) {
-      const input = document.getElementById('editImageInput');
-      input.onchange = async () => {
-        const file = input.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = async () => {
-            try {
-              const item = items[index];
-              await apiCall(`${API_BASE}/equipment/${item.id}`, {
-                method: 'PUT',
-                body: JSON.stringify({ image: reader.result })
-              });
-              items[index].image = reader.result;
-              renderItems();
-            } catch (error) {
-              console.error('画像の更新に失敗しました:', error);
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({'error': 'データベース接続失敗'}), 500
+            
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM equipment ORDER BY created_at DESC')
+        rows = cursor.fetchall()
+        
+        equipment_list = []
+        for row in rows:
+            try:
+                history_data = json.loads(row['history']) if row['history'] else []
+            except:
+                history_data = []
+                
+            equipment = {
+                'name': row['name'],
+                'id': row['item_id'],
+                'location': row['location'],
+                'category': row['category'],
+                'current': row['current_location'] or '',
+                'user': row['user_location'] or '',
+                'status': row['status'],
+                'note': row['note'] or '',
+                'image': row['image'] or '',
+                'history': history_data,
+                'createdAt': row['created_at']
             }
-          };
-          reader.readAsDataURL(file);
-        } else {
-          try {
-            const item = items[index];
-            await apiCall(`${API_BASE}/equipment/${item.id}`, {
-              method: 'PUT',
-              body: JSON.stringify({ image: '' })
-            });
-            delete items[index].image;
-            renderItems();
-          } catch (error) {
-            console.error('画像の削除に失敗しました:', error);
-          }
-        }
-      };
-      input.click();
-    }
-
-    // 編集モーダル関連の関数
-    function openEdit(index) {
-      editingIndex = index;
-      const item = items[index];
-      
-      document.getElementById('editItemName').value = item.name;
-      document.getElementById('editItemId').value = item.id;
-      document.getElementById('editItemLocation').value = item.location;
-      document.getElementById('editItemCategory').value = item.category;
-      
-      document.getElementById('editModal').style.display = 'flex';
-    }
-
-    function closeEditModal() {
-      document.getElementById('editModal').style.display = 'none';
-      editingIndex = null;
-    }
-
-    async function confirmEdit() {
-      if (editingIndex === null) return;
-      
-      const name = document.getElementById('editItemName').value;
-      const newId = document.getElementById('editItemId').value;
-      const location = document.getElementById('editItemLocation').value;
-      const category = document.getElementById('editItemCategory').value;
-
-      if (!name || !newId || !location) {
-        alert('必要な情報を入力してください');
-        return;
-      }
-
-      try {
-        const oldItem = items[editingIndex];
-        await apiCall(`${API_BASE}/equipment/${oldItem.id}`, {
-          method: 'PUT',
-          body: JSON.stringify({
-            name,
-            location,
-            category
-          })
-        });
+            equipment_list.append(equipment)
         
-        // IDが変更された場合は特別な処理が必要
-        if (oldItem.id !== newId) {
-          // 新しいIDで登録し直す（簡易実装）
-          alert('IDの変更は現在サポートされていません');
-          closeEditModal();
-          return;
-        }
-
-        await loadItems();
-        renderItems();
-        closeEditModal();
-        alert('備品情報を更新しました');
-      } catch (error) {
-        console.error('更新に失敗しました:', error);
-      }
-    }
-
-    async function confirmDelete() {
-      if (editingIndex === null) return;
-      
-      if (confirm(`備品「${items[editingIndex].name}」を本当に削除しますか？`)) {
-        try {
-          const item = items[editingIndex];
-          await apiCall(`${API_BASE}/equipment/${item.id}`, {
-            method: 'DELETE'
-          });
-          await loadItems();
-          renderItems();
-          closeEditModal();
-          alert('備品を削除しました');
-        } catch (error) {
-          console.error('削除に失敗しました:', error);
-        }
-      }
-    }
-
-    function openBorrow(index) {
-      currentIndex = index;
-      document.getElementById('borrowModal').style.display = 'flex';
-    }
-
-    function closeBorrowModal() {
-      document.getElementById('borrowModal').style.display = 'none';
-    }
-
-    async function confirmBorrow() {
-      const place = document.getElementById('borrowSelect').value;
-      const timestamp = new Date().toLocaleString('ja-JP');
-      
-      try {
-        const item = items[currentIndex];
-        const newHistory = [...(item.history || []), { 
-          action: '借用', 
-          place: place, 
-          timestamp: timestamp 
-        }];
-
-        await apiCall(`${API_BASE}/equipment/${item.id}`, {
-          method: 'PUT',
-          body: JSON.stringify({
-            user: place,
-            current: place,
-            status: '使用中',
-            history: newHistory
-          })
-        });
-
-        items[currentIndex].user = place;
-        items[currentIndex].current = place;
-        items[currentIndex].status = '使用中';
-        items[currentIndex].history = newHistory;
+        conn.close()
+        return jsonify(equipment_list, ensure_ascii=False)
         
-        renderItems();
-        closeBorrowModal();
-        alert('借用処理が完了しました');
-      } catch (error) {
-        console.error('借用処理に失敗しました:', error);
-      }
-    }
+    except Exception as e:
+        print(f"備品データ取得エラー: {e}")
+        return jsonify({'error': 'データ取得に失敗しました', 'details': str(e)}), 500
 
-    function openReturn(index) {
-      currentIndex = index;
-      const location = items[index].location;
-      document.getElementById('suggestedReturn').textContent = `推奨返却場所：${location}`;
-      document.getElementById('returnModal').style.display = 'flex';
-    }
-
-    function closeReturnModal() {
-      document.getElementById('returnModal').style.display = 'none';
-    }
-
-    async function confirmReturn() {
-      const place = document.getElementById('returnSelect').value;
-      const timestamp = new Date().toLocaleString('ja-JP');
-      
-      try {
-        const item = items[currentIndex];
-        const newHistory = [...(item.history || []), { 
-          action: '返却', 
-          place: place, 
-          timestamp: timestamp 
-        }];
-
-        await apiCall(`${API_BASE}/equipment/${item.id}`, {
-          method: 'PUT',
-          body: JSON.stringify({
-            user: '',
-            current: place,
-            status: '待機',
-            history: newHistory
-          })
-        });
-
-        items[currentIndex].user = '';
-        items[currentIndex].current = place;
-        items[currentIndex].status = '待機';
-        items[currentIndex].history = newHistory;
+# 新規備品登録
+@app.route('/api/equipment', methods=['POST'])
+def create_equipment():
+    try:
+        data = request.json
+        if not data:
+            return jsonify({'success': False, 'message': 'データが送信されていません'}), 400
         
-        renderItems();
-        closeReturnModal();
-        alert('返却処理が完了しました');
-      } catch (error) {
-        console.error('返却処理に失敗しました:', error);
-      }
-    }
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({'success': False, 'message': 'データベース接続失敗'}), 500
+            
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            INSERT INTO equipment (
+                item_id, name, location, category, image, history
+            ) VALUES (?, ?, ?, ?, ?, ?)
+        ''', (
+            data.get('id', ''),
+            data.get('name', ''),
+            data.get('location', ''),
+            data.get('category', ''),
+            data.get('image', ''),
+            json.dumps(data.get('history', []))
+        ))
+        
+        conn.commit()
+        conn.close()
+        return jsonify({'success': True, 'message': '備品が登録されました'})
+        
+    except sqlite3.IntegrityError:
+        if conn:
+            conn.close()
+        return jsonify({'success': False, 'message': 'このIDは既に使用されています'}), 400
+    except Exception as e:
+        if conn:
+            conn.close()
+        print(f"備品登録エラー: {e}")
+        return jsonify({'success': False, 'message': f'登録に失敗しました: {str(e)}'}), 500
 
-    async function login() {
-      const role = document.getElementById('roleSelect').value;
-      const password = document.getElementById('adminPassword').value;
-      
-      if (role === 'admin') {
-        if (password !== 'admin123') {
-          alert('パスワードが違います');
-          return;
+# 備品情報更新
+@app.route('/api/equipment/<item_id>', methods=['PUT'])
+def update_equipment(item_id):
+    data = request.json
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # 更新するフィールドを動的に構築
+    update_fields = []
+    values = []
+    
+    if 'name' in data:
+        update_fields.append('name = ?')
+        values.append(data['name'])
+    if 'location' in data:
+        update_fields.append('location = ?')
+        values.append(data['location'])
+    if 'category' in data:
+        update_fields.append('category = ?')
+        values.append(data['category'])
+    if 'current' in data:
+        update_fields.append('current_location = ?')
+        values.append(data['current'])
+    if 'user' in data:
+        update_fields.append('user_location = ?')
+        values.append(data['user'])
+    if 'status' in data:
+        update_fields.append('status = ?')
+        values.append(data['status'])
+    if 'note' in data:
+        update_fields.append('note = ?')
+        values.append(data['note'])
+    if 'image' in data:
+        update_fields.append('image = ?')
+        values.append(data['image'])
+    if 'history' in data:
+        update_fields.append('history = ?')
+        values.append(json.dumps(data['history']))
+    
+    # updated_atを追加
+    update_fields.append('updated_at = CURRENT_TIMESTAMP')
+    values.append(item_id)
+    
+    query = f'UPDATE equipment SET {", ".join(update_fields)} WHERE item_id = ?'
+    
+    cursor.execute(query, values)
+    
+    if cursor.rowcount == 0:
+        conn.close()
+        return jsonify({'success': False, 'message': '備品が見つかりません'}), 404
+    
+    conn.commit()
+    conn.close()
+    return jsonify({'success': True, 'message': '備品情報が更新されました'})
+
+# 備品削除
+@app.route('/api/equipment/<item_id>', methods=['DELETE'])
+def delete_equipment(item_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute('DELETE FROM equipment WHERE item_id = ?', (item_id,))
+    
+    if cursor.rowcount == 0:
+        conn.close()
+        return jsonify({'success': False, 'message': '備品が見つかりません'}), 404
+    
+    conn.commit()
+    conn.close()
+    return jsonify({'success': True, 'message': '備品が削除されました'})
+
+# データエクスポート
+@app.route('/api/export', methods=['GET'])
+def export_data():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute('SELECT * FROM equipment')
+    rows = cursor.fetchall()
+    
+    equipment_list = []
+    for row in rows:
+        equipment = {
+            'name': row['name'],
+            'id': row['item_id'],
+            'location': row['location'],
+            'category': row['category'],
+            'current': row['current_location'],
+            'user': row['user_location'],
+            'status': row['status'],
+            'note': row['note'],
+            'image': row['image'],
+            'history': json.loads(row['history']) if row['history'] else [],
+            'createdAt': row['created_at']
         }
-      }
-      
-      document.getElementById('loginArea').style.display = 'none';
-      document.getElementById('mainContent').style.display = 'block';
-      isAdmin = role === 'admin';
-      document.getElementById('adminArea').style.display = isAdmin ? 'block' : 'none';
-      await loadItems();
-      renderItems();
-    }
+        equipment_list.append(equipment)
+    
+    conn.close()
+    return jsonify(equipment_list, ensure_ascii=False)
 
-    function logout() {
-      document.getElementById('loginArea').style.display = 'block';
-      document.getElementById('mainContent').style.display = 'none';
-      isAdmin = false;
-      document.getElementById('adminArea').style.display = 'none';
-      document.getElementById('roleSelect').value = 'staff';
-      document.getElementById('passwordArea').style.display = 'none';
-      document.getElementById('adminPassword').value = '';
-    }
+# データインポート
+@app.route('/api/import', methods=['POST'])
+def import_data():
+    data = request.json
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        # 既存データを削除
+        cursor.execute('DELETE FROM equipment')
+        
+        # 新しいデータを挿入
+        for item in data:
+            cursor.execute('''
+                INSERT INTO equipment (
+                    item_id, name, location, category, current_location,
+                    user_location, status, note, image, history
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                item['id'],
+                item['name'],
+                item['location'],
+                item['category'],
+                item.get('current', ''),
+                item.get('user', ''),
+                item.get('status', '待機'),
+                item.get('note', ''),
+                item.get('image', ''),
+                json.dumps(item.get('history', []))
+            ))
+        
+        conn.commit()
+        conn.close()
+        return jsonify({'success': True, 'message': 'データがインポートされました'})
+        
+    except Exception as e:
+        conn.rollback()
+        conn.close()
+        return jsonify({'success': False, 'message': f'インポートに失敗しました: {str(e)}'}), 400
 
-    function filterItems() {
-      const category = document.getElementById('categoryFilter').value;
-      const tbody = document.getElementById('itemTable');
-      tbody.innerHTML = '';
-      items.forEach((item, index) => {
-        if (!category || item.category === category) {
-          renderTableRow(item, index);
-        }
-      });
-    }
-
-    function renderTableRow(item, index) {
-      const tbody = document.getElementById('itemTable');
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>
-          <div class="image-wrapper">
-            <img src="${item.image || ''}" class="image-preview" onerror="this.style.display='none'" />
-            ${isAdmin ? `<button class="edit-button" onclick="editImage(${index})">画像</button>` : ''}
-          </div>
-        </td>
-        <td>${item.name}</td>
-        <td>${item.id}</td>
-        <td>${item.location}</td>
-        <td>${item.current || ''}</td>
-        <td>${item.user || ''}</td>
-        <td>
-          <span class="${item.status === '待機' ? 'status-available' : 'status-in-use'}">
-            ${item.status}
-          </span>
-        </td>
-        <td><input type="text" value="${item.note || ''}" onchange="updateNote(${index}, this.value)" /></td>
-        <td>${item.category}</td>
-        <td>
-          <button onclick="openBorrow(${index})">借用</button>
-          <button onclick="openReturn(${index})">返却</button>
-          ${isAdmin ? `<button onclick="openEdit(${index})">編集</button>` : ''}
-        </td>
-      `;
-      tbody.appendChild(tr);
-    }
-
-    // 初期化処理
-    document.addEventListener('DOMContentLoaded', function() {
-      // 初期状態でパスワード欄を非表示にする
-      document.getElementById('passwordArea').style.display = 'none';
-      
-      document.getElementById('roleSelect').addEventListener('change', function() {
-        const passwordArea = document.getElementById('passwordArea');
-        if (this.value === 'admin') {
-          passwordArea.style.display = 'block';
-          document.getElementById('adminPassword').placeholder = '管理者パスワード';
-        } else {
-          passwordArea.style.display = 'none';
-          document.getElementById('adminPassword').value = '';
-        }
-      });
-    });
-
-    // モーダルの外側をクリックしたときに閉じる
-    document.addEventListener('click', function(e) {
-      if (e.target.classList.contains('modal')) {
-        e.target.style.display = 'none';
-      }
-    });
-  </script>
-</body>
-</html>
+if __name__ == '__main__':
+    init_db()
+    port = int(os.environ.get('PORT', 8080))
+    host = '0.0.0.0' if os.environ.get('ENVIRONMENT') == 'production' else '127.0.0.1'
+    app.run(debug=app.config['DEBUG'], host=host, port=port)
