@@ -70,7 +70,10 @@ def get_db_connection():
 def home():
     return send_from_directory('static', 'index.html')
 
-# テスト用エンドポイント
+# ファビコンやその他の静的ファイル配信
+@app.route('/static/<path:filename>')
+def static_files(filename):
+    return send_from_directory('static', filename)
 @app.route('/api/test')
 def test_api():
     return jsonify({'status': 'OK', 'message': 'APIは正常に動作しています'})
