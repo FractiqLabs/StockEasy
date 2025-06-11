@@ -67,9 +67,14 @@ def get_db_connection():
 
 # 静的ファイル配信（HTML）
 @app.route('/')
-def home():
+@app.route('/<path:path>')
+def home(path=''):
     try:
-        # Flaskの静的ファイル配信を使用
+        # APIパスは除外
+        if path.startswith('api/') or path.startswith('static/'):
+            return '', 404
+        
+        # すべてのパスでindex.htmlを返す（SPA対応）
         return send_from_directory('static', 'index.html')
     except Exception as e:
         print(f"Static file error: {e}")
