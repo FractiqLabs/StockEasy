@@ -1545,28 +1545,45 @@
     }
 
     async function login() {
-      const role = document.getElementById('roleSelect').value;
-      const password = document.getElementById('adminPassword').value;
-      
-      if (role === 'admin') {
-        if (password !== 'admin123') {
-          alert('パスワードが違います');
-          return;
-        }
-      }
-      
-      document.getElementById('loginArea').style.display = 'none';
-      document.getElementById('mainContent').style.display = 'block';
-      isAdmin = role === 'admin';
-      document.getElementById('adminArea').style.display = isAdmin ? 'block' : 'none';
-      
-      // ログイン後にデータを読み込み
       try {
-        await loadItems();
-        renderItems();
+        console.log('ログイン処理開始');
+        
+        const role = document.getElementById('roleSelect').value;
+        const password = document.getElementById('adminPassword').value;
+        
+        console.log('選択された役割:', role);
+        
+        if (role === 'admin') {
+          if (password !== 'admin123') {
+            alert('パスワードが違います');
+            return;
+          }
+        }
+        
+        console.log('認証成功、画面切り替え開始');
+        
+        // 画面を切り替え
+        document.getElementById('loginArea').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'block';
+        isAdmin = role === 'admin';
+        document.getElementById('adminArea').style.display = isAdmin ? 'block' : 'none';
+        
+        console.log('画面切り替え完了、データ読み込み開始');
+        
+        // ログイン後にデータを読み込み
+        try {
+          await loadItems();
+          renderItems();
+          console.log('ログイン完了');
+        } catch (error) {
+          console.error('ログイン後のデータ読み込みに失敗:', error);
+          // データ読み込みに失敗してもログイン状態は維持
+          renderItems(); // 空のテーブルを表示
+          showError('データの読み込みに失敗しました。再試行してください。');
+        }
       } catch (error) {
-        console.error('ログイン後のデータ読み込みに失敗:', error);
-        showError('データの読み込みに失敗しました。再試行してください。');
+        console.error('ログイン処理でエラー:', error);
+        alert('ログイン処理中にエラーが発生しました');
       }
     }
 
