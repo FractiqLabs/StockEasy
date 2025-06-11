@@ -134,6 +134,9 @@ def health_check():
 @app.route('/api/equipment', methods=['GET'])
 def get_equipment():
     try:
+        # データベース初期化を確実に実行
+        init_db()
+        
         conn = get_db_connection()
         if conn is None:
             return jsonify({'error': 'データベース接続失敗'}), 500
