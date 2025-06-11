@@ -1,9 +1,13 @@
 <!DOCTYPE html>
 <html lang="ja">
+<!-- 修正後のコード -->
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>StockEasy｜らくらく備品管理システム</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
   <link href="https://fonts.googleapis.com/css2?family=Kaisei+Tokumin&family=Noto+Sans+JP&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c&display=swap" rel="stylesheet">
   
@@ -1048,10 +1052,16 @@
     let connectionRetries = 0;
     const maxRetries = 3;
     
-    // API URLを動的に設定（デモ用にlocalStorageを使用）
+    <!-- 修正後のコード -->
+    // API URLを動的に設定
     const USE_LOCAL_STORAGE = true; // デモ用フラグ
     const API_BASE = window.location.origin + '/api';
-
+    
+    // デバッグモード
+    const DEBUG = true;
+    function debugLog(...args) {
+      if (DEBUG) console.log('[StockEasy]', ...args);
+    }
     // ローディング表示
     function showLoading() {
       document.getElementById('loading').style.display = 'block';
@@ -1657,15 +1667,16 @@
       }
     }
 
+    <!-- 修正後のコード -->
     // ログイン処理
     async function login() {
       try {
-        console.log('ログイン処理開始');
+        debugLog('ログイン処理開始');
         
         const role = document.getElementById('roleSelect').value;
         const password = document.getElementById('adminPassword').value;
         
-        console.log('選択された役割:', role);
+        debugLog('選択された役割:', role);
         
         if (role === 'admin') {
           if (password !== 'admin123') {
@@ -1745,20 +1756,37 @@
       });
     }
 
+    <!-- 修正後のコード -->
     // 初期化処理
     function initializeApp() {
-      console.log('アプリケーション初期化開始');
+      debugLog('アプリケーション初期化開始');
       
-      // イベントリスナーの設定
-      const loginButton = document.getElementById('loginButton');
-      const roleSelect = document.getElementById('roleSelect');
-      
-      if (loginButton) {
-        loginButton.addEventListener('click', login);
-        console.log('ログインボタンのイベントリスナーを設定');
-      } else {
-        console.error('ログインボタンが見つかりません');
-      }
+      try {
+        // イベントリスナーの設定
+        const loginButton = document.getElementById('loginButton');
+        const roleSelect = document.getElementById('roleSelect');
+        
+        if (!loginButton) {
+          throw new Error('ログインボタンが見つかりません');
+        }
+        
+        if (!roleSelect) {
+          throw new Error('役割選択が見つかりません');
+        }
+        
+        // クリックイベントとタッチイベントの両方に対応
+        loginButton.addEventListener('click', function(e) {
+          e.preventDefault();
+          login();
+        });
+        
+        // モバイル対応
+        loginButton.addEventListener('touchstart', function(e) {
+          e.preventDefault();
+          login();
+        });
+        
+        debugLog('ログインボタンのイベントリスナーを設定');
       
       if (roleSelect) {
         roleSelect.addEventListener('change', handleRoleChange);
