@@ -69,14 +69,23 @@ def get_db_connection():
 @app.route('/')
 def home():
     try:
+        # Flaskの静的ファイル配信を使用
         return send_from_directory('static', 'index.html')
-    except:
-        # ファイルが見つからない場合の緊急対応
-        return '''
-        <h1>StockEasy</h1>
+    except Exception as e:
+        print(f"Static file error: {e}")
+        # デバッグ用：ファイルの存在確認
+        import os
+        static_path = os.path.join(os.getcwd(), 'static')
+        files = os.listdir(static_path) if os.path.exists(static_path) else []
+        
+        return f'''
+        <h1>StockEasy - デバッグ情報</h1>
         <p>static/index.html ファイルが見つかりません</p>
-        <p>ファイル構造を確認してください</p>
-        <a href="/api/test">API テスト</a>
+        <p>現在のディレクトリ: {os.getcwd()}</p>
+        <p>staticディレクトリの内容: {files}</p>
+        <p>エラー詳細: {str(e)}</p>
+        <p><a href="/static/index.html">直接アクセス</a></p>
+        <p><a href="/api/test">API テスト</a></p>
         '''
 
 # ファビコンやその他の静的ファイル配信（重複を削除）
