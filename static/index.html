@@ -1667,7 +1667,6 @@
       }
     }
 
-    <!-- 修正後のコード -->
     // ログイン処理
     async function login() {
       try {
@@ -1685,7 +1684,7 @@
           }
         }
         
-        console.log('認証成功、画面切り替え開始');
+        debugLog('認証成功、画面切り替え開始');
         
         // 画面を切り替え
         document.getElementById('loginArea').style.display = 'none';
@@ -1693,13 +1692,13 @@
         isAdmin = role === 'admin';
         document.getElementById('adminArea').style.display = isAdmin ? 'block' : 'none';
         
-        console.log('画面切り替え完了、データ読み込み開始');
+        debugLog('画面切り替え完了、データ読み込み開始');
         
         // ログイン後にデータを読み込み
         try {
           await loadItems();
           renderItems();
-          console.log('ログイン完了');
+          debugLog('ログイン完了');
         } catch (error) {
           console.error('ログイン後のデータ読み込みに失敗:', error);
           // データ読み込みに失敗してもログイン状態は維持
@@ -1708,7 +1707,7 @@
         }
       } catch (error) {
         console.error('ログイン処理でエラー:', error);
-        alert('ログイン処理中にエラーが発生しました');
+        alert('ログイン処理中にエラーが発生しました: ' + error.message);
       }
     }
 
