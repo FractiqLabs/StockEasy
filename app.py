@@ -79,13 +79,14 @@ def home():
         <a href="/api/test">API テスト</a>
         '''
 
-# ファビコンやその他の静的ファイル配信
+# ファビコンやその他の静的ファイル配信（重複を削除）
 @app.route('/static/<path:filename>')
 def static_files(filename):
     try:
         return send_from_directory('static', filename)
     except:
         return f'ファイル {filename} が見つかりません', 404
+
 @app.route('/api/test')
 def test_api():
     return jsonify({'status': 'OK', 'message': 'APIは正常に動作しています'})
@@ -119,11 +120,6 @@ def reset_database():
 @app.route('/health')
 def health_check():
     return jsonify({'status': 'healthy', 'timestamp': datetime.now().isoformat()})
-
-# ファビコンやその他の静的ファイル配信
-@app.route('/static/<path:filename>')
-def static_files(filename):
-    return send_from_directory('static', filename)
 
 # 全備品データ取得
 @app.route('/api/equipment', methods=['GET'])
