@@ -7,11 +7,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Kaisei+Tokumin&family=Noto+Sans+JP&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c&display=swap" rel="stylesheet">
   
-  <!-- ファビコン設定（シンプル版） -->
-  <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
-  <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
-
   <style>
     * {
       margin: 0;
@@ -19,18 +14,18 @@
       box-sizing: border-box;
     }
     body {
-  font-family: "Noto Sans JP", "Segoe UI", sans-serif;
-  margin: 0;
-  background: linear-gradient(to bottom right, #f3e8ff, #ede9fe);
-}
+      font-family: "Noto Sans JP", "Segoe UI", sans-serif;
+      margin: 0;
+      background: linear-gradient(to bottom right, #f3e8ff, #ede9fe);
+    }
 
-.sub-heading {
-  font-family: 'M PLUS Rounded 1c', sans-serif;
-  font-size: 1rem;
-  color: #6d6f788f;
-  font-weight: 500;
-  margin-bottom: 1.5rem;
-}
+    .sub-heading {
+      font-family: 'M PLUS Rounded 1c', sans-serif;
+      font-size: 1rem;
+      color: #6d6f788f;
+      font-weight: 500;
+      margin-bottom: 1.5rem;
+    }
     
     /* ヒーローセクション */
     .hero-section {
@@ -449,10 +444,10 @@
     }
     
     .delete-button {
-      background: linear-gradient(45deg, #f87171, #ef4444);
+      background: linear-gradient(45deg, #f87171, #ef4444) !important;
     }
     .delete-button:hover {
-      background: linear-gradient(45deg, #ef4444, #dc2626);
+      background: linear-gradient(45deg, #ef4444, #dc2626) !important;
       box-shadow: 0 6px 20px rgba(244, 67, 54, 0.3);
     }
     
@@ -1053,7 +1048,8 @@
     let connectionRetries = 0;
     const maxRetries = 3;
     
-    // API URLを動的に設定
+    // API URLを動的に設定（デモ用にlocalStorageを使用）
+    const USE_LOCAL_STORAGE = true; // デモ用フラグ
     const API_BASE = window.location.origin + '/api';
 
     // ローディング表示
@@ -1090,10 +1086,102 @@
       }
     }
 
+    // ローカルストレージ用のヘルパー関数（デモ用）
+    function getLocalData() {
+      const data = localStorage.getItem('stockeasy_items');
+      return data ? JSON.parse(data) : [];
+    }
+
+    function saveLocalData(data) {
+      localStorage.setItem('stockeasy_items', JSON.stringify(data));
+    }
+
     // API呼び出し用のヘルパー関数（改善版）
     async function apiCall(url, options = {}) {
       showLoading();
       try {
+        if (USE_LOCAL_STORAGE) {
+          // デモ用：ローカルストレージを使用
+          await new Promise(resolve => setTimeout(resolve, 500)); // 疑似的な遅延
+          
+          if (url.includes('/equipment') && !options.method) {
+            // GET /equipment
+            const data = getLocalData();
+            hideError();
+            connectionRetries = 0;
+            return data;
+          } else if (url.includes('/equipment') && options.method === 'POST') {
+            // POST /equipment
+            const newItem = JSON.parse(options.body);
+            const existingData = getLocalData();
+            
+            // IDの重複チェック
+            if (existingData.some(item => item.id === newItem.id)) {
+              throw new Error('このIDは既に使用されています');
+            }
+            
+            existingData.push({
+              ...newItem,
+              status: '待機',
+              current: '',
+              user: '',
+              note: '',
+              createdAt: new Date().toISOString(),
+              history: newItem.history || []
+            });
+            saveLocalData(existingData);
+            hideError();
+            connectionRetries = 0;
+            return { success: true, message: '備品が登録されました' };
+          } else if (url.includes('/equipment/') && options.method === 'PUT') {
+            // PUT /equipment/:id
+            const itemId = url.split('/').pop();
+            const updateData = JSON.parse(options.body);
+            const existingData = getLocalData();
+            const itemIndex = existingData.findIndex(item => item.id === itemId);
+            
+            if (itemIndex === -1) {
+              throw new Error('備品が見つかりません');
+            }
+            
+            existingData[itemIndex] = { ...existingData[itemIndex], ...updateData };
+            saveLocalData(existingData);
+            hideError();
+            connectionRetries = 0;
+            return { success: true, message: '備品情報が更新されました' };
+          } else if (url.includes('/equipment/') && options.method === 'DELETE') {
+            // DELETE /equipment/:id
+            const itemId = url.split('/').pop();
+            const existingData = getLocalData();
+            const newData = existingData.filter(item => item.id !== itemId);
+            
+            if (newData.length === existingData.length) {
+              throw new Error('備品が見つかりません');
+            }
+            
+            saveLocalData(newData);
+            hideError();
+            connectionRetries = 0;
+            return { success: true, message: '備品が削除されました' };
+          } else if (url.includes('/export')) {
+            // GET /export
+            const data = getLocalData();
+            hideError();
+            connectionRetries = 0;
+            return data;
+          } else if (url.includes('/import')) {
+            // POST /import
+            const importData = JSON.parse(options.body);
+            saveLocalData(importData);
+            hideError();
+            connectionRetries = 0;
+            return { success: true, message: 'データがインポートされました' };
+          }
+          
+          throw new Error('不明なAPIエンドポイント');
+        }
+        
+        // 本来のAPI呼び出し処理
         console.log('API呼び出し:', url);
         
         const response = await fetch(url, {
@@ -1115,8 +1203,8 @@
         
         const data = await response.json();
         console.log('取得データ:', data);
-        hideError(); // 成功時はエラー表示を隠す
-        connectionRetries = 0; // 成功時はリトライカウントをリセット
+        hideError();
+        connectionRetries = 0;
         return data;
       } catch (error) {
         console.error('API Error:', error);
@@ -1172,6 +1260,7 @@
         URL.revokeObjectURL(url);
       } catch (error) {
         console.error('エクスポートに失敗しました:', error);
+        alert('エクスポートに失敗しました');
       }
     }
 
@@ -1199,24 +1288,38 @@
       reader.readAsText(file);
     }
 
-    function renderItems() {
+    // フィルタ機能
+    function filterItems() {
+      const category = document.getElementById('categoryFilter').value;
+      renderItems(category);
+    }
+
+    function renderItems(filterCategory = '') {
       const tbody = document.getElementById('itemTable');
       tbody.innerHTML = '';
       
-      if (items.length === 0) {
+      // フィルタリング
+      const filteredItems = filterCategory 
+        ? items.filter(item => item.category === filterCategory)
+        : items;
+      
+      if (filteredItems.length === 0) {
         const tr = document.createElement('tr');
         tr.innerHTML = '<td colspan="10" style="text-align: center; padding: 2rem;">データがありません</td>';
         tbody.appendChild(tr);
         return;
       }
       
-      items.forEach((item, index) => {
+      filteredItems.forEach((item, originalIndex) => {
+        // 元の配列でのインデックスを取得
+        const actualIndex = items.findIndex(i => i.id === item.id);
+        
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>
             <div class="image-wrapper">
               <img src="${item.image || ''}" class="image-preview" onerror="this.style.display='none'" />
-              ${isAdmin ? `<button class="edit-button" onclick="editImage(${index})">画像</button>` : ''}
+              ${isAdmin ? `<button class="edit-button" onclick="editImage(${actualIndex})">画像</button>` : ''}
             </div>
           </td>
           <td>${item.name || ''}</td>
@@ -1229,12 +1332,12 @@
               ${item.status || '待機'}
             </span>
           </td>
-          <td><input type="text" value="${item.note || ''}" onchange="updateNote(${index}, this.value)" /></td>
+          <td><input type="text" value="${item.note || ''}" onchange="updateNote(${actualIndex}, this.value)" /></td>
           <td>${item.category || ''}</td>
           <td>
-            <button onclick="openBorrow(${index})">借用</button>
-            <button onclick="openReturn(${index})">返却</button>
-            ${isAdmin ? `<button onclick="openEdit(${index})">編集</button>` : ''}
+            <button onclick="openBorrow(${actualIndex})">借用</button>
+            <button onclick="openReturn(${actualIndex})">返却</button>
+            ${isAdmin ? `<button onclick="openEdit(${actualIndex})">編集</button>` : ''}
           </td>
         `;
         tbody.appendChild(tr);
@@ -1252,6 +1355,7 @@
         items[index].note = note;
       } catch (error) {
         console.error('備考の更新に失敗しました:', error);
+        alert('備考の更新に失敗しました');
       }
     }
 
@@ -1315,6 +1419,7 @@
           alert('備品を登録しました（画像圧縮済み）');
         } catch (error) {
           console.error('登録に失敗しました:', error);
+          alert(`登録に失敗しました: ${error.message}`);
         }
       } else {
         try {
@@ -1328,6 +1433,7 @@
           alert('備品を登録しました');
         } catch (error) {
           console.error('登録に失敗しました:', error);
+          alert(`登録に失敗しました: ${error.message}`);
         }
       }
     }
@@ -1360,6 +1466,7 @@
             alert('画像を更新しました（圧縮済み）');
           } catch (error) {
             console.error('画像の更新に失敗しました:', error);
+            alert('画像の更新に失敗しました');
           }
         } else {
           try {
@@ -1370,8 +1477,10 @@
             });
             delete items[index].image;
             renderItems();
+            alert('画像を削除しました');
           } catch (error) {
             console.error('画像の削除に失敗しました:', error);
+            alert('画像の削除に失敗しました');
           }
         }
       };
@@ -1432,6 +1541,7 @@
         alert('備品情報を更新しました');
       } catch (error) {
         console.error('更新に失敗しました:', error);
+        alert('更新に失敗しました');
       }
     }
 
@@ -1450,6 +1560,7 @@
           alert('備品を削除しました');
         } catch (error) {
           console.error('削除に失敗しました:', error);
+          alert('削除に失敗しました');
         }
       }
     }
@@ -1495,6 +1606,7 @@
         alert('借用処理が完了しました');
       } catch (error) {
         console.error('借用処理に失敗しました:', error);
+        alert('借用処理に失敗しました');
       }
     }
 
@@ -1541,9 +1653,11 @@
         alert('返却処理が完了しました');
       } catch (error) {
         console.error('返却処理に失敗しました:', error);
+        alert('返却処理に失敗しました');
       }
     }
 
+    // ログイン処理
     async function login() {
       try {
         console.log('ログイン処理開始');
@@ -1589,20 +1703,138 @@
 
     function logout() {
       document.getElementById('loginArea').style.display = 'block';
-      document.
-              <div class="quote-icon">💬</div>
-              <p class="testimonial-text">
-                「備品の所在がすぐに分かるようになり、探す時間が大幅に短縮されました。職員の負担が軽減され、より利用者様のケアに集中できています。」
-              </p>
-            </div>
-            <div class="testimonial-author">
-              <div class="author-info">
-                <h4>田中 美穂 様</h4>
-                <span>特別養護老人ホーム さくら園</span>
-                <span class="role">看護師長</span>
-              </div>
-            </div>
-          </div>
-          
-          <div class="testimonial-card">
-            <div class="testimonial-content">
+      document.getElementById('mainContent').style.display = 'none';
+      hideError();
+      items = [];
+      isAdmin = false;
+      connectionRetries = 0;
+    }
+
+    // 役割選択の変更に応じてパスワード入力エリアを表示/非表示
+    function handleRoleChange() {
+      const role = document.getElementById('roleSelect').value;
+      const passwordArea = document.getElementById('passwordArea');
+      
+      if (role === 'admin') {
+        passwordArea.style.display = 'block';
+      } else {
+        passwordArea.style.display = 'none';
+        document.getElementById('adminPassword').value = '';
+      }
+    }
+
+    // モーダルを閉じる処理（背景クリック）
+    function setupModalEvents() {
+      // 各モーダルの背景クリックで閉じる
+      document.getElementById('borrowModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+          closeBorrowModal();
+        }
+      });
+
+      document.getElementById('returnModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+          closeReturnModal();
+        }
+      });
+
+      document.getElementById('editModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+          closeEditModal();
+        }
+      });
+    }
+
+    // 初期化処理
+    function initializeApp() {
+      console.log('アプリケーション初期化開始');
+      
+      // イベントリスナーの設定
+      const loginButton = document.getElementById('loginButton');
+      const roleSelect = document.getElementById('roleSelect');
+      
+      if (loginButton) {
+        loginButton.addEventListener('click', login);
+        console.log('ログインボタンのイベントリスナーを設定');
+      } else {
+        console.error('ログインボタンが見つかりません');
+      }
+      
+      if (roleSelect) {
+        roleSelect.addEventListener('change', handleRoleChange);
+        console.log('役割選択のイベントリスナーを設定');
+      } else {
+        console.error('役割選択が見つかりません');
+      }
+
+      // モーダルイベントの設定
+      setupModalEvents();
+      
+      // Enterキーでログインできるようにする
+      document.getElementById('adminPassword').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          login();
+        }
+      });
+      
+      console.log('アプリケーション初期化完了');
+      
+      // デモ用：初期データを設定
+      if (USE_LOCAL_STORAGE && getLocalData().length === 0) {
+        const demoData = [
+          {
+            id: 'WC001',
+            name: '車いす（自走式）',
+            location: '事務所',
+            category: '車いす',
+            current: '',
+            user: '',
+            status: '待機',
+            note: '',
+            image: '',
+            history: [],
+            createdAt: new Date().toISOString()
+          },
+          {
+            id: 'WK001',
+            name: '歩行器（4輪）',
+            location: '1F',
+            category: '歩行器・シルバーカー',
+            current: '2F',
+            user: '2F',
+            status: '使用中',
+            note: '定期メンテナンス済み',
+            image: '',
+            history: [
+              { action: '借用', place: '2F', timestamp: '2025/6/11 10:30:00' }
+            ],
+            createdAt: new Date().toISOString()
+          },
+          {
+            id: 'AM001',
+            name: 'エアマット（褥瘡予防）',
+            location: '機能訓練室',
+            category: 'エアマット',
+            current: '',
+            user: '',
+            status: '待機',
+            note: '清拭済み',
+            image: '',
+            history: [],
+            createdAt: new Date().toISOString()
+          }
+        ];
+        saveLocalData(demoData);
+        console.log('デモデータを設定しました');
+      }
+    }
+
+    // DOMが読み込まれた後に初期化
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeApp);
+    } else {
+      initializeApp();
+    }
+  </script>
+</body>
+</html>
