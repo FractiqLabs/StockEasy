@@ -1764,54 +1764,80 @@
     }
 
     // 初期化処理
-    function initializeApp() {
-      debugLog('アプリケーション初期化開始');
-      
-      try {
-        // イベントリスナーの設定
-        const loginButton = document.getElementById('loginButton');
-        const roleSelect = document.getElementById('roleSelect');
-        
-        if (!loginButton) {
-          throw new Error('ログインボタンが見つかりません');
-        }
-        
-        if (!roleSelect) {
-          throw new Error('役割選択が見つかりません');
-        }
-        
-        // クリックイベントとタッチイベントの両方に対応
-        loginButton.addEventListener('click', function(e) {
-          e.preventDefault();
-          login();
-        });
-        
-        // モバイル対応
-        loginButton.addEventListener('touchstart', function(e) {
-          e.preventDefault();
-          login();
-        });
-        
-        debugLog('ログインボタンのイベントリスナーを設定');
-        
-        roleSelect.addEventListener('change', handleRoleChange);
-        debugLog('役割選択のイベントリスナーを設定');
+function initializeApp() {
+  debugLog('アプリケーション初期化開始');
+  
+  try {
+    // イベントリスナーの設定
+    const loginButton = document.getElementById('loginButton');
+    const roleSelect = document.getElementById('roleSelect');
+    
+    if (!loginButton) {
+      throw new Error('ログインボタンが見つかりません');
+    }
+    
+    if (!roleSelect) {
+      throw new Error('役割選択が見つかりません');
+    }
+    
+    // クリックイベントとタッチイベントの両方に対応
+    loginButton.addEventListener('click', function(e) {
+      e.preventDefault();
+      login();
+    });
+    
+    // モバイル対応
+    loginButton.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      login();
+    });
+    
+    debugLog('ログインボタンのイベントリスナーを設定');
+    
+    roleSelect.addEventListener('change', handleRoleChange);
+    debugLog('役割選択のイベントリスナーを設定');
 
-        // モーダルイベントの設定
-        setupModalEvents();
-        
-        // Enterキーでログインできるようにする
-        const adminPassword = document.getElementById('adminPassword');
-        if (adminPassword) {
-          adminPassword.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              login();
-            }
-          });
+    // モーダルイベントの設定
+    setupModalEvents();
+    
+    // タブイベントの設定を追加
+    setupTabEvents();
+    
+    // Enterキーでログインできるようにする
+    const adminPassword = document.getElementById('adminPassword');
+    if (adminPassword) {
+      adminPassword.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          login();
         }
-        
-        debugLog('アプリケーション初期化完了');
+      });
+    }
+    
+    debugLog('アプリケーション初期化完了');
+
+// この下に新しい関数を2つ追加
+function setupTabEvents() {
+  document.querySelectorAll('.tab-button').forEach(button => {
+    button.addEventListener('click', () => {
+      const category = button.dataset.category;
+      filterByTab(category);
+    });
+  });
+}
+
+function filterByTab(category) {
+  // タブのアクティブ状態を更新
+  document.querySelectorAll('.tab-button').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.dataset.category === category) {
+      btn.classList.add('active');
+    }
+  });
+  
+  // 絞り込み表示
+  renderItems(category);
+}
         
         // デモ用：初期データを設定
         if (USE_LOCAL_STORAGE && getLocalData().length === 0) {
