@@ -903,7 +903,6 @@
           <option value="車いす">車いす</option>
           <option value="歩行器・シルバーカー">歩行器・シルバーカー</option>
           <option value="エアマット">エアマット</option>
-          <option value="家具">家具</option>
           <option value="その他">その他</option>
         </select>
         <button onclick="exportData()">エクスポート</button>
@@ -938,7 +937,6 @@
           <option value="車いす">車いす</option>
           <option value="歩行器・シルバーカー">歩行器・シルバーカー</option>
           <option value="エアマット">エアマット</option>
-          <option value="家具">家具</option>
           <option value="その他">その他</option>
         </select>
         <input type="file" id="itemImage" accept="image/*" />
@@ -1315,8 +1313,20 @@
     }
 
     function renderItems(filterCategory = '') {
-  renderItemsWithFilter(filterCategory, '');
-}
+      const tbody = document.getElementById('itemTable');
+      tbody.innerHTML = '';
+      
+      // フィルタリング
+      const filteredItems = filterCategory 
+        ? items.filter(item => item.category === filterCategory)
+        : items;
+      
+      if (filteredItems.length === 0) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td colspan="10" style="text-align: center; padding: 2rem;">データがありません</td>';
+        tbody.appendChild(tr);
+        return;
+      }
       
       filteredItems.forEach((item, originalIndex) => {
         // 元の配列でのインデックスを取得
@@ -1808,24 +1818,16 @@ function initializeApp() {
 
 // この下に新しい関数を2つ追加
 function setupTabEvents() {
-  // カテゴリタブのイベント
   document.querySelectorAll('.tab-button').forEach(button => {
     button.addEventListener('click', () => {
       const category = button.dataset.category;
-      filterByTab(category, getCurrentStatus());
-    });
-  });
-  
-  // ステータスタブのイベント
-  document.querySelectorAll('.status-tab-button').forEach(button => {
-    button.addEventListener('click', () => {
-      const status = button.dataset.status;
-      filterByStatus(status, getCurrentCategory());
+      filterByTab(category);
     });
   });
 }
-function filterByTab(category, status = '') {
-  // カテゴリタブのアクティブ状態を更新
+
+function filterByTab(category) {
+  // タブのアクティブ状態を更新
   document.querySelectorAll('.tab-button').forEach(btn => {
     btn.classList.remove('active');
     if (btn.dataset.category === category) {
@@ -1834,86 +1836,8 @@ function filterByTab(category, status = '') {
   });
   
   // 絞り込み表示
-  renderItemsWithFilter(category, status);
+  renderItems(category);
 }
-function filterByStatus(status, category = '') {
-  // ステータスタブのアクティブ状態を更新
-  document.querySelectorAll('.status-tab-button').forEach(btn => {
-    btn.classList.remove('active');
-    if (btn.dataset.status === status) {
-      btn.classList.add('active');
-    }
-  });
-  
-  // 絞り込み表示
-  renderItemsWithFilter(category, status);
-}
-
-function getCurrentCategory() {
-  const activeTab = document.querySelector('.tab-button.active');
-  return activeTab ? activeTab.dataset.category : '';
-}
-
-function getCurrentStatus() {
-  const activeTab = document.querySelector('.status-tab-button.active');
-  return activeTab ? activeTab.dataset.status : '';
-}
-
-function renderItemsWithFilter(filterCategory = '', filterStatus = '') {
-  const tbody = document.getElementById('itemTable');
-  tbody.innerHTML = '';
-  
-  // フィルタリング
-  let filteredItems = items;
-  
-  if (filterCategory) {
-    filteredItems = filteredItems.filter(item => item.category === filterCategory);
-  }
-  
-  if (filterStatus) {
-    filteredItems = filteredItems.filter(item => item.status === filterStatus);
-  }
-  
-  if (filteredItems.length === 0) {
-    const tr = document.createElement('tr');
-    tr.innerHTML = '<td colspan="10" style="text-align: center; padding: 2rem;">データがありません</td>';
-    tbody.appendChild(tr);
-    return;
-  }
-  
-  filteredItems.forEach((item, originalIndex) => {
-    // 元の配列でのインデックスを取得
-    const actualIndex = items.findIndex(i => i.id === item.id);
-    
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>
-        <div class="image-wrapper">
-          <img src="${item.image || ''}" class="image-preview" onerror="this.style.display='none'" />
-          ${isAdmin ? `<button class="edit-button" onclick="editImage(${actualIndex})">画像</button>` : ''}
-        </div>
-      </td>
-      <td>${item.name || ''}</td>
-      <td>${item.id || ''}</td>
-      <td>${item.location || ''}</td>
-      <td>${item.current || ''}</td>
-      <td>${item.user || ''}</td>
-      <td>
-        <span class="${item.status === '待機' ? 'status-available' : 'status-in-use'}">
-          ${item.status || '待機'}
-        </span>
-      </td>
-      <td><input type="text" value="${item.note || ''}" onchange="updateNote(${actualIndex}, this.value)" /></td>
-      <td>${item.category || ''}</td>
-      <td>
-        <button onclick="openBorrow(${actualIndex})">借用</button>
-        <button onclick="openReturn(${actualIndex})">返却</button>
-        ${isAdmin ? `<button onclick="openEdit(${actualIndex})">編集</button>` : ''}
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-}    
         
         // デモ用：初期データを設定
         if (USE_LOCAL_STORAGE && getLocalData().length === 0) {
