@@ -901,13 +901,19 @@ th:hover {
       </div>
       
       <div class="header-controls">
-      <input type="text" id="searchBox" placeholder="備品名・IDで検索..." 
-             onkeyup="searchItems()">
-      <button onclick="exportData()">エクスポート</button>
-      <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData()" />
-      <button onclick="document.getElementById('importFile').click()">インポート</button>
-      <button onclick="logout()">ログアウト</button>
-    </div>
+        <select id="categoryFilter" onchange="filterItems()">
+          <option value="">全て表示</option>
+          <option value="車いす">車いす</option>
+          <option value="歩行器・シルバーカー">歩行器・シルバーカー</option>
+          <option value="家具">家具</option>
+          <option value="エアマット">エアマット</option>
+          <option value="その他">その他</option>
+        </select>
+        <button onclick="exportData()">エクスポート</button>
+        <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData()" />
+        <button onclick="document.getElementById('importFile').click()">インポート</button>
+        <button onclick="logout()">ログアウト</button>
+      </div>
     </div>
 
     <!-- エラー表示エリア -->
@@ -1348,65 +1354,7 @@ function sortTable(column) {
       const category = document.getElementById('categoryFilter').value;
       renderItems(category);
     }
-// 検索機能
-    function searchItems() {
-      const searchTerm = document.getElementById('searchBox').value.toLowerCase();
-      
-      if (searchTerm === '') {
-        renderItems();
-        return;
-      }
-      
-      const filteredItems = items.filter(item => 
-        item.name.toLowerCase().includes(searchTerm) || 
-        item.id.toLowerCase().includes(searchTerm) ||
-        item.location.toLowerCase().includes(searchTerm) ||
-        item.category.toLowerCase().includes(searchTerm)
-      );
-      
-      const tbody = document.getElementById('itemTable');
-      tbody.innerHTML = '';
-      
-      if (filteredItems.length === 0) {
-        const tr = document.createElement('tr');
-        tr.innerHTML = '<td colspan="10" style="text-align: center; padding: 2rem;">検索結果がありません</td>';
-        tbody.appendChild(tr);
-        return;
-      }
-      
-      filteredItems.forEach((item) => {
-        const actualIndex = items.findIndex(i => i.id === item.id);
-        
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>
-            <div class="image-wrapper">
-              <img src="${item.image || ''}" class="image-preview" onerror="this.style.display='none'" />
-              ${isAdmin ? `<button class="edit-button" onclick="editImage(${actualIndex})">画像</button>` : ''}
-            </div>
-          </td>
-          <td>${item.name || ''}</td>
-          <td>${item.id || ''}</td>
-          <td>${item.location || ''}</td>
-          <td>${item.current || ''}</td>
-          <td>${item.user || ''}</td>
-          <td>
-            <span class="${item.status === '待機' ? 'status-available' : 'status-in-use'}">
-              ${item.status || '待機'}
-            </span>
-          </td>
-          <td><input type="text" value="${item.note || ''}" onchange="updateNote(${actualIndex}, this.value)" /></td>
-          <td>${item.category || ''}</td>
-          <td>
-            <button onclick="openBorrow(${actualIndex})">借用</button>
-            <button onclick="openReturn(${actualIndex})">返却</button>
-            ${isAdmin ? `<button onclick="openEdit(${actualIndex})">編集</button>` : ''}
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-    
+
     function renderItems(filterCategory = '') {
       const tbody = document.getElementById('itemTable');
       tbody.innerHTML = '';
