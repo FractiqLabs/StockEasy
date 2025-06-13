@@ -959,7 +959,7 @@ th:hover {
     <table>
   <thead>
     <tr>
-      <th onclick="sortTable('image')" style="cursor: pointer;">画像 ↕</th>
+      <th>画像</th>
       <th onclick="sortTable('name')" style="cursor: pointer;">備品名 ↕</th>
       <th onclick="sortTable('id')" style="cursor: pointer;">ID ↕</th>
       <th onclick="sortTable('location')" style="cursor: pointer;">保管場所 ↕</th>
@@ -1327,11 +1327,6 @@ function sortTable(column) {
     let aValue = a[column] || '';
     let bValue = b[column] || '';
     
-    // 画像の場合は、画像があるかないかでソート
-    if (column === 'image') {
-      aValue = aValue ? 1 : 0;
-      bValue = bValue ? 1 : 0;
-    }
     
     // 数値として比較できる場合は数値比較
     if (!isNaN(aValue) && !isNaN(bValue) && aValue !== '' && bValue !== '') {
