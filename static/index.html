@@ -901,20 +901,11 @@ th:hover {
       </div>
       
       <div class="header-controls">
-        <select id="categoryFilter" onchange="filterItems()">
-          <option value="">全て表示</option>
-          <option value="車いす">車いす</option>
-          <option value="歩行器・シルバーカー">歩行器・シルバーカー</option>
-          <option value="家具">家具</option>
-          <option value="エアマット">エアマット</option>
-          <option value="その他">その他</option>
-        </select>
-        <button onclick="exportData()">エクスポート</button>
-        <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData()" />
-        <button onclick="document.getElementById('importFile').click()">インポート</button>
-        <button onclick="logout()">ログアウト</button>
-      </div>
-    </div>
+  <button onclick="exportData()">エクスポート</button>
+  <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData()" />
+  <button onclick="document.getElementById('importFile').click()">インポート</button>
+  <button onclick="logout()">ログアウト</button>
+</div>
 
     <!-- エラー表示エリア -->
     <div id="errorNotice" class="error-notice" style="display: none;">
