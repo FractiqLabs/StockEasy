@@ -1672,11 +1672,17 @@ function sortTable(column) {
     }
 
     function openReturn(index) {
-      currentIndex = index;
-      const location = items[index].location;
-      document.getElementById('suggestedReturn').textContent = `推奨返却場所：${location}`;
-      document.getElementById('returnModal').style.display = 'flex';
-    }
+  // 状態が「待機」の場合はエラーメッセージを表示
+  if (items[index].status === '待機') {
+    alert('この備品は現在貸し出していません');
+    return;
+  }
+  
+  currentIndex = index;
+  const location = items[index].location;
+  document.getElementById('suggestedReturn').textContent = `推奨返却場所：${location}`;
+  document.getElementById('returnModal').style.display = 'flex';
+}
 
     function closeReturnModal() {
       document.getElementById('returnModal').style.display = 'none';
