@@ -487,13 +487,16 @@
       text-align: left;
     }
     th {
-      background: linear-gradient(135deg, #a78bfa 0%, #c4b5fd 100%);
-      color: white;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      font-size: 0.85rem;
-    }
+  background: linear-gradient(135deg, #a78bfa 0%, #c4b5fd 100%);
+  color: white;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.85rem;
+}
+th:hover {
+  background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+}
     
     tbody tr {
       transition: all 0.3s ease;
@@ -954,22 +957,22 @@
       <button class="tab-button" data-category="その他">その他</button>
     </div>
     <table>
-      <thead>
-        <tr>
-          <th>画像</th>
-          <th>備品名</th>
-          <th>ID</th>
-          <th>保管場所</th>
-          <th>現在地</th>
-          <th>使用者</th>
-          <th>状態</th>
-          <th>備考</th>
-          <th>種別</th>
-          <th>操作</th>
-        </tr>
-      </thead>
-      <tbody id="itemTable"></tbody>
-    </table>
+  <thead>
+    <tr>
+      <th onclick="sortTable('image')" style="cursor: pointer;">画像 ↕</th>
+      <th onclick="sortTable('name')" style="cursor: pointer;">備品名 ↕</th>
+      <th onclick="sortTable('id')" style="cursor: pointer;">ID ↕</th>
+      <th onclick="sortTable('location')" style="cursor: pointer;">保管場所 ↕</th>
+      <th onclick="sortTable('current')" style="cursor: pointer;">現在地 ↕</th>
+      <th onclick="sortTable('user')" style="cursor: pointer;">使用者 ↕</th>
+      <th onclick="sortTable('status')" style="cursor: pointer;">状態 ↕</th>
+      <th>備考</th>
+      <th onclick="sortTable('category')" style="cursor: pointer;">種別 ↕</th>
+      <th>操作</th>
+    </tr>
+  </thead>
+  <tbody id="itemTable"></tbody>
+</table>
 
     <div class="modal" id="borrowModal">
       <div class="modal-content">
@@ -1055,12 +1058,14 @@
   </div>
 
   <script>
-    let items = [];
-    let currentIndex = null;
-    let isAdmin = false;
-    let editingIndex = null;
-    let connectionRetries = 0;
-    const maxRetries = 3;
+   let items = [];
+let currentIndex = null;
+let isAdmin = false;
+let editingIndex = null;
+let connectionRetries = 0;
+const maxRetries = 3;
+let sortColumn = '';
+let sortDirection = 'asc';
     
     <!-- 修正後のコード -->
     // API URLを動的に設定
@@ -1307,7 +1312,48 @@
       };
       reader.readAsText(file);
     }
-
+// ソート機能
+function sortTable(column) {
+  // 同じ列をクリックした場合は、ソート方向を反転
+  if (sortColumn === column) {
+    sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortColumn = column;
+    sortDirection = 'asc';
+  }
+  
+  // アイテムをソート
+  items.sort((a, b) => {
+    let aValue = a[column] || '';
+    let bValue = b[column] || '';
+    
+    // 画像の場合は、画像があるかないかでソート
+    if (column === 'image') {
+      aValue = aValue ? 1 : 0;
+      bValue = bValue ? 1 : 0;
+    }
+    
+    // 数値として比較できる場合は数値比較
+    if (!isNaN(aValue) && !isNaN(bValue) && aValue !== '' && bValue !== '') {
+      aValue = parseFloat(aValue);
+      bValue = parseFloat(bValue);
+    } else {
+      // 文字列として比較（大文字小文字を無視）
+      aValue = aValue.toString().toLowerCase();
+      bValue = bValue.toString().toLowerCase();
+    }
+    
+    if (sortDirection === 'asc') {
+      return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
+    } else {
+      return aValue < bValue ? 1 : aValue > bValue ? -1 : 0;
+    }
+  });
+  
+  // フィルターを維持して再描画
+  const currentFilter = document.getElementById('categoryFilter').value;
+  renderItems(currentFilter);
+}
     // フィルタ機能
     function filterItems() {
       const category = document.getElementById('categoryFilter').value;
