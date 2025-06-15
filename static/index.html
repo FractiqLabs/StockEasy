@@ -382,29 +382,7 @@
       gap: 0.8rem;
       flex-wrap: wrap;
     }
-    /* 検索ボックスのスタイル */
-.search-box {
-  padding: 0.6rem 1rem;
-  margin: 0.2rem;
-  border-radius: 8px;
-  border: 2px solid #e9d5ff;
-  transition: all 0.3s ease;
-  font-size: 0.9rem;
-  background: white;
-  width: 200px;
-  color: #333;
-}
-
-.search-box:focus {
-  outline: none;
-  border-color: #a78bfa;
-  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.1);
-}
-
-.search-box::placeholder {
-  color: #a78bfa;
-  opacity: 0.7;
-}
+    
     .admin-section {
       background: white;
       padding: 2rem;
@@ -923,7 +901,14 @@ th:hover {
       </div>
       
       <div class="header-controls">
-        <input type="text" id="searchBox" class="search-box" placeholder="備品名、ID、場所で検索..." oninput="searchItems()">
+        <select id="categoryFilter" onchange="filterItems()">
+          <option value="">全て表示</option>
+          <option value="車いす">車いす</option>
+          <option value="歩行器・シルバーカー">歩行器・シルバーカー</option>
+          <option value="家具">家具</option>
+          <option value="エアマット">エアマット</option>
+          <option value="その他">その他</option>
+        </select>
         <button onclick="exportData()">エクスポート</button>
         <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData()" />
         <button onclick="document.getElementById('importFile').click()">インポート</button>
@@ -1364,34 +1349,20 @@ function sortTable(column) {
   const currentFilter = document.getElementById('categoryFilter').value;
   renderItems(currentFilter);
 }
-   // 検索機能（修正後）
-function searchItems() {
-  const searchTerm = document.getElementById('searchBox').value;
-  renderItems('', searchTerm);
-}
+    // フィルタ機能
+    function filterItems() {
+      const category = document.getElementById('categoryFilter').value;
+      renderItems(category);
+    }
 
-function renderItems(filterCategory = '', searchTerm = '') {
-  // フィルタリングと検索
-  let filteredItems = items;
-  
-  // カテゴリフィルター
-  if (filterCategory) {
-    filteredItems = filteredItems.filter(item => item.category === filterCategory);
-  }
-  
-  // 検索フィルター
-  if (searchTerm) {
-    const searchLower = searchTerm.toLowerCase();
-    filteredItems = filteredItems.filter(item => 
-      (item.name && item.name.toLowerCase().includes(searchLower)) ||
-      (item.id && item.id.toLowerCase().includes(searchLower)) ||
-      (item.location && item.location.toLowerCase().includes(searchLower)) ||
-      (item.current && item.current.toLowerCase().includes(searchLower)) ||
-      (item.user && item.user.toLowerCase().includes(searchLower)) ||
-      (item.category && item.category.toLowerCase().includes(searchLower))
-    );
-  }
-}
+    function renderItems(filterCategory = '') {
+      const tbody = document.getElementById('itemTable');
+      tbody.innerHTML = '';
+      
+      // フィルタリング
+      const filteredItems = filterCategory 
+        ? items.filter(item => item.category === filterCategory)
+        : items;
       
       if (filteredItems.length === 0) {
         const tr = document.createElement('tr');
