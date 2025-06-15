@@ -391,7 +391,8 @@
   transition: all 0.3s ease;
   font-size: 0.9rem;
   background: white;
-  min-width: 200px;
+  width: 200px;
+  color: #333;
 }
 
 .search-box:focus {
@@ -401,8 +402,8 @@
 }
 
 .search-box::placeholder {
-  color: #a1a5b7;
-  font-style: italic;
+  color: #a78bfa;
+  opacity: 0.7;
 }
     .admin-section {
       background: white;
@@ -922,7 +923,7 @@ th:hover {
       </div>
       
       <div class="header-controls">
-        <input type="text" id="searchBox" class="search-box" placeholder="備品名・ID・場所で検索..." oninput="searchItems()">
+        <input type="text" id="searchBox" class="search-box" placeholder="備品名、ID、場所で検索..." oninput="searchItems()">
         <button onclick="exportData()">エクスポート</button>
         <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData()" />
         <button onclick="document.getElementById('importFile').click()">インポート</button>
@@ -1363,20 +1364,14 @@ function sortTable(column) {
   const currentFilter = document.getElementById('categoryFilter').value;
   renderItems(currentFilter);
 }
-// 検索機能（修正後）
-let currentSearchTerm = '';
-
+   // 検索機能（修正後）
 function searchItems() {
   const searchTerm = document.getElementById('searchBox').value;
-  currentSearchTerm = searchTerm;
-  renderItems();
+  renderItems('', searchTerm);
 }
 
-function renderItems(filterCategory = '') {
-  const tbody = document.getElementById('itemTable');
-  tbody.innerHTML = '';
-  
-  // 検索とフィルタリングを組み合わせ
+function renderItems(filterCategory = '', searchTerm = '') {
+  // フィルタリングと検索
   let filteredItems = items;
   
   // カテゴリフィルター
@@ -1385,8 +1380,8 @@ function renderItems(filterCategory = '') {
   }
   
   // 検索フィルター
-  if (currentSearchTerm) {
-    const searchLower = currentSearchTerm.toLowerCase();
+  if (searchTerm) {
+    const searchLower = searchTerm.toLowerCase();
     filteredItems = filteredItems.filter(item => 
       (item.name && item.name.toLowerCase().includes(searchLower)) ||
       (item.id && item.id.toLowerCase().includes(searchLower)) ||
@@ -1396,28 +1391,7 @@ function renderItems(filterCategory = '') {
       (item.category && item.category.toLowerCase().includes(searchLower))
     );
   }
-  
-  if (filteredItems.length === 0) {
-    const tr = document.createElement('tr');
-    const message = currentSearchTerm ? 
-      `検索結果がありません: "${currentSearchTerm}"` : 
-      'データがありません';
-    tr.innerHTML = `<td colspan="10" style="text-align: center; padding: 2rem;">${message}</td>`;
-    tbody.appendChild(tr);
-    return;
-  }
-  
-  // 以下既存のコード...
 }
-
-    function renderItems(filterCategory = '') {
-      const tbody = document.getElementById('itemTable');
-      tbody.innerHTML = '';
-      
-      // フィルタリング
-      const filteredItems = filterCategory 
-        ? items.filter(item => item.category === filterCategory)
-        : items;
       
       if (filteredItems.length === 0) {
         const tr = document.createElement('tr');
