@@ -1,5 +1,6 @@
-from flask import Flask, request, jsonify, send_from_directory, redirect
+from flask import Flask, request, jsonify, send_from_directory, redirect, session
 from flask_cors import CORS
+from flask_session import Session
 import json
 import os
 from datetime import datetime
@@ -10,6 +11,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 CORS(app)
+
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-change-this')
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SESSION_PERMANENT'] = False
+Session(app)
 
 # JSON文字化け対策
 app.config['JSON_AS_ASCII'] = False
