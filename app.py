@@ -520,6 +520,10 @@ def admin_login():
         conn.close()
         
         if result and check_password_hash(result['password_hash'] if DATABASE_URL else result[0], password):
+            # セッションに管理者情報を保存
+            session['user_type'] = 'admin'
+            session['username'] = username
+            session['logged_in'] = True
             return jsonify({'success': True, 'message': 'ログイン成功'})
         else:
             return jsonify({'success': False, 'message': 'ユーザー名またはパスワードが違います'}), 401
@@ -527,7 +531,6 @@ def admin_login():
     except Exception as e:
         print(f"ログインエラー: {e}")
         return jsonify({'success': False, 'message': 'ログインに失敗しました'}), 500
-
 # データベース初期化を強制実行（テスト用）
 @app.route('/api/init-admin-table', methods=['GET'])
 def init_admin_table():
