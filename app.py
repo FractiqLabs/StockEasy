@@ -493,16 +493,23 @@ def init_database():
         return jsonify({'status': 'success', 'message': 'データベースが初期化されました'})
     except Exception as e:
         return jsonify({'status': 'error', 'message': f'初期化失敗: {str(e)}'}), 500
-# 管理者ログイン認証
+        
 @app.route('/api/admin/login', methods=['POST'])
 def admin_login():
     try:
+        print("ログイン処理開始")
         data = request.json
         username = data.get('username', 'admin')
         password = data.get('password', '')
+        print(f"ユーザー名: {username}")
         
         conn = get_db_connection()
+        if conn is None:
+            print("データベース接続失敗")
+            return jsonify({'success': False, 'message': 'データベース接続エラー'}), 500
+            
         cursor = conn.cursor()
+        print("データベース接続成功")
         
         if DATABASE_URL:
             cursor.execute('SELECT password_hash FROM admin_users WHERE username = %s', (username,))
@@ -510,17 +517,27 @@ def admin_login():
             cursor.execute('SELECT password_hash FROM admin_users WHERE username = ?', (username,))
         
         result = cursor.fetchone()
+        print(f"クエリ結果: {result}")
         cursor.close()
         conn.close()
         
-        if result and check_password_hash(result['password_hash'] if DATABASE_URL else result[0], password):
-            return jsonify({'success': True, 'message': 'ログイン成功'})
+        if result:
+            stored_hash = result['password_hash'] if DATABASE_URL else result[0]
+            print("パスワードハッシュを取得")
+            if check_password_hash(stored_hash, password):
+                print("パスワード照合成功")
+                return jsonify({'success': True, 'message': 'ログイン成功'})
+            else:
+                print("パスワード照合失敗")
+                return jsonify({'success': False, 'message': 'パスワードが違います'}), 401
         else:
-            return jsonify({'success': False, 'message': 'ユーザー名またはパスワードが違います'}), 401
+            print("ユーザーが見つからない")
+            return jsonify({'success': False, 'message': 'ユーザーが見つかりません'}), 401
             
     except Exception as e:
-        print(f"ログインエラー: {e}")
-        return jsonify({'success': False, 'message': 'ログインに失敗しました'}), 500
+        print(f"ログインエラー詳細: {e}")
+        print(f"エラータイプ: {type(e)}")
+        return jsonify({'success': False, 'message': f'ログインエラー: {str(e)}'}), 500
         
 if __name__ == '__main__':
     init_db()
