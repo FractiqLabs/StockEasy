@@ -531,6 +531,37 @@ def admin_login():
     except Exception as e:
         print(f"ログインエラー: {e}")
         return jsonify({'success': False, 'message': 'ログインに失敗しました'}), 500
+
+# セッション状態確認
+@app.route('/api/session/check', methods=['GET'])
+def check_session():
+    try:
+        if session.get('logged_in') and session.get('user_type') == 'admin':
+            return jsonify({
+                'success': True, 
+                'logged_in': True,
+                'user_type': session.get('user_type'),
+                'username': session.get('username')
+            })
+        else:
+            return jsonify({
+                'success': True,
+                'logged_in': False,
+                'user_type': None
+            })
+    except Exception as e:
+        print(f"セッション確認エラー: {e}")
+        return jsonify({'success': False, 'message': 'セッション確認に失敗しました'}), 500
+
+# ログアウト機能
+@app.route('/api/logout', methods=['POST'])
+def logout():
+    try:
+        session.clear()
+        return jsonify({'success': True, 'message': 'ログアウトしました'})
+    except Exception as e:
+        print(f"ログアウトエラー: {e}")
+        return jsonify({'success': False, 'message': 'ログアウトに失敗しました'}), 500
 # データベース初期化を強制実行（テスト用）
 @app.route('/api/init-admin-table', methods=['GET'])
 def init_admin_table():
