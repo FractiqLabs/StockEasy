@@ -1735,11 +1735,25 @@ function sortTable(column) {
         debugLog('選択された役割:', role);
         
         if (role === 'admin') {
-          if (password !== 'admin123') {
-            alert('パスワードが違います');
-            return;
-          }
-        }
+  // サーバーサイドで認証
+  const response = await fetch('/api/admin/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      username: 'admin',
+      password: password
+    })
+  });
+  
+  const result = await response.json();
+  
+  if (!result.success) {
+    alert(result.message);
+    return;
+  }
+}
         
         debugLog('認証成功、画面切り替え開始');
         
