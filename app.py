@@ -94,6 +94,40 @@ def init_db():
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
+# 管理者パスワードテーブルを追加
+        if DATABASE_URL:
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS admin_users (
+                    id SERIAL PRIMARY KEY,
+                    username VARCHAR(50) UNIQUE NOT NULL,
+                    password_hash TEXT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+        else:
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS admin_users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username TEXT UNIQUE NOT NULL,
+                    password_hash TEXT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+        
+        # デフォルト管理者アカウントを作成
+        hashed_password = generate_password_hash('admin123')
+        if DATABASE_URL:
+            cursor.execute('''
+                INSERT INTO admin_users (username, password_hash) 
+                VALUES (%s, %s) 
+                ON CONFLICT (username) DO NOTHING
+            ''', ('admin', hashed_password))
+        else:
+            cursor.execute('''
+                INSERT OR IGNORE INTO admin_users (username, password_hash) 
+                VALUES (?, ?)
+            ''', ('admin', hashed_password))
+
         
         conn.commit()
         cursor.close()
