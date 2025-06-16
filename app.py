@@ -538,6 +538,65 @@ def admin_login():
         print(f"ログインエラー詳細: {e}")
         print(f"エラータイプ: {type(e)}")
         return jsonify({'success': False, 'message': f'ログインエラー: {str(e)}'}), 500
+
+# データベース初期化を強制実行（テスト用）
+@app.route('/api/init-admin-table', methods=['GET'])
+def init_admin_table():
+    try:
+        print("管理者テーブル初期化開始")
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({'success': False, 'message': 'データベース接続失敗'}), 500
+            
+        cursor = conn.cursor()
+        
+        # 管理者テーブル作成
+        if DATABASE_URL:
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS admin_users (
+                    id SERIAL PRIMARY KEY,
+                    username VARCHAR(50) UNIQUE NOT NULL,
+                    password_hash TEXT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            print("PostgreSQL用テーブル作成")
+        else:
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS admin_users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username TEXT UNIQUE NOT NULL,
+                    password_hash TEXT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            print("SQLite用テーブル作成")
+        
+        # デフォルト管理者作成
+        hashed_password = generate_password_hash('admin123')
+        print(f"ハッシュ化パスワード: {hashed_password[:20]}...")
+        
+        if DATABASE_URL:
+            cursor.execute('''
+                INSERT INTO admin_users (username, password_hash) 
+                VALUES (%s, %s) 
+                ON CONFLICT (username) DO NOTHING
+            ''', ('admin', hashed_password))
+        else:
+            cursor.execute('''
+                INSERT OR IGNORE INTO admin_users (username, password_hash) 
+                VALUES (?, ?)
+            ''', ('admin', hashed_password))
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        print("管理者テーブル初期化完了")
+        return jsonify({'success': True, 'message': '管理者テーブルを作成しました'})
+        
+    except Exception as e:
+        print(f"テーブル作成エラー: {e}")
+        return jsonify({'success': False, 'message': f'エラー: {str(e)}'}), 500
         
 if __name__ == '__main__':
     init_db()
