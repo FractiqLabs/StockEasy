@@ -493,7 +493,35 @@ def init_database():
         return jsonify({'status': 'success', 'message': 'データベースが初期化されました'})
     except Exception as e:
         return jsonify({'status': 'error', 'message': f'初期化失敗: {str(e)}'}), 500
-
+# 管理者ログイン認証
+@app.route('/api/admin/login', methods=['POST'])
+def admin_login():
+    try:
+        data = request.json
+        username = data.get('username', 'admin')
+        password = data.get('password', '')
+        
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        if DATABASE_URL:
+            cursor.execute('SELECT password_hash FROM admin_users WHERE username = %s', (username,))
+        else:
+            cursor.execute('SELECT password_hash FROM admin_users WHERE username = ?', (username,))
+        
+        result = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        
+        if result and check_password_hash(result['password_hash'] if DATABASE_URL else result[0], password):
+            return jsonify({'success': True, 'message': 'ログイン成功'})
+        else:
+            return jsonify({'success': False, 'message': 'ユーザー名またはパスワードが違います'}), 401
+            
+    except Exception as e:
+        print(f"ログインエラー: {e}")
+        return jsonify({'success': False, 'message': 'ログインに失敗しました'}), 500
+        
 if __name__ == '__main__':
     init_db()
     port = int(os.environ.get('PORT', 8080))
