@@ -1735,22 +1735,31 @@ function sortTable(column) {
         debugLog('選択された役割:', role);
         
         if (role === 'admin') {
-  // サーバーサイドで認証
-  const response = await fetch('/api/admin/login', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      username: 'admin',
-      password: password
-    })
-  });
-  
-  const result = await response.json();
-  
-  if (!result.success) {
-    alert(result.message);
+  try {
+    console.log('管理者ログイン開始');
+    // サーバーサイドで認証
+    const response = await fetch('/api/admin/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username: 'admin',
+        password: password
+      })
+    });
+    
+    console.log('レスポンス状態:', response.status);
+    const result = await response.json();
+    console.log('結果:', result);
+    
+    if (!result.success) {
+      alert(result.message);
+      return;
+    }
+  } catch (error) {
+    console.log('エラー詳細:', error);
+    alert('通信エラー: ' + error.message);
     return;
   }
 }
