@@ -368,11 +368,39 @@ def update_equipment(item_id):
         print(f"更新エラー: {e}")
         return jsonify({'success': False, 'message': f'更新に失敗しました: {str(e)}'}), 500
 
-# 備品削除
 @app.route('/api/equipment/<item_id>', methods=['DELETE'])
-@app.route('/api/equipment/<item_id>', methods=['DELETE'])
-@require_admin
 def delete_equipment(item_id):
+    # 管理者権限チェック
+    auth_check = require_admin()
+    if auth_check:
+        return auth_check
+    
+    conn = None
+    try:
+        # 以下は既存コードのまま
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        if DATABASE_URL:
+            cursor.execute('DELETE FROM equipment WHERE item_id = %s', (item_id,))
+        else:
+            cursor.execute('DELETE FROM equipment WHERE item_id = ?', (item_id,))
+        
+        if cursor.rowcount == 0:
+            conn.close()
+            return jsonify({'success': False, 'message': '備品が見つかりません'}), 404
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return jsonify({'success': True, 'message': '備品が削除されました'})
+        
+    except Exception as e:
+        if conn:
+            conn.rollback()
+            conn.close()
+        print(f"削除エラー: {e}")
+        return jsonify({'success': False, 'message': f'削除に失敗しました: {str(e)}'}), 500
     conn = None
     try:
         conn = get_db_connection()
@@ -568,15 +596,10 @@ def check_session():
         return jsonify({'success': False, 'message': 'セッション確認に失敗しました'}), 500
 
 # 管理者権限チェック用デコレータ
-from functools import wraps
-
-def require_admin(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if not session.get('logged_in') or session.get('user_type') != 'admin':
-            return jsonify({'success': False, 'message': '管理者権限が必要です'}), 403
-        return f(*args, **kwargs)
-    return decorated_function
+def require_admin():
+    if not session.get('logged_in') or session.get('user_type') != 'admin':
+        return jsonify({'success': False, 'message': '管理者権限が必要です'}), 403
+    return None
 
 # ログアウト機能
 @app.route('/api/logout', methods=['POST'])
