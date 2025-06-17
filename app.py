@@ -293,6 +293,11 @@ def create_equipment():
 # 備品情報更新
 @app.route('/api/equipment/<item_id>', methods=['PUT'])
 def update_equipment(item_id):
+    # 管理者権限チェック
+    auth_check = require_admin()
+    if auth_check:
+        return auth_check
+    
     conn = None
     try:
         data = request.json
