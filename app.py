@@ -8,6 +8,7 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from urllib.parse import urlparse
 from werkzeug.security import generate_password_hash, check_password_hash
+from functools import wraps
 
 app = Flask(__name__)
 
@@ -563,9 +564,22 @@ def check_session():
                 'logged_in': False,
                 'user_type': None
             })
+
+    
     except Exception as e:
         print(f"セッション確認エラー: {e}")
         return jsonify({'success': False, 'message': 'セッション確認に失敗しました'}), 500
+
+# 管理者権限チェック用デコレータ
+from functools import wraps
+
+def require_admin(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('logged_in') or session.get('user_type') != 'admin':
+            return jsonify({'success': False, 'message': '管理者権限が必要です'}), 403
+        return f(*args, **kwargs)
+    return decorated_function
 
 # ログアウト機能
 @app.route('/api/logout', methods=['POST'])
