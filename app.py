@@ -365,6 +365,11 @@ def update_equipment(item_id):
 # 備品削除
 @app.route('/api/equipment/<item_id>', methods=['DELETE'])
 def delete_equipment(item_id):
+    # 管理者権限チェック
+    auth_check = require_admin()
+    if auth_check:
+        return auth_check
+    
     conn = None
     try:
         conn = get_db_connection()
