@@ -354,6 +354,18 @@ def update_equipment(item_id):
         
         conn = get_db_connection()
         cursor = conn.cursor()
+        # 安全なフィールドマッピングを追加
+        safe_fields = {
+            'name': 'name',
+            'location': 'location',
+            'category': 'category',
+            'current': 'current_location',
+            'user': 'user_location',
+            'status': 'status',
+            'note': 'note',
+            'image': 'image',
+            'history': 'history'
+}
         
         # 更新するフィールドを動的に構築
         update_fields = []
