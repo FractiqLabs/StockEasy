@@ -231,14 +231,36 @@ def get_equipment():
             conn.close()
         return jsonify({'error': 'データ取得に失敗しました', 'details': str(e)}), 500
 
-# 新規備品登録
 @app.route('/api/equipment', methods=['POST'])
 def create_equipment():
+    # 管理者権限チェック
+    auth_check = require_admin()
+    if auth_check:
+        return auth_check
+    
     conn = None
     try:
         data = request.json
         if not data:
             return jsonify({'success': False, 'message': 'データが送信されていません'}), 400
+        
+        # 入力値検証を追加
+        validation_errors = validate_equipment_data(data)
+        if validation_errors:
+            return jsonify({
+                'success': False, 
+                'message': '入力エラー: ' + ', '.join(validation_errors)
+            }), 400
+        
+        # データをサニタイズ
+        sanitized_data = {
+            'id': sanitize_string(data.get('id', '')),
+            'name': sanitize_string(data.get('name', '')),
+            'location': data.get('location', ''),  # 選択肢なのでサニタイズ不要
+            'category': data.get('category', ''),  # 選択肢なのでサニタイズ不要
+            'image': data.get('image', ''),
+            'history': data.get('history', [])
+        }
         
         conn = get_db_connection()
         if conn is None:
@@ -247,32 +269,30 @@ def create_equipment():
         cursor = conn.cursor()
         
         if DATABASE_URL:
-            # PostgreSQL
             cursor.execute('''
                 INSERT INTO equipment (
                     item_id, name, location, category, image, history
                 ) VALUES (%s, %s, %s, %s, %s, %s)
             ''', (
-                data.get('id', ''),
-                data.get('name', ''),
-                data.get('location', ''),
-                data.get('category', ''),
-                data.get('image', ''),
-                json.dumps(data.get('history', []))
+                sanitized_data['id'],
+                sanitized_data['name'],
+                sanitized_data['location'],
+                sanitized_data['category'],
+                sanitized_data['image'],
+                json.dumps(sanitized_data['history'])
             ))
         else:
-            # SQLite
             cursor.execute('''
                 INSERT INTO equipment (
                     item_id, name, location, category, image, history
                 ) VALUES (?, ?, ?, ?, ?, ?)
             ''', (
-                data.get('id', ''),
-                data.get('name', ''),
-                data.get('location', ''),
-                data.get('category', ''),
-                data.get('image', ''),
-                json.dumps(data.get('history', []))
+                sanitized_data['id'],
+                sanitized_data['name'],
+                sanitized_data['location'],
+                sanitized_data['category'],
+                sanitized_data['image'],
+                json.dumps(sanitized_data['history'])
             ))
         
         conn.commit()
