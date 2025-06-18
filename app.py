@@ -366,7 +366,25 @@ def update_equipment(item_id):
             'image': 'image',
             'history': 'history'
 }
-        
+        # 新しい安全なフィールド処理
+        update_fields = []
+        values = []
+
+        if DATABASE_URL:
+            param_placeholder = '%s'
+        else:
+            param_placeholder = '?'
+
+        # 安全なフィールドのみ処理
+        for field_key, db_column in safe_fields.items():
+            if field_key in data:
+                if field_key == 'history':
+                    update_fields.append(f'{db_column} = {param_placeholder}')
+                    values.append(json.dumps(data[field_key]))
+                else:
+                    update_fields.append(f'{db_column} = {param_placeholder}')
+                    values.append(data[field_key])
+
         # updated_atを追加
         update_fields.append('updated_at = CURRENT_TIMESTAMP')
         values.append(item_id)
