@@ -1566,45 +1566,55 @@ function sortTable(column) {
       editingIndex = null;
     }
 
-    async function confirmEdit() {
-      if (editingIndex === null) return;
-      
-      const name = document.getElementById('editItemName').value;
-      const newId = document.getElementById('editItemId').value;
-      const location = document.getElementById('editItemLocation').value;
-      const category = document.getElementById('editItemCategory').value;
+async function confirmEdit() {
+  if (editingIndex === null) return;
+  
+  const name = document.getElementById('editItemName').value;
+  const newId = document.getElementById('editItemId').value;
+  const location = document.getElementById('editItemLocation').value;
+  const category = document.getElementById('editItemCategory').value;
 
-      if (!name || !newId || !location) {
-        alert('必要な情報を入力してください');
-        return;
-      }
+  if (!name || !newId || !location) {
+    alert('必要な情報を入力してください');
+    return;
+  }
 
-      try {
-        const oldItem = items[editingIndex];
-        await apiCall(`${API_BASE}/equipment/${oldItem.id}`, {
-          method: 'PUT',
-          body: JSON.stringify({
-            name,
-            location,
-            category
-          })
-        });
-        
-        if (oldItem.id !== newId) {
-          alert('IDの変更は現在サポートされていません');
-          closeEditModal();
-          return;
-        }
-
-        await loadItems();
-        renderItems();
-        closeEditModal();
-        alert('備品情報を更新しました');
-      } catch (error) {
-        console.error('更新に失敗しました:', error);
-        alert('更新に失敗しました');
-      }
+  try {
+    const oldItem = items[editingIndex];
+    const response = await fetch(`${API_BASE}/equipment/${oldItem.id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name,
+        location,
+        category
+      })
+    });
+    
+    const result = await response.json();
+    
+    if (!result.success) {
+      alert(result.message);  // サーバーからのエラーメッセージを表示
+      return;
     }
+    
+    if (oldItem.id !== newId) {
+      alert('IDの変更は現在サポートされていません');
+      closeEditModal();
+      return;
+    }
+
+    await loadItems();
+    renderItems();
+    closeEditModal();
+    alert('備品情報を更新しました');
+  } catch (error) {
+    console.error('更新に失敗しました:', error);
+    alert('通信エラーが発生しました');
+  }
+}
 
     async function confirmDelete() {
       if (editingIndex === null) return;
