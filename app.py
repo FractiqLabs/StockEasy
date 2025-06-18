@@ -601,6 +601,53 @@ def require_admin():
         return jsonify({'success': False, 'message': '管理者権限が必要です'}), 403
     return None
 
+# 入力値検証関数
+def validate_equipment_data(data):
+    errors = []
+    
+    # 備品名チェック
+    name = data.get('name', '')
+    if not name or not name.strip():
+        errors.append('備品名は必須です')
+    elif len(name) > 200:
+        errors.append('備品名は200文字以内で入力してください')
+    elif '<' in name or '>' in name or '"' in name or "'" in name:
+        errors.append('備品名に使用できない文字が含まれています')
+    
+    # IDチェック
+    item_id = data.get('id', '')
+    if not item_id or not item_id.strip():
+        errors.append('IDは必須です')
+    elif len(item_id) > 50:
+        errors.append('IDは50文字以内で入力してください')
+    elif not item_id.replace('-', '').replace('_', '').isalnum():
+        errors.append('IDは英数字、ハイフン、アンダースコアのみ使用可能です')
+    
+    # カテゴリチェック
+    allowed_categories = ['車いす', '歩行器・シルバーカー', '家具', 'エアマット', 'その他']
+    category = data.get('category', '')
+    if not category:
+        errors.append('カテゴリは必須です')
+    elif category not in allowed_categories:
+        errors.append('無効なカテゴリです')
+    
+    # 場所チェック
+    allowed_locations = ['事務所', '1F', '2F', '3F', '4F', '5F', '地域交流室', '機能訓練室']
+    location = data.get('location', '')
+    if not location:
+        errors.append('保管場所は必須です')
+    elif location not in allowed_locations:
+        errors.append('無効な保管場所です')
+    
+    return errors
+
+# 文字列サニタイズ関数
+def sanitize_string(text):
+    if not text:
+        return ''
+    # 危険な文字を無害化
+    return str(text).replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;').replace("'", '&#x27;')
+
 # ログアウト機能
 @app.route('/api/logout', methods=['POST'])
 def logout():
