@@ -1574,10 +1574,10 @@ async function confirmEdit() {
   const location = document.getElementById('editItemLocation').value;
   const category = document.getElementById('editItemCategory').value;
 
-  if (!name || !newId || !location) {
-    alert('必要な情報を入力してください');
-    return;
-  }
+  if (!newId || !location) {
+  alert('IDと保管場所は必須です');
+  return;
+　}
 
   try {
     const oldItem = items[editingIndex];
