@@ -355,48 +355,40 @@ def update_equipment(item_id):
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        # 更新するフィールドを動的に構築
-        update_fields = []
-        values = []
-        
-        if DATABASE_URL:
-            # PostgreSQL
-            param_placeholder = '%s'
+# 安全なフィールドマッピング（ホワイトリスト）
+safe_fields = {
+    'name': 'name',
+    'location': 'location', 
+    'category': 'category',
+    'current': 'current_location',
+    'user': 'user_location',
+    'status': 'status',
+    'note': 'note',
+    'image': 'image',
+    'history': 'history'
+}
+
+update_fields = []
+values = []
+
+if DATABASE_URL:
+    param_placeholder = '%s'
+else:
+    param_placeholder = '?'
+
+# 安全なフィールドのみ処理
+for field_key, db_column in safe_fields.items():
+    if field_key in data:
+        if field_key == 'history':
+            update_fields.append(f'{db_column} = {param_placeholder}')
+            values.append(json.dumps(data[field_key]))
         else:
-            # SQLite
-            param_placeholder = '?'
-        
-        if 'name' in data:
-            update_fields.append(f'name = {param_placeholder}')
-            values.append(data['name'])
-        if 'location' in data:
-            update_fields.append(f'location = {param_placeholder}')
-            values.append(data['location'])
-        if 'category' in data:
-            update_fields.append(f'category = {param_placeholder}')
-            values.append(data['category'])
-        if 'current' in data:
-            update_fields.append(f'current_location = {param_placeholder}')
-            values.append(data['current'])
-        if 'user' in data:
-            update_fields.append(f'user_location = {param_placeholder}')
-            values.append(data['user'])
-        if 'status' in data:
-            update_fields.append(f'status = {param_placeholder}')
-            values.append(data['status'])
-        if 'note' in data:
-            update_fields.append(f'note = {param_placeholder}')
-            values.append(data['note'])
-        if 'image' in data:
-            update_fields.append(f'image = {param_placeholder}')
-            values.append(data['image'])
-        if 'history' in data:
-            update_fields.append(f'history = {param_placeholder}')
-            values.append(json.dumps(data['history']))
-        
-        # updated_atを追加
-        update_fields.append('updated_at = CURRENT_TIMESTAMP')
-        values.append(item_id)
+            update_fields.append(f'{db_column} = {param_placeholder}')
+            values.append(data[field_key])
+
+# updated_atを追加
+update_fields.append('updated_at = CURRENT_TIMESTAMP')
+values.append(item_id)
         
         query = f'UPDATE equipment SET {", ".join(update_fields)} WHERE item_id = {param_placeholder}'
         
