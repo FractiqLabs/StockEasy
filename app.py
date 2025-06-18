@@ -322,6 +322,36 @@ def update_equipment(item_id):
     conn = None
     try:
         data = request.json
+        # 更新データの検証（一部のフィールドのみ）
+        errors = []
+        # 名前が送信されている場合のみチェック
+        if 'name' in data:
+            name = data.get('name', '')
+            if not name or not name.strip():
+                errors.append('備品名は必須です')
+            elif len(name) > 200:
+                errors.append('備品名は200文字以内で入力してください')
+            elif '<' in name or '>' in name or '"' in name or "'" in name:
+                errors.append('備品名に使用できない文字が含まれています')
+        
+        # カテゴリが送信されている場合のみチェック
+        if 'category' in data:
+            allowed_categories = ['車いす', '歩行器・シルバーカー', '家具', 'エアマット', 'その他']
+            if data.get('category') not in allowed_categories:
+                errors.append('無効なカテゴリです')
+        
+        # 場所が送信されている場合のみチェック
+        if 'location' in data:
+            allowed_locations = ['事務所', '1F', '2F', '3F', '4F', '5F', '地域交流室', '機能訓練室']
+            if data.get('location') not in allowed_locations:
+                errors.append('無効な保管場所です')
+        
+        if errors:
+            return jsonify({
+                'success': False, 
+                'message': '入力エラー: ' + ', '.join(errors)
+            }), 400
+        
         conn = get_db_connection()
         cursor = conn.cursor()
         
