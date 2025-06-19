@@ -618,13 +618,18 @@ def admin_login():
 @app.route('/api/staff/login', methods=['POST'])
 def staff_login():
     try:
-        # 職員は権限チェックなしでログイン
+        print("=== 職員ログイン処理開始 ===", flush=True)
+        
+        # セッションに保存
         session['user_type'] = 'staff'
         session['username'] = 'staff'
         session['logged_in'] = True
+
+        print(f"=== セッション保存後: {dict(session)} ===", flush=True)
+
         return jsonify({'success': True, 'message': 'ログイン成功'})
     except Exception as e:
-        print(f"職員ログインエラー: {e}")
+        print(f"=== 職員ログインエラー: {e} ===", flush=True)
         return jsonify({'success': False, 'message': 'ログインに失敗しました'}), 500
 
 # セッション状態確認
