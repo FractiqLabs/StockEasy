@@ -613,6 +613,19 @@ def admin_login():
         print(f"ログインエラー: {e}")
         return jsonify({'success': False, 'message': 'ログインに失敗しました'}), 500
 
+# 職員ログイン処理
+@app.route('/api/staff/login', methods=['POST'])
+def staff_login():
+    try:
+        # 職員は権限チェックなしでログイン
+        session['user_type'] = 'staff'
+        session['username'] = 'staff'
+        session['logged_in'] = True
+        return jsonify({'success': True, 'message': 'ログイン成功'})
+    except Exception as e:
+        print(f"職員ログインエラー: {e}")
+        return jsonify({'success': False, 'message': 'ログインに失敗しました'}), 500
+
 # セッション状態確認
 @app.route('/api/session/check', methods=['GET'])
 def check_session():
