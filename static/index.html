@@ -1887,6 +1887,8 @@ function initializeApp() {
     }
     
     debugLog('アプリケーション初期化完了');
+    // セッション状態を確認してログイン状態を復元
+    checkAndRestoreSession();
 
 // セッション状態復元関数
 async function checkAndRestoreSession() {
