@@ -1887,7 +1887,30 @@ function initializeApp() {
     }
     
     debugLog('アプリケーション初期化完了');
-
+    
+// セッション状態復元関数
+async function checkAndRestoreSession() {
+  try {
+    const response = await fetch('/api/session/check');
+    const result = await response.json();
+    
+    if (result.success && result.logged_in) {
+      // ログイン状態を復元
+      document.getElementById('loginArea').style.display = 'none';
+      document.getElementById('mainContent').style.display = 'block';
+      isAdmin = result.user_type === 'admin';
+      document.getElementById('adminArea').style.display = isAdmin ? 'block' : 'none';
+      
+      // データを読み込み
+      await loadItems();
+      renderItems();
+      
+      debugLog('セッション復元完了:', result.user_type);
+    }
+  } catch (error) {
+    console.error('セッション確認エラー:', error);
+  }
+}
 // この下に新しい関数を2つ追加
 function setupTabEvents() {
   document.querySelectorAll('.tab-button').forEach(button => {
