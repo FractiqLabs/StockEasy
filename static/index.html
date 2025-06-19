@@ -1734,42 +1734,35 @@ async function confirmEdit() {
       }
     }
 
+    // ログイン処理
+    async function login() {
+      try {
+        debugLog('ログイン処理開始');
+        
+        const role = document.getElementById('roleSelect').value;
+        const password = document.getElementById('adminPassword').value;
+        
+        debugLog('選択された役割:', role);
+        
         if (role === 'admin') {
-          // 管理者ログイン処理...
-          const response = await fetch('/api/admin/login', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              username: 'admin',
-              password: password
-            })
-          });
-          
-          const result = await response.json();
-          
-          if (!result.success) {
-            alert(result.message);
-            return;
-          }
-        } else {
-          // 職員ログイン処理を追加
-          const response = await fetch('/api/staff/login', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({})
-          });
-          
-          const result = await response.json();
-          
-          if (!result.success) {
-            alert(result.message);
-            return;
-          }
-        }
+  const response = await fetch('/api/admin/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      username: 'admin',
+      password: password
+    })
+  });
+  
+  const result = await response.json();
+  
+  if (!result.success) {
+    alert(result.message);
+    return;
+  }
+}
         
         debugLog('認証成功、画面切り替え開始');
         
@@ -1894,37 +1887,7 @@ function initializeApp() {
     }
     
     debugLog('アプリケーション初期化完了');
-    checkAndRestoreSession();
-    
-async function checkAndRestoreSession() {
-  try {
-    const response = await fetch('/api/session/check');
-    const result = await response.json();
-    
-    if (result.success && result.logged_in) {
-      // ログイン状態を復元
-      document.getElementById('loginArea').style.display = 'none';
-      document.getElementById('mainContent').style.display = 'block';
-      
-      // ユーザータイプに応じて画面を設定
-      isAdmin = result.user_type === 'admin';
-      
-      if (isAdmin) {
-        document.getElementById('adminArea').style.display = 'block';
-      } else {
-        document.getElementById('adminArea').style.display = 'none';
-      }
-      
-      // データを読み込み
-      await loadItems();
-      renderItems();
-      
-      debugLog('セッション復元完了:', result.user_type, 'isAdmin:', isAdmin);
-    }
-  } catch (error) {
-    console.error('セッション確認エラー:', error);
-  }
-}
+
 // この下に新しい関数を2つ追加
 function setupTabEvents() {
   document.querySelectorAll('.tab-button').forEach(button => {
