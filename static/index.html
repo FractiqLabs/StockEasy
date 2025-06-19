@@ -1759,12 +1759,28 @@ async function confirmEdit() {
   const result = await response.json();
   
   if (!result.success) {
+  alert(result.message);
+  return;
+}
+} else {
+  // 職員ログイン処理を追加
+  const response = await fetch('/api/staff/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({})
+  });
+  
+  const result = await response.json();
+  
+  if (!result.success) {
     alert(result.message);
     return;
   }
 }
-        
-        debugLog('認証成功、画面切り替え開始');
+
+debugLog('認証成功、画面切り替え開始');
         
         // 画面を切り替え
         document.getElementById('loginArea').style.display = 'none';
