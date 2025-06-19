@@ -1734,53 +1734,44 @@ async function confirmEdit() {
       }
     }
 
-    // ログイン処理
-    async function login() {
-      try {
-        debugLog('ログイン処理開始');
+if (role === 'admin') {
+          // 管理者ログイン処理...
+          const response = await fetch('/api/admin/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              username: 'admin',
+              password: password
+            })
+          });
+          
+          const result = await response.json();
+          
+          if (!result.success) {
+            alert(result.message);
+            return;
+          }
+        } else {
+          // 職員ログイン処理を追加
+          const response = await fetch('/api/staff/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+          });
+          
+          const result = await response.json();
+          
+          if (!result.success) {
+            alert(result.message);
+            return;
+          }
+        }
         
-        const role = document.getElementById('roleSelect').value;
-        const password = document.getElementById('adminPassword').value;
-        
-        debugLog('選択された役割:', role);
-        
-        if (role === 'admin') {
-  const response = await fetch('/api/admin/login', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      username: 'admin',
-      password: password
-    })
-  });
-  
-  const result = await response.json();
-  
-  if (!result.success) {
-  alert(result.message);
-  return;
-}
-} else {
-  // 職員ログイン処理を追加
-  const response = await fetch('/api/staff/login', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({})
-  });
-  
-  const result = await response.json();
-  
-  if (!result.success) {
-    alert(result.message);
-    return;
-  }
-}
-
-debugLog('認証成功、画面切り替え開始');
+        debugLog('認証成功、画面切り替え開始');
         
         // 画面を切り替え
         document.getElementById('loginArea').style.display = 'none';
