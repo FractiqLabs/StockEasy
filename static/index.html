@@ -1771,9 +1771,10 @@ if (role === 'admin') {
             },
             body: JSON.stringify({})
           });
-          
+          debugLog('職員ログインAPIレスポンス受信');
           const result = await response.json();
-          
+          debugLog('職員ログイン結果:', result);
+  
           if (!result.success) {
             alert(result.message);
             return;
