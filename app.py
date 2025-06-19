@@ -13,7 +13,7 @@ from functools import wraps
 app = Flask(__name__)
 
 # セッション設定を追加
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-change-this')
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_PERMANENT'] = False
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
@@ -611,19 +611,6 @@ def admin_login():
             
     except Exception as e:
         print(f"ログインエラー: {e}")
-        return jsonify({'success': False, 'message': 'ログインに失敗しました'}), 500
-
-# 職員ログイン処理
-@app.route('/api/staff/login', methods=['POST'])
-def staff_login():
-    try:
-        # 職員は権限チェックなしでログイン
-        session['user_type'] = 'staff'
-        session['username'] = 'staff'
-        session['logged_in'] = True
-        return jsonify({'success': True, 'message': 'ログイン成功'})
-    except Exception as e:
-        print(f"職員ログインエラー: {e}")
         return jsonify({'success': False, 'message': 'ログインに失敗しました'}), 500
 
 # セッション状態確認
