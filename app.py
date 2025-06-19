@@ -636,9 +636,18 @@ def staff_login():
 @app.route('/api/session/check', methods=['GET'])
 def check_session():
     try:
+        print(f"=== セッション確認: {dict(session)} ===", flush=True)
+        
         if session.get('logged_in') and session.get('user_type') == 'admin':
             return jsonify({
                 'success': True, 
+                'logged_in': True,
+                'user_type': session.get('user_type'),
+                'username': session.get('username')
+            })
+        elif session.get('logged_in') and session.get('user_type') == 'staff':
+            return jsonify({
+                'success': True,
                 'logged_in': True,
                 'user_type': session.get('user_type'),
                 'username': session.get('username')
@@ -649,10 +658,8 @@ def check_session():
                 'logged_in': False,
                 'user_type': None
             })
-
-    
     except Exception as e:
-        print(f"セッション確認エラー: {e}")
+        print(f"=== セッション確認エラー: {e} ===", flush=True)
         return jsonify({'success': False, 'message': 'セッション確認に失敗しました'}), 500
 
 # 管理者権限チェック用デコレータ
