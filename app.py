@@ -316,7 +316,7 @@ def create_equipment():
 @app.route('/api/equipment/<item_id>', methods=['PUT'])
 def update_equipment(item_id):
     #管理者権限チェック(編集・削除のみ)
-    data=requests.json
+    data=request.json
 
     # 借用・返却処理（職員も可能）は権限チェックなし
     if set(data.keys()).issubset({'user', 'current', 'status', 'history', 'note'}):
@@ -329,7 +329,6 @@ def update_equipment(item_id):
     
     conn = None
     try:
-        data = request.json
         # 更新データの検証（一部のフィールドのみ）
         errors = []
         # 名前が送信されている場合のみチェック
