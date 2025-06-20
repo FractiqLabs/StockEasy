@@ -315,7 +315,14 @@ def create_equipment():
 # 備品情報更新
 @app.route('/api/equipment/<item_id>', methods=['PUT'])
 def update_equipment(item_id):
-    # 管理者権限チェック
+    #管理者権限チェック(編集・削除のみ)
+    data=requests.json
+
+    # 借用・返却処理（職員も可能）は権限チェックなし
+    if set(data.keys()).issubset({'user', 'current', 'status', 'history', 'note'}):
+        pass
+    else:
+        # その他の編集は管理者権限が必要
     auth_check = require_admin()
     if auth_check:
         return auth_check
