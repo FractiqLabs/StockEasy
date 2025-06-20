@@ -322,10 +322,9 @@ def update_equipment(item_id):
     if set(data.keys()).issubset({'user', 'current', 'status', 'history', 'note'}):
         pass
     else:
-        # その他の編集は管理者権限が必要
-    auth_check = require_admin()
-    if auth_check:
-        return auth_check
+        auth_check = require_admin()
+        if auth_check:
+            return auth_check
     
     conn = None
     try:
