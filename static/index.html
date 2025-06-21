@@ -10,7 +10,37 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
   <link href="https://fonts.googleapis.com/css2?family=Kaisei+Tokumin&family=Noto+Sans+JP&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c&display=swap" rel="stylesheet">
-  
+
+  .tab-navigation {
+      margin-bottom: 1rem;
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    
+    .tab-button {
+      padding: 0.5rem 1rem;
+      border: 2px solid #e9d5ff;
+      border-radius: 8px;
+      background: white;
+      color: #7c3aed;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+    
+    .tab-button:hover {
+      background: linear-gradient(45deg, #f3f0ff, #e9d5ff);
+      border-color: #a78bfa;
+    }
+    
+    .tab-button.active {
+      background: linear-gradient(45deg, #a78bfa, #c4b5fd);
+      color: white;
+      border-color: #8b5cf6;
+    }
   <style>
     * {
       margin: 0;
@@ -901,14 +931,7 @@ th:hover {
       </div>
       
       <div class="header-controls">
-        <select id="categoryFilter" onchange="filterItems()">
-          <option value="">全て表示</option>
-          <option value="車いす">車いす</option>
-          <option value="歩行器・シルバーカー">歩行器・シルバーカー</option>
-          <option value="家具">家具</option>
-          <option value="エアマット">エアマット</option>
-          <option value="その他">その他</option>
-        </select>
+        <input type="text" id="searchInput" placeholder="備品名・ID・場所で検索..." style="padding: 0.6rem 1rem; margin: 0.2rem; border-radius: 8px; border: 2px solid #e9d5ff; font-size: 0.9rem; background: white; min-width: 200px;" oninput="searchItems()" />
         <button onclick="exportData()">エクスポート</button>
         <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData()" />
         <button onclick="document.getElementById('importFile').click()">インポート</button>
@@ -948,13 +971,13 @@ th:hover {
         <button onclick="registerItem()">登録</button>
       </div>
     </div>
-<div class="tab-navigation">
-      <button class="tab-button active" data-category="">全て</button>
-      <button class="tab-button" data-category="車いす">車いす</button>
-      <button class="tab-button" data-category="歩行器・シルバーカー">歩行器・シルバーカー</button>
-      <button class="tab-button" data-category="家具">家具</button>
-      <button class="tab-button" data-category="エアマット">エアマット</button>
-      <button class="tab-button" data-category="その他">その他</button>
+<div class="tab-navigation" style="margin-bottom: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+      <button class="tab-button active" data-category="" onclick="filterByTab('')">全て</button>
+      <button class="tab-button" data-category="車いす" onclick="filterByTab('車いす')">車いす</button>
+      <button class="tab-button" data-category="歩行器・シルバーカー" onclick="filterByTab('歩行器・シルバーカー')">歩行器・シルバーカー</button>
+      <button class="tab-button" data-category="家具" onclick="filterByTab('家具')">家具</button>
+      <button class="tab-button" data-category="エアマット" onclick="filterByTab('エアマット')">エアマット</button>
+      <button class="tab-button" data-category="その他" onclick="filterByTab('その他')">その他</button>
     </div>
     <table>
   <thead>
@@ -1354,15 +1377,33 @@ function sortTable(column) {
       const category = document.getElementById('categoryFilter').value;
       renderItems(category);
     }
-
-    function renderItems(filterCategory = '') {
+    // 検索機能
+    function searchItems() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      renderItems('', searchTerm);
+    }
+    function renderItems(filterCategory = '', searchTerm = '') {
       const tbody = document.getElementById('itemTable');
       tbody.innerHTML = '';
       
-      // フィルタリング
-      const filteredItems = filterCategory 
-        ? items.filter(item => item.category === filterCategory)
-        : items;
+      // フィルタリングと検索
+      let filteredItems = items;
+      
+      // カテゴリフィルタ
+      if (filterCategory) {
+        filteredItems = filteredItems.filter(item => item.category === filterCategory);
+      }
+      
+      // 検索フィルタ
+      if (searchTerm) {
+        filteredItems = filteredItems.filter(item => 
+          (item.name && item.name.toLowerCase().includes(searchTerm)) ||
+          (item.id && item.id.toLowerCase().includes(searchTerm)) ||
+          (item.location && item.location.toLowerCase().includes(searchTerm)) ||
+          (item.current && item.current.toLowerCase().includes(searchTerm)) ||
+          (item.user && item.user.toLowerCase().includes(searchTerm))
+        );
+      }
       
       if (filteredItems.length === 0) {
         const tr = document.createElement('tr');
@@ -1956,8 +1997,11 @@ function filterByTab(category) {
     }
   });
   
-  // 絞り込み表示
-  renderItems(category);
+  // 検索窓の内容を取得
+  const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+  
+  // 絞り込み表示（検索も考慮）
+  renderItems(category, searchTerm);
 }
         
         // デモ用：初期データを設定
