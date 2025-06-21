@@ -294,6 +294,44 @@ def get_equipment():
             conn.close()
         return jsonify({'error': 'データ取得に失敗しました', 'details': str(e)}), 500
 
+# 施設リスト取得API (新規追加)
+@app.route('/api/facilities', methods=['GET'])
+def get_facilities():
+    conn = None
+    try:
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({'success': False, 'message': 'データベース接続失敗'}), 500
+            
+        cursor = conn.cursor()
+        cursor.execute('SELECT id, name, address, phone FROM facilities ORDER BY name')
+        
+        if DATABASE_URL:
+            # PostgreSQL
+            rows = cursor.fetchall()
+            facilities = [dict(row) for row in rows]
+        else:
+            # SQLite
+            rows = cursor.fetchall()
+            facilities = []
+            for row in rows:
+                facilities.append({
+                    'id': row[0] if isinstance(row, tuple) else row['id'],
+                    'name': row[1] if isinstance(row, tuple) else row['name'],
+                    'address': row[2] if isinstance(row, tuple) else row['address'],
+                    'phone': row[3] if isinstance(row, tuple) else row['phone']
+                })
+        
+        cursor.close()
+        conn.close()
+        return jsonify({'success': True, 'facilities': facilities})
+        
+    except Exception as e:
+        if conn:
+            conn.close()
+        print(f"施設リスト取得エラー: {e}")
+        return jsonify({'success': False, 'message': '施設リストの取得に失敗しました'}), 500
+
 @app.route('/api/equipment', methods=['POST'])
 def create_equipment():
     # 管理者権限チェック
