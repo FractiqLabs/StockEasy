@@ -536,6 +536,67 @@ def delete_equipment(item_id):
         print(f"削除エラー: {e}")
         return jsonify({'success': False, 'message': f'削除に失敗しました: {str(e)}'}), 500
 
+# 施設登録
+@app.route('/api/facilities', methods=['POST'])
+def create_facility():
+    conn = None
+    try:
+        data = request.json
+        if not data:
+            return jsonify({'success': False, 'message': 'データが送信されていません'}), 400
+        
+        facility_name = sanitize_string(data.get('name', ''))
+        address = sanitize_string(data.get('address', ''))
+        phone = sanitize_string(data.get('phone', ''))
+        admin_username = sanitize_string(data.get('admin_username', 'admin'))
+        admin_password = data.get('admin_password', '')
+        
+        if not facility_name or not admin_password:
+            return jsonify({'success': False, 'message': '施設名と管理者パスワードは必須です'}), 400
+        
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # 施設を登録
+        if DATABASE_URL:
+            cursor.execute('''
+                INSERT INTO facilities (name, address, phone) 
+                VALUES (%s, %s, %s) RETURNING id
+            ''', (facility_name, address, phone))
+            facility_id = cursor.fetchone()['id']
+        else:
+            cursor.execute('''
+                INSERT INTO facilities (name, address, phone) 
+                VALUES (?, ?, ?)
+            ''', (facility_name, address, phone))
+            facility_id = cursor.lastrowid
+        
+        # 管理者ユーザーを作成
+        hashed_password = generate_password_hash(admin_password)
+        if DATABASE_URL:
+            cursor.execute('''
+                INSERT INTO users (facility_id, username, password_hash, role) 
+                VALUES (%s, %s, %s, %s)
+            ''', (facility_id, admin_username, hashed_password, 'admin'))
+        else:
+            cursor.execute('''
+                INSERT INTO users (facility_id, username, password_hash, role) 
+                VALUES (?, ?, ?, ?)
+            ''', (facility_id, admin_username, hashed_password, 'admin'))
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return jsonify({'success': True, 'message': '施設が登録されました', 'facility_id': facility_id})
+        
+    except Exception as e:
+        if conn:
+            conn.rollback()
+            conn.close()
+        print(f"施設登録エラー: {e}")
+        return jsonify({'success': False, 'message': f'登録に失敗しました: {str(e)}'}), 500
+        
+
 # データエクスポート
 @app.route('/api/export', methods=['GET'])
 def export_data():
