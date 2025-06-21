@@ -106,6 +106,68 @@ def init_db():
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
+            # 施設テーブルを追加
+        if DATABASE_URL:
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS facilities (
+                    id SERIAL PRIMARY KEY,
+                    name VARCHAR(200) NOT NULL,
+                    address VARCHAR(500) DEFAULT '',
+                    phone VARCHAR(50) DEFAULT '',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS users (
+                    id SERIAL PRIMARY KEY,
+                    facility_id INTEGER REFERENCES facilities(id) ON DELETE CASCADE,
+                    username VARCHAR(50) NOT NULL,
+                    password_hash TEXT NOT NULL,
+                    role VARCHAR(20) DEFAULT 'staff',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    UNIQUE(facility_id, username)
+                )
+            ''')
+        else:
+            # SQLite用（ローカル開発）
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS facilities (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    address TEXT DEFAULT '',
+                    phone TEXT DEFAULT '',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    facility_id INTEGER,
+                    username TEXT NOT NULL,
+                    password_hash TEXT NOT NULL,
+                    role TEXT DEFAULT 'staff',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (facility_id) REFERENCES facilities (id),
+                    UNIQUE(facility_id, username)
+                )
+            ''')
+            # 既存のequipmentテーブルにfacility_idカラムを追加
+        try:
+            if DATABASE_URL:
+                cursor.execute('''
+                    ALTER TABLE equipment 
+                    ADD COLUMN facility_id INTEGER REFERENCES facilities(id) ON DELETE CASCADE
+                ''')
+            else:
+                cursor.execute('''
+                    ALTER TABLE equipment 
+                    ADD COLUMN facility_id INTEGER
+                ''')
+        except Exception as e:
+            # カラムが既に存在する場合はエラーを無視
+            print(f"facility_idカラム追加スキップ: {e}")
 # 管理者パスワードテーブルを追加
         if DATABASE_URL:
             cursor.execute('''
