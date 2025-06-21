@@ -1368,9 +1368,9 @@ function sortTable(column) {
     }
   });
   
-  // フィルターを維持して再描画
-  const currentFilter = document.getElementById('categoryFilter').value;
-  renderItems(currentFilter);
+  // 検索窓の内容を取得して再描画
+  const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+  renderItems('', searchTerm);
 }
     // フィルタ機能
     function filterItems() {
