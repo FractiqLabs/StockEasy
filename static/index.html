@@ -2415,6 +2415,8 @@
         document.getElementById('mainContent').style.display = 'block';
         isAdmin = role === 'admin';
         document.getElementById('adminArea').style.display = isAdmin ? 'block' : 'none';
+        // この行を追加
+        showAIBadge();
 
         // 既存のログイン成功処理の後に追加
         
@@ -2443,8 +2445,12 @@
           const badge = document.getElementById('aiBadge');
           if (badge) {
             badge.classList.remove('show');
+            // チャットパネルも確実に閉じる
+            if (isAIChatOpen) {
+              closeAIChat();
+              }
+            }
           }
-        }
         
         // 施設名を表示
         if (currentFacilityId) {
@@ -2578,50 +2584,50 @@
     }
 
     // セッション状態復元関数
-    async function checkAndRestoreSession() {
-      try {
-        const response = await fetch('/api/session/check', {
-          credentials: 'include'
-        });
-        const result = await response.json();
-        
-        if (result.success && result.logged_in) {
-          // ログイン状態を復元
-          document.getElementById('loginArea').style.display = 'none';
-          document.getElementById('mainContent').style.display = 'block';
-          
-          // ユーザータイプに応じて画面を設定
-          isAdmin = result.user_type === 'admin';
-          
-          if (isAdmin) {
-            document.getElementById('adminArea').style.display = 'block';
-          } else {
-            document.getElementById('adminArea').style.display = 'none';
-          }
-          
-          // 施設IDが保存されている場合は復元
-          if (result.facility_id) {
-            currentFacilityId = result.facility_id;
-            const facilityName = getCurrentFacilityName();
-            if (facilityName) {
-              document.getElementById('facilityNameDisplay').textContent = `${facilityName} - らくらく備品管理システム`;
-            }
-          }
-          
-          // データを読み込み
-          await loadItems();
-          renderItems();
-          
-          debugLog('セッション復元完了:', result.user_type, 'isAdmin:', isAdmin);
-        }
-      } catch (error) {
-        console.error('セッション確認エラー:', error);
+// セッション状態復元関数 - 完全版
+async function checkAndRestoreSession() {
+  try {
+    const response = await fetch('/api/session/check');
+    const result = await response.json();
+    
+    if (result.success && result.logged_in) {
+      // ログイン状態を復元
+      document.getElementById('loginArea').style.display = 'none';
+      document.getElementById('mainContent').style.display = 'block';
+      
+      // ユーザータイプに応じて画面を設定
+      isAdmin = result.user_type === 'admin';
+      
+      if (isAdmin) {
+        document.getElementById('adminArea').style.display = 'block';
+      } else {
+        document.getElementById('adminArea').style.display = 'none';
       }
+      
+      // データを読み込み
+      await loadItems();
+      renderItems();
+      
+      // AIバッジを表示
+      showAIBadge();
+      
+      debugLog('セッション復元完了:', result.user_type, 'isAdmin:', isAdmin);
+    } else {
+      // ログインしていない場合はAIバッジを非表示
+      hideAIBadge();
     }
+  } catch (error) {
+    console.error('セッション確認エラー:', error);
+    // エラー時もAIバッジを非表示
+    hideAIBadge();
+  }
+}
 
     // 初期化処理
     function initializeApp() {
       debugLog('アプリケーション初期化開始');
+
+      hideAIBadge();
       
       try {
         // イベントリスナーの設定
