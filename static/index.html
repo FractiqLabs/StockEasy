@@ -2584,6 +2584,9 @@
           // データを読み込み
           await loadItems();
           renderItems();
+
+          // AIバッジを表示
+          showAIBadge();
           
           debugLog('セッション復元完了:', result.user_type, 'isAdmin:', isAdmin);
         }
