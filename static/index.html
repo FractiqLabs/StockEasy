@@ -2583,7 +2583,7 @@
       renderItems(category, searchTerm);
     }
 
-// 元のセッション状態復元関数を復元
+// 完全に元のコードに戻す
 async function checkAndRestoreSession() {
   try {
     const response = await fetch('/api/session/check');
@@ -2607,18 +2607,10 @@ async function checkAndRestoreSession() {
       await loadItems();
       renderItems();
       
-      // AIバッジを表示（この行のみ追加）
-      showAIBadge();
-      
       debugLog('セッション復元完了:', result.user_type, 'isAdmin:', isAdmin);
-    } else {
-      // ログインしていない場合はAIバッジを非表示（この行のみ追加）
-      hideAIBadge();
     }
   } catch (error) {
     console.error('セッション確認エラー:', error);
-    // エラー時もAIバッジを非表示（この行のみ追加）
-    hideAIBadge();
   }
 }
 
