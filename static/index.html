@@ -838,7 +838,7 @@
        StockEasy AI バッジ & チャット UI
        ==================================== */
     
-    /* AI搭載バッジ（右下固定） */
+    /* AI搭載バッジ（右下固定） - ログイン後のみ表示 */
     .ai-badge {
       position: fixed;
       bottom: 20px;
@@ -853,10 +853,15 @@
       z-index: 1000;
       font-weight: 600;
       font-size: 14px;
-      display: flex;
+      display: none; /* 初期状態は非表示 */
       align-items: center;
       gap: 8px;
       user-select: none;
+    }
+    
+    /* ログイン後に表示 */
+    .ai-badge.show {
+      display: flex;
     }
     
     .ai-badge:hover {
@@ -2410,6 +2415,36 @@
         document.getElementById('mainContent').style.display = 'block';
         isAdmin = role === 'admin';
         document.getElementById('adminArea').style.display = isAdmin ? 'block' : 'none';
+
+        // 既存のログイン成功処理の後に追加
+        
+        // AIバッジを表示
+        showAIBadge();
+        
+        // AIバッジ表示/非表示関数を追加（既存のAI関数群の近くに配置）
+        function showAIBadge() {
+          console.log('🤖 AIバッジを表示');
+          const badge = document.getElementById('aiBadge');
+          if (badge) {
+            badge.classList.add('show');
+            
+            // 少し遅れて表示アニメーション
+            setTimeout(() => {
+              badge.style.transform = 'scale(1.1)';
+              setTimeout(() => {
+                badge.style.transform = 'scale(1)';
+              }, 200);
+            }, 500);
+          }
+        }
+        
+        function hideAIBadge() {
+          console.log('🤖 AIバッジを非表示');
+          const badge = document.getElementById('aiBadge');
+          if (badge) {
+            badge.classList.remove('show');
+          }
+        }
         
         // 施設名を表示
         if (currentFacilityId) {
@@ -2455,6 +2490,14 @@
       isAdmin = false;
       connectionRetries = 0;
       currentFacilityId = null;
+
+      // AIバッジを非表示にする（この行を追加）
+      hideAIBadge();
+      
+      // AIチャットパネルも閉じる（この行を追加）
+      if (isAIChatOpen) {
+        closeAIChat();
+      }
       
       // 施設選択エリアを再表示
       document.getElementById('facilitySelectArea').classList.add('show');
