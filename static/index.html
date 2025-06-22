@@ -9,7 +9,17 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
   <link href="https://fonts.googleapis.com/css2?family=Kaisei+Tokumin&family=Noto+Sans+JP&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c&display=swap" rel="stylesheet">
-  
+  <!-- Transformer.js for Local AI -->
+  <script type="module">
+    import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.1';
+    
+    // ローカル使用に設定
+    env.allowRemoteModels = true;  // 初回のみダウンロードを許可
+    env.useBrowserCache = true;    // キャッシュを使用
+    
+    window.transformers = { pipeline, env };
+    console.log('✅ Transformer.js loaded successfully');
+  </script>
   <style>
     .tab-navigation {
       margin-bottom: 1rem;
