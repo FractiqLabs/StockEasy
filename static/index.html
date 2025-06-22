@@ -2415,6 +2415,7 @@
         document.getElementById('mainContent').style.display = 'block';
         isAdmin = role === 'admin';
         document.getElementById('adminArea').style.display = isAdmin ? 'block' : 'none';
+        showAIBadge();
 
         // 既存のログイン成功処理の後に追加
         
@@ -2443,8 +2444,12 @@
           const badge = document.getElementById('aiBadge');
           if (badge) {
             badge.classList.remove('show');
+        // チャットパネルも確実に閉じる
+            if (isAIChatOpen) { 
+              closeAIChat();
+              }
+            }
           }
-        }
         
         // 施設名を表示
         if (currentFacilityId) {
@@ -2598,6 +2603,7 @@
           } else {
             document.getElementById('adminArea').style.display = 'none';
           }
+          showAIBadge();
           
           // 施設IDが保存されている場合は復元
           if (result.facility_id) {
@@ -2613,15 +2619,20 @@
           renderItems();
           
           debugLog('セッション復元完了:', result.user_type, 'isAdmin:', isAdmin);
-        }
+        }else {
+          // ログインしていない場合はAIバッジを非表示（追加）
+          hideAIBadge();
+        }    
       } catch (error) {
         console.error('セッション確認エラー:', error);
+        hideAIBadge();
       }
     }
 
     // 初期化処理
     function initializeApp() {
       debugLog('アプリケーション初期化開始');
+      hideAIBadge();
       
       try {
         // イベントリスナーの設定
