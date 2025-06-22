@@ -2415,36 +2415,9 @@
         document.getElementById('mainContent').style.display = 'block';
         isAdmin = role === 'admin';
         document.getElementById('adminArea').style.display = isAdmin ? 'block' : 'none';
-
-        // 既存のログイン成功処理の後に追加
         
         // AIバッジを表示
         showAIBadge();
-        
-        // AIバッジ表示/非表示関数を追加（既存のAI関数群の近くに配置）
-        function showAIBadge() {
-          console.log('🤖 AIバッジを表示');
-          const badge = document.getElementById('aiBadge');
-          if (badge) {
-            badge.classList.add('show');
-            
-            // 少し遅れて表示アニメーション
-            setTimeout(() => {
-              badge.style.transform = 'scale(1.1)';
-              setTimeout(() => {
-                badge.style.transform = 'scale(1)';
-              }, 200);
-            }, 500);
-          }
-        }
-        
-        function hideAIBadge() {
-          console.log('🤖 AIバッジを非表示');
-          const badge = document.getElementById('aiBadge');
-          if (badge) {
-            badge.classList.remove('show');
-          }
-        }
         
         // 施設名を表示
         if (currentFacilityId) {
@@ -2821,6 +2794,38 @@
         closeAIChat();
       }
     });
+    
+    // AIバッジ表示制御関数
+    function showAIBadge() {
+      console.log('🤖 AIバッジを表示');
+      const badge = document.getElementById('aiBadge');
+      if (badge) {
+        badge.classList.add('show');
+        
+        // 少し遅れて表示アニメーション
+        setTimeout(() => {
+          if (badge.style) {
+            badge.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+              badge.style.transform = 'scale(1)';
+            }, 200);
+          }
+        }, 500);
+      }
+    }
+    
+    function hideAIBadge() {
+      console.log('🤖 AIバッジを非表示');
+      const badge = document.getElementById('aiBadge');
+      if (badge) {
+        badge.classList.remove('show');
+        
+        // チャットパネルも確実に閉じる
+        if (isAIChatOpen) {
+          closeAIChat();
+        }
+      }
+    }
     
     console.log('✅ AI Chat UI functions loaded');
   </script>
