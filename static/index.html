@@ -834,9 +834,322 @@
         flex-direction: column;
       }
     }
+    /* ====================================
+       StockEasy AI バッジ & チャット UI
+       ==================================== */
+    
+    /* AI搭載バッジ（右下固定） */
+    .ai-badge {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 25px;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+      transition: all 0.3s ease;
+      z-index: 1000;
+      font-weight: 600;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      user-select: none;
+    }
+    
+    .ai-badge:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
+      background: linear-gradient(45deg, #5a67d8, #667eea);
+    }
+    
+    .ai-badge .ai-icon {
+      font-size: 16px;
+      animation: aiPulse 2s infinite;
+    }
+    
+    @keyframes aiPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    
+    /* AI状態インジケーター */
+    .ai-status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      animation: statusPulse 2s infinite;
+    }
+    
+    .ai-status-dot.loading {
+      background: #f59e0b;
+    }
+    
+    .ai-status-dot.error {
+      background: #ef4444;
+      animation: none;
+    }
+    
+    @keyframes statusPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.2); }
+    }
+    
+    /* AIチャットパネル */
+    .ai-chat-panel {
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      width: 380px;
+      height: 500px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+      border: 2px solid rgba(102, 126, 234, 0.2);
+      transform: scale(0) translateY(50px);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    .ai-chat-panel.active {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    /* AIチャットヘッダー */
+    .ai-chat-header {
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .ai-chat-title {
+      font-weight: 600;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .ai-close-btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .ai-close-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: rotate(90deg);
+    }
+    
+    /* AIチャットボディ */
+    .ai-chat-body {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    }
+    
+    /* AIメッセージスタイル */
+    .ai-message {
+      margin-bottom: 15px;
+      animation: messageSlideIn 0.4s ease-out;
+    }
+    
+    .ai-message.user {
+      text-align: right;
+    }
+    
+    .ai-message-bubble {
+      display: inline-block;
+      padding: 10px 15px;
+      border-radius: 18px;
+      max-width: 80%;
+      word-wrap: break-word;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    
+    .ai-message.ai .ai-message-bubble {
+      background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+      color: #4c1d95;
+      border-bottom-left-radius: 6px;
+    }
+    
+    .ai-message.user .ai-message-bubble {
+      background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+      color: #065f46;
+      border-bottom-right-radius: 6px;
+    }
+    
+    /* AIチャット入力エリア */
+    .ai-chat-input {
+      padding: 15px 20px;
+      border-top: 1px solid #e2e8f0;
+      background: white;
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+    }
+    
+    .ai-input-field {
+      flex: 1;
+      border: 2px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 10px 15px;
+      resize: none;
+      font-size: 14px;
+      max-height: 80px;
+      min-height: 40px;
+      transition: all 0.3s ease;
+    }
+    
+    .ai-input-field:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .ai-send-btn {
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .ai-send-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .ai-send-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    /* プレビューモード（ホバー時） */
+    .ai-badge:hover + .ai-preview {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    
+    .ai-preview {
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 10px;
+      font-size: 12px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+      z-index: 998;
+      max-width: 200px;
+    }
+    
+    /* レスポンシブ対応 */
+    @media (max-width: 600px) {
+      .ai-chat-panel {
+        width: calc(100vw - 40px);
+        height: calc(100vh - 140px);
+        bottom: 20px;
+        right: 20px;
+      }
+      
+      .ai-badge {
+        bottom: 15px;
+        right: 15px;
+        padding: 10px 16px;
+        font-size: 13px;
+      }
+    }
   </style>
 </head>
 <body>
+  <!-- StockEasy AI Interface -->
+  
+  <!-- AI搭載バッジ（右下固定） -->
+  <div class="ai-badge" id="aiBadge" onclick="toggleAIChat()">
+    <span class="ai-icon">🤖</span>
+    <span>StockEasy AI</span>
+    <div class="ai-status-dot" id="aiStatusDot"></div>
+  </div>
+  
+  <!-- ホバープレビュー -->
+  <div class="ai-preview" id="aiPreview">
+    💬 AI備品管理アシスタント<br>
+    クリックしてチャット開始
+  </div>
+  
+  <!-- AIチャットパネル -->
+  <div class="ai-chat-panel" id="aiChatPanel">
+    <!-- ヘッダー -->
+    <div class="ai-chat-header">
+      <div class="ai-chat-title">
+        <span>🤖</span>
+        <span>StockEasy AI</span>
+      </div>
+      <button class="ai-close-btn" onclick="closeAIChat()">×</button>
+    </div>
+    
+    <!-- チャットエリア -->
+    <div class="ai-chat-body" id="aiChatBody">
+      <div class="ai-message ai">
+        <div class="ai-message-bubble">
+          こんにちは！StockEasy AIです🤖<br>
+          備品管理をお手伝いします。<br>
+          お気軽にお話しください！
+        </div>
+      </div>
+    </div>
+    
+    <!-- 入力エリア -->
+    <div class="ai-chat-input">
+      <textarea 
+        class="ai-input-field" 
+        id="aiInputField" 
+        placeholder="メッセージを入力..."
+        rows="1"
+        onkeypress="handleAIKeyPress(event)"
+        oninput="autoResizeAIInput(this)"
+      ></textarea>
+      <button class="ai-send-btn" id="aiSendBtn" onclick="sendAIMessage()">
+        ▶
+      </button>
+    </div>
+  </div>
   <!-- ランディングページ -->
   <div id="loginArea" style="display: block;">
     <!-- ヒーローセクション -->
