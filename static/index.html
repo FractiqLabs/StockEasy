@@ -2650,6 +2650,136 @@
     } else {
       initializeApp();
     }
+    // ====================================
+    // AI チャット UI 制御関数
+    // ====================================
+    
+    let isAIChatOpen = false;
+    
+    // AIチャットパネルの開閉
+    function toggleAIChat() {
+      console.log('🤖 AIチャット切り替え');
+      
+      const panel = document.getElementById('aiChatPanel');
+      
+      if (isAIChatOpen) {
+        closeAIChat();
+      } else {
+        openAIChat();
+      }
+    }
+    
+    // AIチャットパネルを開く
+    function openAIChat() {
+      console.log('📂 AIチャットパネルを開く');
+      
+      const panel = document.getElementById('aiChatPanel');
+      panel.classList.add('active');
+      isAIChatOpen = true;
+      
+      // 入力フィールドにフォーカス
+      setTimeout(() => {
+        const input = document.getElementById('aiInputField');
+        if (input) input.focus();
+      }, 400);
+    }
+    
+    // AIチャットパネルを閉じる
+    function closeAIChat() {
+      console.log('📁 AIチャットパネルを閉じる');
+      
+      const panel = document.getElementById('aiChatPanel');
+      panel.classList.remove('active');
+      isAIChatOpen = false;
+    }
+    
+    // AIメッセージ送信
+    function sendAIMessage() {
+      const input = document.getElementById('aiInputField');
+      const message = input.value.trim();
+      
+      if (!message) return;
+      
+      console.log('💬 AIメッセージ送信:', message);
+      
+      // ユーザーメッセージを表示
+      addAIMessageToChat('user', message);
+      
+      // 入力欄をクリア
+      input.value = '';
+      autoResizeAIInput(input);
+      
+      // AI応答（仮）
+      setTimeout(() => {
+        addAIMessageToChat('ai', 'ありがとうございます！現在AI機能を準備中です。🤖<br>まもなく本格的な会話機能が利用可能になります！');
+      }, 1000);
+    }
+    
+    // チャットにメッセージを追加
+    function addAIMessageToChat(sender, message) {
+      const chatBody = document.getElementById('aiChatBody');
+      
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `ai-message ${sender}`;
+      
+      messageDiv.innerHTML = `
+        <div class="ai-message-bubble">${message}</div>
+      `;
+      
+      chatBody.appendChild(messageDiv);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+    
+    // Enter キー送信対応
+    function handleAIKeyPress(event) {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendAIMessage();
+      }
+    }
+    
+    // テキストエリア自動リサイズ
+    function autoResizeAIInput(textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = Math.min(textarea.scrollHeight, 80) + 'px';
+    }
+    
+    // AI状態更新
+    function updateAIBadgeStatus(status) {
+      const dot = document.getElementById('aiStatusDot');
+      
+      // 既存のクラスを削除
+      dot.classList.remove('loading', 'error');
+      
+      // 新しい状態を設定
+      if (status === 'loading') {
+        dot.classList.add('loading');
+      } else if (status === 'error') {
+        dot.classList.add('error');
+      }
+      // 'ready' の場合はデフォルト（緑）
+    }
+    
+    // ESCキーでチャット閉じる
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isAIChatOpen) {
+        closeAIChat();
+      }
+    });
+    
+    // パネル外クリックで閉じる
+    document.addEventListener('click', (e) => {
+      const panel = document.getElementById('aiChatPanel');
+      const badge = document.getElementById('aiBadge');
+      
+      if (isAIChatOpen && 
+          !panel.contains(e.target) && 
+          !badge.contains(e.target)) {
+        closeAIChat();
+      }
+    });
+    
+    console.log('✅ AI Chat UI functions loaded');
   </script>
 </body>
 </html>
