@@ -9,8 +9,17 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
   <link href="https://fonts.googleapis.com/css2?family=Kaisei+Tokumin&family=Noto+Sans+JP&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  
+  <!-- Transformer.js for Local AI -->
+  <script type="module">
+    import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.1';
+    
+    // ローカル使用に設定
+    env.allowRemoteModels = true;  // 初回のみダウンロードを許可
+    env.useBrowserCache = true;    // キャッシュを使用
+    
+    window.transformers = { pipeline, env };
+    console.log('✅ Transformer.js loaded successfully');
+  </script>
   <style>
     .tab-navigation {
       margin-bottom: 1rem;
@@ -135,7 +144,7 @@
     /* 施設選択エリア */
     .facility-select-area {
       margin-bottom: 1.5rem;
-      display: block; /* デフォルトで表示 */
+      display: none;
     }
     
     .facility-select-area.show {
@@ -262,6 +271,185 @@
       box-shadow: 0 10px 30px rgba(107, 114, 128, 0.4);
     }
     
+    /* 機能セクション */
+    .features-section {
+      padding: 6rem 0;
+      background: white;
+    }
+    .section-title {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 3rem;
+      color: #333;
+      font-weight: 700;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+    }
+    .feature-card {
+      text-align: center;
+      padding: 2.5rem 1.5rem;
+      background: #f8fafc;
+      border-radius: 16px;
+      transition: all 0.3s ease;
+      border: 1px solid #e2e8f0;
+    }
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      background: white;
+    }
+    .feature-icon {
+      font-size: 3rem;
+      margin-bottom: 1.5rem;
+    }
+    .feature-card h3 {
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+      color: #333;
+      font-weight: 600;
+    }
+    .feature-card p {
+      color: #666;
+      line-height: 1.6;
+    }
+    
+    /* 利用者の声セクション */
+    .testimonials-section {
+      padding: 6rem 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    
+    .testimonials-section .section-title {
+      color: white;
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 3rem;
+      font-weight: 700;
+    }
+    
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .testimonial-card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 2rem;
+      color: #333;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .testimonial-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+    }
+    
+    .testimonial-content {
+      margin-bottom: 1.5rem;
+    }
+    
+    .quote-icon {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    
+    .testimonial-text {
+      font-size: 1rem;
+      line-height: 1.7;
+      color: #555;
+      font-style: italic;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    
+    .testimonial-author {
+      border-top: 1px solid #e1e5e9;
+      padding-top: 1rem;
+    }
+    
+    .author-info h4 {
+      color: #667eea;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+    }
+    
+    .author-info span {
+      display: block;
+      color: #666;
+      font-size: 0.9rem;
+      margin-bottom: 0.2rem;
+    }
+    
+    .author-info .role {
+      color: #8b5cf6;
+      font-weight: 500;
+      font-size: 0.85rem;
+    }
+    
+    /* 利用者別機能セクション */
+    .roles-section {
+      padding: 6rem 0;
+      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    }
+    .roles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 3rem;
+    }
+    .role-card {
+      background: white;
+      padding: 3rem;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+    .role-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    }
+    .role-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 2rem;
+      font-weight: 600;
+    }
+    .staff-card h3 {
+      color: #10b981;
+    }
+    .admin-card h3 {
+      color: #8b5cf6;
+    }
+    .role-card ul {
+      list-style: none;
+    }
+    .role-card li {
+      padding: 0.8rem 0;
+      border-bottom: 1px solid #f1f5f9;
+      position: relative;
+      padding-left: 2rem;
+    }
+    .role-card li:before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: #10b981;
+      font-weight: bold;
+    }
+    .admin-card li:before {
+      color: #8b5cf6;
+    }
+    
     /* メインコンテンツ用スタイル */
     .main-content {
       margin: 1rem;
@@ -292,15 +480,13 @@
     }
     
     .compact-header h1 {
-      font-family: "Inter", sans-serif;
-      font-weight: 500;
       font-size: 1.8rem;
       background: linear-gradient(45deg, #667eea, #764ba2);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
       margin: 0;
-      letter-spacing: -0.02em;
+      font-weight: 700;
     }
     
     .compact-header .sub-heading {
@@ -370,6 +556,7 @@
       box-shadow: 0 6px 20px rgba(139, 92, 246, 0.3);
     }
     
+    /* ヘッダー内のボタン（ログアウト、エクスポート、インポート）も同じスタイル */
     .header-controls button {
       background: linear-gradient(45deg, #a78bfa, #c4b5fd);
       color: white;
@@ -439,42 +626,6 @@
       transform: scale(1.01);
     }
     
-    /* AIハイライト効果 */
-    .ai-highlight {
-      background: linear-gradient(135deg, #f3f0ff 0%, #ede9fe 100%) !important;
-      box-shadow: 
-        0 0 20px rgba(139, 92, 246, 0.3),
-        0 4px 15px rgba(139, 92, 246, 0.2);
-      border: 2px solid rgba(139, 92, 246, 0.4);
-      transform: scale(1.02);
-      transition: all 0.4s ease;
-      position: relative;
-      z-index: 2;
-    }
-    
-    .ai-highlight::before {
-      content: '';
-      position: absolute;
-      top: -2px;
-      left: -2px;
-      right: -2px;
-      bottom: -2px;
-      background: linear-gradient(45deg, #a78bfa, #c4b5fd, #a78bfa);
-      border-radius: 8px;
-      z-index: -1;
-      animation: aiGlow 2s ease-in-out infinite alternate;
-    }
-    
-    @keyframes aiGlow {
-      0% { opacity: 0.5; }
-      100% { opacity: 0.8; }
-    }
-    
-    .ai-dimmed {
-      opacity: 0.4;
-      transition: opacity 0.4s ease;
-    }
-    
     .image-preview {
       width: 100px;
       height: 100px;
@@ -541,26 +692,22 @@
       max-height: 80vh;
       overflow-y: auto;
     }
-    
-    .modal .form-group {
+    .form-group {
       margin-bottom: 1rem;
     }
-    
-    .modal .form-group label {
+    .form-group label {
       display: block;
       margin-bottom: 0.5rem;
       font-weight: bold;
       color: #333;
     }
-    
-    .modal .form-group input, .modal .form-group select {
+    .form-group input, .form-group select {
       width: 100%;
       padding: 0.5rem;
       border: 1px solid #ddd;
       border-radius: 4px;
       box-sizing: border-box;
     }
-    
     .storage-notice {
       background: linear-gradient(45deg, #e3f2fd, #f3e5f5);
       border: 1px solid #2196f3;
@@ -619,6 +766,74 @@
       font-weight: 500;
     }
     
+    /* レスポンシブ対応 */
+    @media (max-width: 768px) {
+      .hero-content {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        text-align: center;
+      }
+      .hero-title {
+        font-size: 2.5rem;
+      }
+      .login-card {
+        padding: 2rem;
+      }
+      .roles-grid {
+        grid-template-columns: 1fr;
+      }
+      .container {
+        padding: 0 1rem;
+      }
+      
+      .compact-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .header-controls {
+        width: 100%;
+        justify-content: flex-start;
+      }
+      
+      .compact-header h1 {
+        font-size: 1.5rem;
+      }
+      
+      table {
+        font-size: 0.85rem;
+      }
+      
+      th, td {
+        padding: 0.5rem 0.3rem;
+      }
+      
+      .image-preview {
+        width: 60px;
+        height: 60px;
+      }
+      
+      .testimonials-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+      
+      .testimonial-card {
+        padding: 1.5rem;
+      }
+      
+      .testimonials-section .section-title {
+        font-size: 2rem;
+      }
+      
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .facility-tabs {
+        flex-direction: column;
+      }
+    }
     /* ====================================
        StockEasy AI バッジ & チャット UI
        ==================================== */
@@ -628,7 +843,7 @@
       position: fixed;
       bottom: 20px;
       right: 20px;
-      background: linear-gradient(135deg, #667eea, #764ba2);
+      background: linear-gradient(45deg, #667eea, #764ba2);
       color: white;
       padding: 12px 20px;
       border-radius: 25px;
@@ -693,7 +908,7 @@
       position: fixed;
       bottom: 80px;
       right: 20px;
-      width: 360px;
+      width: 380px;
       height: 500px;
       background: white;
       border-radius: 20px;
@@ -717,7 +932,7 @@
     
     /* AIチャットヘッダー */
     .ai-chat-header {
-      background: linear-gradient(135deg, #667eea, #764ba2);
+      background: linear-gradient(45deg, #667eea, #764ba2);
       color: white;
       padding: 15px 20px;
       display: flex;
@@ -731,17 +946,6 @@
       display: flex;
       align-items: center;
       gap: 8px;
-    }
-    
-    .ai-chat-icon {
-      width: 24px;
-      height: 24px;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
     }
     
     .ai-close-btn {
@@ -768,67 +972,39 @@
       flex: 1;
       padding: 20px;
       overflow-y: auto;
-      background: linear-gradient(135deg, #f3f0ff 0%, #ede9fe 100%);
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
     }
     
     /* AIメッセージスタイル */
     .ai-message {
       margin-bottom: 15px;
-      display: flex;
-      align-items: flex-end;
       animation: messageSlideIn 0.4s ease-out;
     }
     
     .ai-message.user {
-      justify-content: flex-end;
-    }
-    
-    .ai-message.ai {
-      justify-content: flex-start;
+      text-align: right;
     }
     
     .ai-message-bubble {
-      max-width: 80%;
-      padding: 12px 16px;
+      display: inline-block;
+      padding: 10px 15px;
       border-radius: 18px;
+      max-width: 80%;
+      word-wrap: break-word;
       font-size: 14px;
       line-height: 1.4;
-      word-wrap: break-word;
-      position: relative;
     }
     
-    /* AI吹き出し */
     .ai-message.ai .ai-message-bubble {
-      background: rgba(237, 233, 254, 0.8);
+      background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
       color: #4c1d95;
       border-bottom-left-radius: 6px;
     }
     
-    .ai-message.ai .ai-message-bubble::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: -8px;
-      border: 8px solid transparent;
-      border-right-color: rgba(237, 233, 254, 0.8);
-      border-bottom: 0;
-    }
-    
-    /* ユーザー吹き出し */
     .ai-message.user .ai-message-bubble {
-      background: linear-gradient(135deg, #a78bfa, #c4b5fd);
-      color: white;
+      background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+      color: #065f46;
       border-bottom-right-radius: 6px;
-    }
-    
-    .ai-message.user .ai-message-bubble::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      right: -8px;
-      border: 8px solid transparent;
-      border-left-color: #a78bfa;
-      border-bottom: 0;
     }
     
     /* AIチャット入力エリア */
@@ -838,18 +1014,19 @@
       background: white;
       display: flex;
       gap: 10px;
-      align-items: center;
+      align-items: flex-end;
     }
     
     .ai-input-field {
       flex: 1;
       border: 2px solid #e2e8f0;
-      border-radius: 25px;
-      padding: 12px 18px;
+      border-radius: 20px;
+      padding: 10px 15px;
       resize: none;
       font-size: 14px;
+      max-height: 80px;
+      min-height: 40px;
       transition: all 0.3s ease;
-      background: white;
     }
     
     .ai-input-field:focus {
@@ -870,7 +1047,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
     }
     
     .ai-send-btn:hover {
@@ -884,13 +1060,1777 @@
       transform: none;
     }
     
-    @keyframes messageSlideIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
+    /* プレビューモード（ホバー時） */
+    .ai-badge:hover + .ai-preview {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    
+    .ai-preview {
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 10px;
+      font-size: 12px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+      z-index: 998;
+      max-width: 200px;
+    }
+    
+    /* レスポンシブ対応 */
+    @media (max-width: 600px) {
+      .ai-chat-panel {
+        width: calc(100vw - 40px);
+        height: calc(100vh - 140px);
+        bottom: 20px;
+        right: 20px;
       }
-      to {
-        opacity: 1;
-        transform: translateY(0);
+      
+      .ai-badge {
+        bottom: 15px;
+        right: 15px;
+        padding: 10px 16px;
+        font-size: 13px;
       }
     }
+  </style>
+</head>
+<body>
+  <!-- StockEasy AI Interface -->
+  
+  <!-- AI搭載バッジ（右下固定） -->
+  <div class="ai-badge" id="aiBadge" onclick="toggleAIChat()">
+    <span class="ai-icon">🤖</span>
+    <span>StockEasy AI</span>
+    <div class="ai-status-dot" id="aiStatusDot"></div>
+  </div>
+  
+  <!-- ホバープレビュー -->
+  <div class="ai-preview" id="aiPreview">
+    💬 AI備品管理アシスタント<br>
+    クリックしてチャット開始
+  </div>
+  
+  <!-- AIチャットパネル -->
+  <div class="ai-chat-panel" id="aiChatPanel">
+    <!-- ヘッダー -->
+    <div class="ai-chat-header">
+      <div class="ai-chat-title">
+        <span>🤖</span>
+        <span>StockEasy AI</span>
+      </div>
+      <button class="ai-close-btn" onclick="closeAIChat()">×</button>
+    </div>
+    
+    <!-- チャットエリア -->
+    <div class="ai-chat-body" id="aiChatBody">
+      <div class="ai-message ai">
+        <div class="ai-message-bubble">
+          こんにちは！StockEasy AIのStockee(ストッキー)です🤖<br>
+          備品管理をお手伝いします。<br>
+          お気軽にお話しください！
+        </div>
+      </div>
+    </div>
+    
+    <!-- 入力エリア -->
+    <div class="ai-chat-input">
+      <textarea 
+        class="ai-input-field" 
+        id="aiInputField" 
+        placeholder="メッセージを入力..."
+        rows="1"
+        onkeypress="handleAIKeyPress(event)"
+        oninput="autoResizeAIInput(this)"
+      ></textarea>
+      <button class="ai-send-btn" id="aiSendBtn" onclick="sendAIMessage()">
+        ▶
+      </button>
+    </div>
+  </div>
+  <!-- ランディングページ -->
+  <div id="loginArea" style="display: block;">
+    <!-- ヒーローセクション -->
+    <section class="hero-section">
+      <div class="hero-content">
+        <div class="hero-text">
+          <h1 class="hero-title">StockEasy</h1>
+          <p class="hero-subtitle">施設備品を効率的に管理するスマートなソリューション</p>
+          <p class="hero-description">
+            備品の貸出・返却から在庫管理まで、すべてをデジタル化。<br>
+            シンプルな操作で、施設運営をもっとスムーズに、もっと楽しく。
+          </p>
+        </div>
+        <div class="login-card">
+          <h3>システムにログイン</h3>
+          
+          <!-- 施設選択エリア -->
+          <div id="facilitySelectArea" class="facility-select-area">
+            <div class="facility-tabs">
+              <div class="facility-tab active" data-facility="existing">既存の施設</div>
+              <div class="facility-tab" data-facility="new">新規施設登録</div>
+            </div>
+            
+            <!-- 既存施設の選択 -->
+            <div id="existingFacilityArea">
+              <select id="facilitySelect" class="facility-input">
+                <option value="">施設を選択してください...</option>
+                <!-- 施設リストは動的に読み込み -->
+              </select>
+            </div>
+            
+            <!-- 新規施設登録フォーム -->
+            <div id="newFacilityArea" class="new-facility-form">
+              <div class="form-group">
+                <label for="facilityName">施設名 *</label>
+                <input type="text" id="facilityName" class="facility-input" placeholder="例：デイサービス みどりの丘" required />
+              </div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="facilityAddress">住所</label>
+                  <input type="text" id="facilityAddress" class="facility-input" placeholder="例：東京都..." />
+                </div>
+                <div class="form-group">
+                  <label for="facilityPhone">電話番号</label>
+                  <input type="tel" id="facilityPhone" class="facility-input" placeholder="例：03-1234-5678" />
+                </div>
+              </div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="adminUsername">管理者ユーザー名</label>
+                  <input type="text" id="adminUsername" class="facility-input" value="admin" />
+                </div>
+                <div class="form-group">
+                  <label for="adminPassword">管理者パスワード *</label>
+                  <input type="password" id="adminPassword" class="facility-input" placeholder="6文字以上" required />
+                </div>
+              </div>
+              <button type="button" class="facility-btn" onclick="registerFacility()">施設を登録</button>
+            </div>
+          </div>
+          
+          <select id="roleSelect" class="role-select">
+            <option value="staff">職員としてログイン</option>
+            <option value="admin">管理者としてログイン</option>
+          </select>
+          <div id="passwordArea" class="password-area">
+            <input type="password" id="loginPassword" placeholder="管理者パスワードを入力" />
+          </div>
+          <button id="loginButton" class="login-btn">ログイン</button>
+          <button id="skipFacilityBtn" class="facility-btn secondary" onclick="skipFacilitySelection()">単一施設として続行</button>
+          <div class="storage-notice">
+            <strong>Ver.4.0</strong> - 複数施設対応版：施設ごとに独立したデータ管理
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 機能紹介セクション -->
+    <section class="features-section">
+      <div class="container">
+        <h2 class="section-title">主な機能</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">🏢</div>
+            <h3>複数施設対応</h3>
+            <p>グループ運営の施設も、それぞれ独立したデータ管理で安心・安全に運用できます。</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">📋</div>
+            <h3>備品登録・管理</h3>
+            <p>車いす、歩行器、エアマットなど様々な備品を写真付きで登録・管理できます。</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🔄</div>
+            <h3>貸出・返却管理</h3>
+            <p>備品の貸出状況をリアルタイムで把握。推奨返却場所の表示で効率的な運用を実現。</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">📍</div>
+            <h3>場所・状態追跡</h3>
+            <p>各備品の現在地、使用状況、備考情報を一目で確認。紛失防止にも効果的。</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">👥</div>
+            <h3>権限管理</h3>
+            <p>職員用と管理者用の2つのアクセスレベル。施設ごとに独立した認証システム。</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>データ管理</h3>
+            <p>備品データのエクスポート・インポート機能で、バックアップや他システムとの連携も簡単。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 利用者の声セクション -->
+    <section class="testimonials-section">
+      <div class="container">
+        <h2 class="section-title">利用者の声</h2>
+        <div class="testimonials-grid">
+          <div class="testimonial-card">
+            <div class="testimonial-content">
+              <div class="quote-icon">🏢</div>
+              <p class="testimonial-text">
+                「複数の事業所を運営していますが、施設ごとに独立してデータ管理できるので、プライバシーも安心です。各施設の備品状況を一元的に把握できるのも助かります。」
+              </p>
+            </div>
+            <div class="testimonial-author">
+              <div class="author-info">
+                <h4>田中 一郎 様</h4>
+                <span>株式会社ケアサポート</span>
+                <span class="role">代表取締役</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="testimonial-card">
+            <div class="testimonial-content">
+              <div class="quote-icon">⭐</div>
+              <p class="testimonial-text">
+                「以前は車いすがどこにあるか分からず、利用者様をお待たせすることがありました。StockEasyのおかげで、すぐに必要な備品を見つけられるようになりました。」
+              </p>
+            </div>
+            <div class="testimonial-author">
+              <div class="author-info">
+                <h4>山田 由美子 様</h4>
+                <span>デイサービスセンター みどりの丘</span>
+                <span class="role">介護主任</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="testimonial-card">
+            <div class="testimonial-content">
+              <div class="quote-icon">✨</div>
+              <p class="testimonial-text">
+                「StockEasyを導入してから、失くしたリモコンは見つかり、通勤電車で偶然座れる日が続き、贔屓のチームが優勝して彼女ができました。一生ついていきます。」
+              </p>
+            </div>
+            <div class="testimonial-author">
+              <div class="author-info">
+                <h4>佐藤 健一 様</h4>
+                <span>グループホーム ひまわり荘</span>
+                <span class="role">施設長</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="testimonial-card">
+            <div class="testimonial-content">
+              <div class="quote-icon">🚀</div>
+              <p class="testimonial-text">
+                「写真付きで備品を登録できるので、新人職員でもすぐに備品を識別できます。研修時間の短縮にもつながっています。」
+              </p>
+            </div>
+            <div class="testimonial-author">
+              <div class="author-info">
+                <h4>鈴木 太郎 様</h4>
+                <span>介護老人保健施設 希望の里</span>
+                <span class="role">事務長</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 利用者別機能セクション -->
+    <section class="roles-section">
+      <div class="container">
+        <h2 class="section-title">利用者別機能</h2>
+        <div class="roles-grid">
+          <div class="role-card staff-card">
+            <h3>👥 職員向け機能</h3>
+            <ul>
+              <li>備品の貸出・返却操作</li>
+              <li>備品状況の確認</li>
+              <li>備考情報の追加・編集</li>
+              <li>カテゴリ別フィルタリング</li>
+              <li>施設内データへの安全なアクセス</li>
+            </ul>
+          </div>
+          <div class="role-card admin-card">
+            <h3>⚙️ 管理者向け機能</h3>
+            <ul>
+              <li>新規備品の登録</li>
+              <li>備品情報の編集・削除</li>
+              <li>備品画像の管理</li>
+              <li>データのエクスポート・インポート</li>
+              <li>施設設定・ユーザー管理</li>
+              <li>複数施設の統合管理</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ローディング表示 -->
+  <div id="loading" class="loading">
+    <p>データを処理中...</p>
+  </div>
+
+  <!-- メインコンテンツ -->
+  <div id="mainContent" class="main-content" style="display: none;">
+    <div class="compact-header">
+      <div class="logo-section">
+        <div>
+          <h1>StockEasy</h1>
+          <p class="sub-heading" id="facilityNameDisplay">らくらく備品管理システム</p>
+        </div>
+      </div>
+      
+      <div class="header-controls">
+        <input type="text" id="searchInput" placeholder="備品名・ID・場所で検索..." style="padding: 0.6rem 1rem; margin: 0.2rem; border-radius: 8px; border: 2px solid #e9d5ff; font-size: 0.9rem; background: white; min-width: 200px;" oninput="searchItems()" />
+        <button onclick="exportData()">エクスポート</button>
+        <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData()" />
+        <button onclick="document.getElementById('importFile').click()">インポート</button>
+        <button onclick="logout()">ログアウト</button>
+      </div>
+    </div>
+
+    <!-- エラー表示エリア -->
+    <div id="errorNotice" class="error-notice" style="display: none;">
+      <p id="errorMessage">接続エラーが発生しました</p>
+      <button class="retry-button" onclick="retryConnection()">再試行</button>
+    </div>
+
+    <div id="adminArea" class="admin-section" style="display: none">
+      <h2>新規登録（管理者）</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+        <input type="text" id="itemName" placeholder="備品名" />
+        <input type="text" id="itemId" placeholder="ID" />
+        <select id="itemLocation">
+          <option value="事務所">事務所</option>
+          <option value="1F">1F</option>
+          <option value="2F">2F</option>
+          <option value="3F">3F</option>
+          <option value="4F">4F</option>
+          <option value="5F">5F</option>
+          <option value="地域交流室">地域交流室</option>
+          <option value="機能訓練室">機能訓練室</option>
+        </select>
+        <select id="itemCategory">
+          <option value="車いす">車いす</option>
+          <option value="歩行器・シルバーカー">歩行器・シルバーカー</option>
+          <option value="家具">家具</option>
+          <option value="エアマット">エアマット</option>
+          <option value="その他">その他</option>
+        </select>
+        <input type="file" id="itemImage" accept="image/*" />
+        <button onclick="registerItem()">登録</button>
+      </div>
+    </div>
+
+    <div class="tab-navigation" style="margin-bottom: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+      <button class="tab-button active" data-category="" onclick="filterByTab('')">全て</button>
+      <button class="tab-button" data-category="車いす" onclick="filterByTab('車いす')">車いす</button>
+      <button class="tab-button" data-category="歩行器・シルバーカー" onclick="filterByTab('歩行器・シルバーカー')">歩行器・シルバーカー</button>
+      <button class="tab-button" data-category="家具" onclick="filterByTab('家具')">家具</button>
+      <button class="tab-button" data-category="エアマット" onclick="filterByTab('エアマット')">エアマット</button>
+      <button class="tab-button" data-category="その他" onclick="filterByTab('その他')">その他</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>画像</th>
+          <th onclick="sortTable('name')" style="cursor: pointer;">備品名 ↕</th>
+          <th onclick="sortTable('id')" style="cursor: pointer;">ID ↕</th>
+          <th onclick="sortTable('location')" style="cursor: pointer;">保管場所 ↕</th>
+          <th onclick="sortTable('current')" style="cursor: pointer;">現在地 ↕</th>
+          <th onclick="sortTable('user')" style="cursor: pointer;">使用者 ↕</th>
+          <th onclick="sortTable('status')" style="cursor: pointer;">状態 ↕</th>
+          <th>備考</th>
+          <th onclick="sortTable('category')" style="cursor: pointer;">種別 ↕</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="itemTable"></tbody>
+    </table>
+
+    <div class="modal" id="borrowModal">
+      <div class="modal-content">
+        <h3>借用先を選択</h3>
+        <select id="borrowSelect">
+          <option>事務所</option>
+          <option>1F</option>
+          <option>2F</option>
+          <option>3F</option>
+          <option>4F</option>
+          <option>5F</option>
+          <option>地域交流室</option>
+          <option>機能訓練室</option>
+        </select>
+        <button onclick="confirmBorrow()">決定</button>
+        <button onclick="closeBorrowModal()">キャンセル</button>
+      </div>
+    </div>
+
+    <div class="modal" id="returnModal">
+      <div class="modal-content">
+        <h3>返却場所を選択</h3>
+        <p id="suggestedReturn"></p>
+        <select id="returnSelect">
+          <option>事務所</option>
+          <option>1F</option>
+          <option>2F</option>
+          <option>3F</option>
+          <option>4F</option>
+          <option>5F</option>
+          <option>地域交流室</option>
+          <option>機能訓練室</option>
+        </select>
+        <button onclick="confirmReturn()">決定</button>
+        <button onclick="closeReturnModal()">キャンセル</button>
+      </div>
+    </div>
+
+    <!-- 編集モーダル -->
+    <div class="modal" id="editModal">
+      <div class="edit-modal-content">
+        <h3>備品情報編集</h3>
+        <div class="form-group">
+          <label for="editItemName">備品名</label>
+          <input type="text" id="editItemName" />
+        </div>
+        <div class="form-group">
+          <label for="editItemId">ID</label>
+          <input type="text" id="editItemId" />
+        </div>
+        <div class="form-group">
+          <label for="editItemLocation">保管場所</label>
+          <select id="editItemLocation">
+            <option value="事務所">事務所</option>
+            <option value="1F">1F</option>
+            <option value="2F">2F</option>
+            <option value="3F">3F</option>
+            <option value="4F">4F</option>
+            <option value="5F">5F</option>
+            <option value="地域交流室">地域交流室</option>
+            <option value="機能訓練室">機能訓練室</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="editItemCategory">種別</label>
+          <select id="editItemCategory">
+            <option value="車いす">車いす</option>
+            <option value="歩行器・シルバーカー">歩行器・シルバーカー</option>
+            <option value="家具">家具</option>
+            <option value="エアマット">エアマット</option>
+            <option value="その他">その他</option>
+          </select>
+        </div>
+        <div class="button-group">
+          <button onclick="confirmEdit()">保存</button>
+          <button onclick="closeEditModal()">キャンセル</button>
+          <button class="delete-button" onclick="confirmDelete()">削除</button>
+        </div>
+      </div>
+    </div>
+
+    <input type="file" id="editImageInput" accept="image/*" style="display:none" />
+  </div>
+
+  <script>
+    let items = [];
+    let currentIndex = null;
+    let isAdmin = false;
+    let editingIndex = null;
+    let connectionRetries = 0;
+    const maxRetries = 3;
+    let sortColumn = '';
+    let sortDirection = 'asc';
+    let currentFacilityId = null;
+    let facilities = [];
+    
+    // API URLを動的に設定
+    const USE_LOCAL_STORAGE = false; // 本番用（サーバー保存）
+    const API_BASE = window.location.origin + '/api';
+    
+    // デバッグモード
+    const DEBUG = true;
+    function debugLog(...args) {
+      if (DEBUG) console.log('[StockEasy]', ...args);
+    }
+
+    // ローディング表示
+    function showLoading() {
+      document.getElementById('loading').style.display = 'block';
+    }
+
+    function hideLoading() {
+      document.getElementById('loading').style.display = 'none';
+    }
+
+    // エラー表示
+    function showError(message) {
+      const errorNotice = document.getElementById('errorNotice');
+      const errorMessage = document.getElementById('errorMessage');
+      errorMessage.textContent = message;
+      errorNotice.style.display = 'block';
+    }
+
+    function hideError() {
+      document.getElementById('errorNotice').style.display = 'none';
+    }
+
+    // 接続再試行
+    async function retryConnection() {
+      hideError();
+      if (connectionRetries < maxRetries) {
+        connectionRetries++;
+        console.log(`接続再試行 ${connectionRetries}/${maxRetries}`);
+        await loadItems();
+        renderItems();
+      } else {
+        showError('接続に失敗しました。ページを再読み込みしてください。');
+      }
+    }
+
+    // API呼び出し用のヘルパー関数
+    async function apiCall(url, options = {}) {
+      showLoading();
+      try {
+        console.log('API呼び出し:', url);
+        
+        const response = await fetch(url, {
+          headers: {
+            'Content-Type': 'application/json',
+            ...options.headers
+          },
+          credentials: 'include', // セッション情報を含める
+          timeout: 10000, // 10秒タイムアウト
+          ...options
+        });
+        
+        console.log('レスポンス状態:', response.status);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('APIエラー詳細:', errorText);
+          throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
+        
+        const data = await response.json();
+        console.log('取得データ:', data);
+        hideError();
+        connectionRetries = 0;
+        return data;
+      } catch (error) {
+        console.error('API Error:', error);
+        
+        if (error.name === 'TypeError' && error.message.includes('fetch')) {
+          showError('ネットワークエラー: サーバーに接続できません');
+        } else {
+          showError(`エラー: ${error.message}`);
+        }
+        throw error;
+      } finally {
+        hideLoading();
+      }
+    }
+
+    // 施設関連の関数
+    async function loadFacilities() {
+      try {
+        // 実際のAPIが未実装の場合はデモデータを返す
+        facilities = [
+          { id: 1, name: 'デイサービス みどりの丘' },
+          { id: 2, name: 'グループホーム ひまわり荘' },
+          { id: 3, name: '特別養護老人ホーム フォレスト指扇' }
+        ];
+        
+        const facilitySelect = document.getElementById('facilitySelect');
+        facilitySelect.innerHTML = '<option value="">施設を選択してください...</option>';
+        
+        facilities.forEach(facility => {
+          const option = document.createElement('option');
+          option.value = facility.id;
+          option.textContent = facility.name;
+          facilitySelect.appendChild(option);
+        });
+        
+        debugLog('施設リストを読み込みました:', facilities);
+      } catch (error) {
+        console.error('施設リストの読み込みに失敗:', error);
+        // エラーでも続行
+      }
+    }
+
+    // 施設登録
+    async function registerFacility() {
+      try {
+        const facilityName = document.getElementById('facilityName').value.trim();
+        const facilityAddress = document.getElementById('facilityAddress').value.trim();
+        const facilityPhone = document.getElementById('facilityPhone').value.trim();
+        const adminUsername = document.getElementById('adminUsername').value.trim();
+        const adminPassword = document.getElementById('adminPassword').value;
+
+        if (!facilityName || !adminPassword) {
+          alert('施設名と管理者パスワードは必須です');
+          return;
+        }
+
+        if (adminPassword.length < 6) {
+          alert('パスワードは6文字以上で入力してください');
+          return;
+        }
+
+        const response = await apiCall(`${API_BASE}/facilities`, {
+          method: 'POST',
+          body: JSON.stringify({
+            name: facilityName,
+            address: facilityAddress,
+            phone: facilityPhone,
+            admin_username: adminUsername,
+            admin_password: adminPassword
+          })
+        });
+
+        if (response.success) {
+          alert('施設が正常に登録されました！');
+          
+          // 新規登録した施設を選択状態にする
+          currentFacilityId = response.facility_id;
+          
+          // 施設リストを再読み込み
+          await loadFacilities();
+          
+          // 既存施設タブに切り替えて、新しい施設を選択
+          switchFacilityTab('existing');
+          document.getElementById('facilitySelect').value = currentFacilityId;
+          
+          // フォームをクリア
+          clearNewFacilityForm();
+        } else {
+          alert(response.message || '施設登録に失敗しました');
+        }
+      } catch (error) {
+        console.error('施設登録エラー:', error);
+        alert('施設登録中にエラーが発生しました');
+      }
+    }
+
+    function clearNewFacilityForm() {
+      document.getElementById('facilityName').value = '';
+      document.getElementById('facilityAddress').value = '';
+      document.getElementById('facilityPhone').value = '';
+      document.getElementById('adminUsername').value = 'admin';
+      document.getElementById('adminPassword').value = '';
+    }
+
+    // 施設選択タブの切り替え
+    function switchFacilityTab(type) {
+      // タブのアクティブ状態を更新
+      document.querySelectorAll('.facility-tab').forEach(tab => {
+        tab.classList.remove('active');
+        if (tab.dataset.facility === type) {
+          tab.classList.add('active');
+        }
+      });
+
+      // 表示エリアの切り替え
+      const existingArea = document.getElementById('existingFacilityArea');
+      const newArea = document.getElementById('newFacilityArea');
+
+      if (type === 'existing') {
+        existingArea.style.display = 'block';
+        newArea.classList.remove('show');
+      } else {
+        existingArea.style.display = 'none';
+        newArea.classList.add('show');
+      }
+    }
+
+    // 施設選択をスキップ
+    function skipFacilitySelection() {
+      debugLog('施設選択をスキップ - 単一施設モード');
+      currentFacilityId = null;
+      document.getElementById('facilitySelectArea').classList.remove('show');
+    }
+
+    // データの読み込み（施設対応版）
+    async function loadItems() {
+      try {
+        if (!isLoggedIn()) {
+          console.log('ログインしていないため、データ読み込みをスキップ');
+          return;
+        }
+        
+        console.log('データ読み込み開始');
+        let url = `${API_BASE}/equipment`;
+        
+        // 施設IDが指定されている場合はクエリパラメータに追加
+        if (currentFacilityId) {
+          url += `?facility_id=${currentFacilityId}`;
+        }
+        
+        items = await apiCall(url);
+        console.log(`${items.length}件のデータを読み込みました`);
+        hideError();
+      } catch (error) {
+        console.error('データの読み込みに失敗しました:', error);
+        items = [];
+        if (connectionRetries < maxRetries) {
+          showError('データの読み込みに失敗しました。再試行してください。');
+        }
+      }
+    }
+    
+    // ログイン状態確認
+    function isLoggedIn() {
+      return document.getElementById('mainContent').style.display === 'block';
+    }
+
+    // データのエクスポート・インポート機能
+    async function exportData() {
+      try {
+        let url = `${API_BASE}/export`;
+        if (currentFacilityId) {
+          url += `?facility_id=${currentFacilityId}`;
+        }
+        
+        const data = await apiCall(url);
+        const dataStr = JSON.stringify(data, null, 2);
+        const dataBlob = new Blob([dataStr], {type: 'application/json'});
+        const url2 = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url2;
+        
+        const facilityName = getCurrentFacilityName();
+        const filename = facilityName ? 
+          `equipment_data_${facilityName}.json` : 
+          'equipment_data.json';
+        
+        link.download = filename;
+        link.click();
+        URL.revokeObjectURL(url2);
+      } catch (error) {
+        console.error('エクスポートに失敗しました:', error);
+        alert('エクスポートに失敗しました');
+      }
+    }
+
+    async function importData() {
+      const file = document.getElementById('importFile').files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        try {
+          const importedData = JSON.parse(e.target.result);
+          if (confirm('現在のデータを置き換えますか？')) {
+            let url = `${API_BASE}/import`;
+            const body = { data: importedData };
+            
+            if (currentFacilityId) {
+              body.facility_id = currentFacilityId;
+            }
+            
+            await apiCall(url, {
+              method: 'POST',
+              body: JSON.stringify(body)
+            });
+            
+            await loadItems();
+            renderItems();
+            alert('データをインポートしました');
+          }
+        } catch (error) {
+          alert('ファイルの読み込みに失敗しました');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // 現在の施設名を取得
+    function getCurrentFacilityName() {
+      if (!currentFacilityId) return null;
+      const facility = facilities.find(f => f.id == currentFacilityId);
+      return facility ? facility.name : null;
+    }
+
+    // ソート機能
+    function sortTable(column) {
+      // 同じ列をクリックした場合は、ソート方向を反転
+      if (sortColumn === column) {
+        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+      } else {
+        sortColumn = column;
+        sortDirection = 'asc';
+      }
+      
+      // アイテムをソート
+      items.sort((a, b) => {
+        let aValue = a[column] || '';
+        let bValue = b[column] || '';
+        
+        // 数値として比較できる場合は数値比較
+        if (!isNaN(aValue) && !isNaN(bValue) && aValue !== '' && bValue !== '') {
+          aValue = parseFloat(aValue);
+          bValue = parseFloat(bValue);
+        } else {
+          // 文字列として比較（大文字小文字を無視）
+          aValue = aValue.toString().toLowerCase();
+          bValue = bValue.toString().toLowerCase();
+        }
+        
+        if (sortDirection === 'asc') {
+          return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
+        } else {
+          return aValue < bValue ? 1 : aValue > bValue ? -1 : 0;
+        }
+      });
+      
+      // 検索窓の内容を取得して再描画
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      renderItems('', searchTerm);
+    }
+
+    // 検索機能
+    function searchItems() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      renderItems('', searchTerm);
+    }
+
+    function renderItems(filterCategory = '', searchTerm = '') {
+      const tbody = document.getElementById('itemTable');
+      tbody.innerHTML = '';
+      
+      // フィルタリングと検索
+      let filteredItems = items;
+      
+      // カテゴリフィルタ
+      if (filterCategory) {
+        filteredItems = filteredItems.filter(item => item.category === filterCategory);
+      }
+      
+      // 検索フィルタ
+      if (searchTerm) {
+        filteredItems = filteredItems.filter(item => 
+          (item.name && item.name.toLowerCase().includes(searchTerm)) ||
+          (item.id && item.id.toLowerCase().includes(searchTerm)) ||
+          (item.location && item.location.toLowerCase().includes(searchTerm)) ||
+          (item.current && item.current.toLowerCase().includes(searchTerm)) ||
+          (item.user && item.user.toLowerCase().includes(searchTerm))
+        );
+      }
+      
+      if (filteredItems.length === 0) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td colspan="10" style="text-align: center; padding: 2rem;">データがありません</td>';
+        tbody.appendChild(tr);
+        return;
+      }
+      
+      filteredItems.forEach((item, originalIndex) => {
+        // 元の配列でのインデックスを取得
+        const actualIndex = items.findIndex(i => i.id === item.id);
+        
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>
+            <div class="image-wrapper">
+              <img src="${item.image || ''}" class="image-preview" onerror="this.style.display='none'" />
+              ${isAdmin ? `<button class="edit-button" onclick="editImage(${actualIndex})">画像</button>` : ''}
+            </div>
+          </td>
+          <td>${item.name || ''}</td>
+          <td>${item.id || ''}</td>
+          <td>${item.location || ''}</td>
+          <td>${item.current || ''}</td>
+          <td>${item.user || ''}</td>
+          <td>
+            <span class="${item.status === '待機' ? 'status-available' : 'status-in-use'}">
+              ${item.status || '待機'}
+            </span>
+          </td>
+          <td><input type="text" value="${item.note || ''}" onchange="updateNote(${actualIndex}, this.value)" /></td>
+          <td>${item.category || ''}</td>
+          <td>
+            <button onclick="openBorrow(${actualIndex})">借用</button>
+            <button onclick="openReturn(${actualIndex})">返却</button>
+            ${isAdmin ? `<button onclick="openEdit(${actualIndex})">編集</button>` : ''}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // 備考更新
+    async function updateNote(index, note) {
+      try {
+        const item = items[index];
+        const body = { note };
+        
+        if (currentFacilityId) {
+          body.facility_id = currentFacilityId;
+        }
+        
+        await apiCall(`${API_BASE}/equipment/${item.id}`, {
+          method: 'PUT',
+          body: JSON.stringify(body)
+        });
+        items[index].note = note;
+      } catch (error) {
+        console.error('備考の更新に失敗しました:', error);
+        alert('備考の更新に失敗しました');
+      }
+    }
+
+    // 画像を圧縮する関数
+    function compressImage(file, maxWidth = 300, quality = 0.7) {
+      return new Promise((resolve) => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        
+        img.onload = () => {
+          const ratio = Math.min(maxWidth / img.width, maxWidth / img.height);
+          canvas.width = img.width * ratio;
+          canvas.height = img.height * ratio;
+          
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+          resolve(compressedDataUrl);
+        };
+        
+        img.src = URL.createObjectURL(file);
+      });
+    }
+
+    async function registerItem() {
+      const name = document.getElementById('itemName').value;
+      const id = document.getElementById('itemId').value;
+      const location = document.getElementById('itemLocation').value;
+      const category = document.getElementById('itemCategory').value;
+      const imageFile = document.getElementById('itemImage').files[0];
+
+      if (!name || !id || !location) {
+        alert('必要な情報を入力してください');
+        return;
+      }
+
+      const item = {
+        name: name,
+        id: id,
+        location: location,
+        category: category,
+        history: []
+      };
+
+      if (currentFacilityId) {
+        item.facility_id = currentFacilityId;
+      }
+
+      if (imageFile) {
+        try {
+          console.log('画像を圧縮中...');
+          const compressedImage = await compressImage(imageFile, 300, 0.6);
+          console.log(`圧縮完了: ${compressedImage.length} 文字`);
+          
+          item.image = compressedImage;
+          
+          await apiCall(`${API_BASE}/equipment`, {
+            method: 'POST',
+            body: JSON.stringify(item)
+          });
+          await loadItems();
+          renderItems();
+          clearForm();
+          alert('備品を登録しました（画像圧縮済み）');
+        } catch (error) {
+          console.error('登録に失敗しました:', error);
+          alert(`登録に失敗しました: ${error.message}`);
+        }
+      } else {
+        try {
+          await apiCall(`${API_BASE}/equipment`, {
+            method: 'POST',
+            body: JSON.stringify(item)
+          });
+          await loadItems();
+          renderItems();
+          clearForm();
+          alert('備品を登録しました');
+        } catch (error) {
+          console.error('登録に失敗しました:', error);
+          alert(`登録に失敗しました: ${error.message}`);
+        }
+      }
+    }
+
+    function clearForm() {
+      document.getElementById('itemName').value = '';
+      document.getElementById('itemId').value = '';
+      document.getElementById('itemLocation').value = '事務所';
+      document.getElementById('itemCategory').value = '車いす';
+      document.getElementById('itemImage').value = '';
+    }
+
+    async function editImage(index) {
+      const input = document.getElementById('editImageInput');
+      input.onchange = async () => {
+        const file = input.files[0];
+        if (file) {
+          try {
+            console.log('画像を圧縮中...');
+            const compressedImage = await compressImage(file, 300, 0.6);
+            console.log(`圧縮完了: ${compressedImage.length} 文字`);
+            
+            const item = items[index];
+            const body = { image: compressedImage };
+            
+            if (currentFacilityId) {
+              body.facility_id = currentFacilityId;
+            }
+            
+            await apiCall(`${API_BASE}/equipment/${item.id}`, {
+              method: 'PUT',
+              body: JSON.stringify(body)
+            });
+            items[index].image = compressedImage;
+            renderItems();
+            alert('画像を更新しました（圧縮済み）');
+          } catch (error) {
+            console.error('画像の更新に失敗しました:', error);
+            alert('画像の更新に失敗しました');
+          }
+        } else {
+          try {
+            const item = items[index];
+            const body = { image: '' };
+            
+            if (currentFacilityId) {
+              body.facility_id = currentFacilityId;
+            }
+            
+            await apiCall(`${API_BASE}/equipment/${item.id}`, {
+              method: 'PUT',
+              body: JSON.stringify(body)
+            });
+            delete items[index].image;
+            renderItems();
+            alert('画像を削除しました');
+          } catch (error) {
+            console.error('画像の削除に失敗しました:', error);
+            alert('画像の削除に失敗しました');
+          }
+        }
+      };
+      input.click();
+    }
+
+    // 編集モーダル関連の関数
+    function openEdit(index) {
+      editingIndex = index;
+      const item = items[index];
+      
+      document.getElementById('editItemName').value = item.name || '';
+      document.getElementById('editItemId').value = item.id || '';
+      document.getElementById('editItemLocation').value = item.location || '';
+      document.getElementById('editItemCategory').value = item.category || '';
+      
+      document.getElementById('editModal').style.display = 'flex';
+    }
+
+    function closeEditModal() {
+      document.getElementById('editModal').style.display = 'none';
+      editingIndex = null;
+    }
+
+    async function confirmEdit() {
+      if (editingIndex === null) return;
+      
+      const name = document.getElementById('editItemName').value;
+      const newId = document.getElementById('editItemId').value;
+      const location = document.getElementById('editItemLocation').value;
+      const category = document.getElementById('editItemCategory').value;
+
+      if (!newId || !location) {
+        alert('IDと保管場所は必須です');
+        return;
+      }
+
+      try {
+        const oldItem = items[editingIndex];
+        const body = { name, location, category };
+        
+        if (currentFacilityId) {
+          body.facility_id = currentFacilityId;
+        }
+        
+        const response = await fetch(`${API_BASE}/equipment/${oldItem.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include',
+          body: JSON.stringify(body)
+        });
+        
+        const result = await response.json();
+        
+        if (!result.success) {
+          alert(result.message);
+          return;
+        }
+        
+        if (oldItem.id !== newId) {
+          alert('IDの変更は現在サポートされていません');
+          closeEditModal();
+          return;
+        }
+
+        await loadItems();
+        renderItems();
+        closeEditModal();
+        alert('備品情報を更新しました');
+      } catch (error) {
+        console.error('更新に失敗しました:', error);
+        alert('通信エラーが発生しました');
+      }
+    }
+
+    async function confirmDelete() {
+      if (editingIndex === null) return;
+      
+      if (confirm(`備品「${items[editingIndex].name}」を本当に削除しますか？`)) {
+        try {
+          const item = items[editingIndex];
+          let url = `${API_BASE}/equipment/${item.id}`;
+          
+          if (currentFacilityId) {
+            url += `?facility_id=${currentFacilityId}`;
+          }
+          
+          await apiCall(url, {
+            method: 'DELETE'
+          });
+          await loadItems();
+          renderItems();
+          closeEditModal();
+          alert('備品を削除しました');
+        } catch (error) {
+          console.error('削除に失敗しました:', error);
+          alert('削除に失敗しました');
+        }
+      }
+    }
+
+    function openBorrow(index) {
+      currentIndex = index;
+      document.getElementById('borrowModal').style.display = 'flex';
+    }
+
+    function closeBorrowModal() {
+      document.getElementById('borrowModal').style.display = 'none';
+    }
+
+    async function confirmBorrow() {
+      const place = document.getElementById('borrowSelect').value;
+      const timestamp = new Date().toLocaleString('ja-JP');
+      
+      try {
+        const item = items[currentIndex];
+        const newHistory = [...(item.history || []), { 
+          action: '借用', 
+          place: place, 
+          timestamp: timestamp 
+        }];
+
+        const body = {
+          user: place,
+          current: place,
+          status: '使用中',
+          history: newHistory
+        };
+        
+        if (currentFacilityId) {
+          body.facility_id = currentFacilityId;
+        }
+
+        await apiCall(`${API_BASE}/equipment/${item.id}`, {
+          method: 'PUT',
+          body: JSON.stringify(body)
+        });
+
+        items[currentIndex].user = place;
+        items[currentIndex].current = place;
+        items[currentIndex].status = '使用中';
+        items[currentIndex].history = newHistory;
+        
+        renderItems();
+        closeBorrowModal();
+        alert('借用処理が完了しました');
+      } catch (error) {
+        console.error('借用処理に失敗しました:', error);
+        alert('借用処理に失敗しました');
+      }
+    }
+
+    function openReturn(index) {
+      // 状態が「待機」の場合はエラーメッセージを表示
+      if (items[index].status === '待機') {
+        alert('この備品は現在貸し出していません');
+        return;
+      }
+      
+      currentIndex = index;
+      const location = items[index].location;
+      document.getElementById('suggestedReturn').textContent = `推奨返却場所：${location}`;
+      document.getElementById('returnModal').style.display = 'flex';
+    }
+
+    function closeReturnModal() {
+      document.getElementById('returnModal').style.display = 'none';
+    }
+
+    async function confirmReturn() {
+      const place = document.getElementById('returnSelect').value;
+      const timestamp = new Date().toLocaleString('ja-JP');
+      
+      try {
+        const item = items[currentIndex];
+        const newHistory = [...(item.history || []), { 
+          action: '返却', 
+          place: place, 
+          timestamp: timestamp 
+        }];
+
+        const body = {
+          user: '',
+          current: place,
+          status: '待機',
+          history: newHistory
+        };
+        
+        if (currentFacilityId) {
+          body.facility_id = currentFacilityId;
+        }
+
+        await apiCall(`${API_BASE}/equipment/${item.id}`, {
+          method: 'PUT',
+          body: JSON.stringify(body)
+        });
+
+        items[currentIndex].user = '';
+        items[currentIndex].current = place;
+        items[currentIndex].status = '待機';
+        items[currentIndex].history = newHistory;
+        
+        renderItems();
+        closeReturnModal();
+        alert('返却処理が完了しました');
+      } catch (error) {
+        console.error('返却処理に失敗しました:', error);
+        alert('返却処理に失敗しました');
+      }
+    }
+
+    // ログイン処理
+    async function login() {
+      try {
+        debugLog('ログイン処理開始');
+        
+        const role = document.getElementById('roleSelect').value;
+        const password = document.getElementById('loginPassword').value;
+        const facilityId = document.getElementById('facilitySelect').value;
+        
+        debugLog('選択された役割:', role);
+        debugLog('選択された施設ID:', facilityId);
+        
+        // 施設が選択されている場合は施設IDを設定
+        if (facilityId) {
+          currentFacilityId = parseInt(facilityId);
+        }
+
+        if (role === 'admin') {
+          const body = {
+            username: 'admin',
+            password: password
+          };
+          
+          if (currentFacilityId) {
+            body.facility_id = currentFacilityId;
+          }
+          
+          const response = await fetch('/api/admin/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify(body)
+          });
+          
+          const result = await response.json();
+          
+          if (!result.success) {
+            alert(result.message);
+            return;
+          }
+        } else {
+          // 職員ログイン処理
+          const body = {};
+          
+          if (currentFacilityId) {
+            body.facility_id = currentFacilityId;
+          }
+          
+          const response = await fetch('/api/staff/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify(body)
+          });
+          
+          debugLog('職員ログインAPIレスポンス受信');
+          const result = await response.json();
+          debugLog('職員ログイン結果:', result);
+  
+          if (!result.success) {
+            alert(result.message);
+            return;
+          }
+        }
+        
+        debugLog('認証成功、画面切り替え開始');
+        
+        // 画面を切り替え
+        document.getElementById('loginArea').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'block';
+        isAdmin = role === 'admin';
+        document.getElementById('adminArea').style.display = isAdmin ? 'block' : 'none';
+        
+        // AIバッジを表示
+        showAIBadge();
+        
+        // 施設名を表示
+        if (currentFacilityId) {
+          const facilityName = getCurrentFacilityName();
+          if (facilityName) {
+            document.getElementById('facilityNameDisplay').textContent = `${facilityName} - らくらく備品管理システム`;
+          }
+        }
+        
+        debugLog('画面切り替え完了、データ読み込み開始');
+        
+        // ログイン後にデータを読み込み
+        try {
+          await loadItems();
+          renderItems();
+          debugLog('ログイン完了');
+        } catch (error) {
+          console.error('ログイン後のデータ読み込みに失敗:', error);
+          // データ読み込みに失敗してもログイン状態は維持
+          renderItems(); // 空のテーブルを表示
+          showError('データの読み込みに失敗しました。再試行してください。');
+        }
+      } catch (error) {
+        console.error('ログイン処理でエラー:', error);
+        alert('ログイン処理中にエラーが発生しました: ' + error.message);
+      }
+    }
+
+    function logout() {
+      // サーバーにログアウト要求を送信
+      fetch('/api/logout', {
+        method: 'POST',
+        credentials: 'include'
+      }).catch(error => {
+        console.error('ログアウト要求エラー:', error);
+      });
+      
+      // 画面をリセット
+      document.getElementById('loginArea').style.display = 'block';
+      document.getElementById('mainContent').style.display = 'none';
+      hideError();
+      items = [];
+      isAdmin = false;
+      connectionRetries = 0;
+      currentFacilityId = null;
+
+      // AIバッジを非表示にする（この行を追加）
+      hideAIBadge();
+      
+      // AIチャットパネルも閉じる（この行を追加）
+      if (isAIChatOpen) {
+        closeAIChat();
+      }
+      
+      // 施設選択エリアを再表示
+      document.getElementById('facilitySelectArea').classList.add('show');
+      
+      // フォームをリセット
+      document.getElementById('roleSelect').value = 'staff';
+      document.getElementById('loginPassword').value = '';
+      document.getElementById('facilitySelect').value = '';
+      handleRoleChange();
+    }
+
+    // 役割選択の変更に応じてパスワード入力エリアを表示/非表示
+    function handleRoleChange() {
+      const role = document.getElementById('roleSelect').value;
+      const passwordArea = document.getElementById('passwordArea');
+      
+      if (role === 'admin') {
+        passwordArea.style.display = 'block';
+      } else {
+        passwordArea.style.display = 'none';
+        document.getElementById('loginPassword').value = '';
+      }
+    }
+
+    // モーダルを閉じる処理（背景クリック）
+    function setupModalEvents() {
+      // 各モーダルの背景クリックで閉じる
+      document.getElementById('borrowModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+          closeBorrowModal();
+        }
+      });
+
+      document.getElementById('returnModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+          closeReturnModal();
+        }
+      });
+
+      document.getElementById('editModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+          closeEditModal();
+        }
+      });
+    }
+
+    function setupTabEvents() {
+      document.querySelectorAll('.tab-button').forEach(button => {
+        button.addEventListener('click', () => {
+          const category = button.dataset.category;
+          filterByTab(category);
+        });
+      });
+      
+      // 施設タブのイベント設定
+      document.querySelectorAll('.facility-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          const facilityType = tab.dataset.facility;
+          switchFacilityTab(facilityType);
+        });
+      });
+    }
+
+    function filterByTab(category) {
+      // タブのアクティブ状態を更新
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.category === category) {
+          btn.classList.add('active');
+        }
+      });
+      
+      // 検索窓の内容を取得
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      
+      // 絞り込み表示（検索も考慮）
+      renderItems(category, searchTerm);
+    }
+
+    // セッション状態復元関数
+    async function checkAndRestoreSession() {
+      try {
+        const response = await fetch('/api/session/check', {
+          credentials: 'include'
+        });
+        const result = await response.json();
+        
+        if (result.success && result.logged_in) {
+          // ログイン状態を復元
+          document.getElementById('loginArea').style.display = 'none';
+          document.getElementById('mainContent').style.display = 'block';
+          
+          // ユーザータイプに応じて画面を設定
+          isAdmin = result.user_type === 'admin';
+          
+          if (isAdmin) {
+            document.getElementById('adminArea').style.display = 'block';
+          } else {
+            document.getElementById('adminArea').style.display = 'none';
+          }
+          
+          // 施設IDが保存されている場合は復元
+          if (result.facility_id) {
+            currentFacilityId = result.facility_id;
+            const facilityName = getCurrentFacilityName();
+            if (facilityName) {
+              document.getElementById('facilityNameDisplay').textContent = `${facilityName} - らくらく備品管理システム`;
+            }
+          }
+          
+          // データを読み込み
+          await loadItems();
+          renderItems();
+
+          // AIバッジを表示
+          showAIBadge();
+          
+          debugLog('セッション復元完了:', result.user_type, 'isAdmin:', isAdmin);
+        }
+      } catch (error) {
+        console.error('セッション確認エラー:', error);
+      }
+    }
+
+    // 初期化処理
+    function initializeApp() {
+      debugLog('アプリケーション初期化開始');
+      
+      try {
+        // イベントリスナーの設定
+        const loginButton = document.getElementById('loginButton');
+        const roleSelect = document.getElementById('roleSelect');
+        
+        if (!loginButton) {
+          throw new Error('ログインボタンが見つかりません');
+        }
+        
+        if (!roleSelect) {
+          throw new Error('役割選択が見つかりません');
+        }
+        
+        // クリックイベントとタッチイベントの両方に対応
+        loginButton.addEventListener('click', function(e) {
+          e.preventDefault();
+          login();
+        });
+        
+        // モバイル対応
+        loginButton.addEventListener('touchstart', function(e) {
+          e.preventDefault();
+          login();
+        });
+        
+        debugLog('ログインボタンのイベントリスナーを設定');
+        
+        roleSelect.addEventListener('change', handleRoleChange);
+        debugLog('役割選択のイベントリスナーを設定');
+
+        // モーダルイベントの設定
+        setupModalEvents();
+        
+        // タブイベントの設定
+        setupTabEvents();
+        
+        // Enterキーでログインできるようにする
+        const loginPassword = document.getElementById('loginPassword');
+        if (loginPassword) {
+          loginPassword.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              login();
+            }
+          });
+        }
+        
+        // 施設選択エリアの初期表示
+        document.getElementById('facilitySelectArea').classList.add('show');
+        
+        // 施設リストを読み込み
+        loadFacilities();
+        
+        debugLog('アプリケーション初期化完了');
+        
+        // セッション状態を確認してログイン状態を復元
+        checkAndRestoreSession();
+        
+      } catch (error) {
+        console.error('初期化エラー:', error);
+        alert('アプリケーションの初期化に失敗しました。ページを再読み込みしてください。');
+      }
+    }
+
+    // DOMが読み込まれた後に初期化
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeApp);
+    } else {
+      initializeApp();
+    }
+    // ====================================
+    // AI チャット UI 制御関数
+    // ====================================
+    
+    let isAIChatOpen = false;
+    
+    // AIチャットパネルの開閉
+    function toggleAIChat() {
+      console.log('🤖 AIチャット切り替え');
+      
+      const panel = document.getElementById('aiChatPanel');
+      
+      if (isAIChatOpen) {
+        closeAIChat();
+      } else {
+        openAIChat();
+      }
+    }
+    
+    // AIチャットパネルを開く
+    function openAIChat() {
+      console.log('📂 AIチャットパネルを開く');
+      
+      const panel = document.getElementById('aiChatPanel');
+      panel.classList.add('active');
+      isAIChatOpen = true;
+      
+      // 入力フィールドにフォーカス
+      setTimeout(() => {
+        const input = document.getElementById('aiInputField');
+        if (input) input.focus();
+      }, 400);
+    }
+    
+    // AIチャットパネルを閉じる
+    function closeAIChat() {
+      console.log('📁 AIチャットパネルを閉じる');
+      
+      const panel = document.getElementById('aiChatPanel');
+      panel.classList.remove('active');
+      isAIChatOpen = false;
+    }
+    
+    // AIメッセージ送信
+    function sendAIMessage() {
+      const input = document.getElementById('aiInputField');
+      const message = input.value.trim();
+      
+      if (!message) return;
+      
+      console.log('💬 AIメッセージ送信:', message);
+      
+      // ユーザーメッセージを表示
+      addAIMessageToChat('user', message);
+      
+      // 入力欄をクリア
+      input.value = '';
+      autoResizeAIInput(input);
+      
+      // AI応答（仮）
+      setTimeout(() => {
+        addAIMessageToChat('ai', 'ありがとうございます！現在AI機能を準備中です。🤖<br>まもなく本格的な会話機能が利用可能になります！');
+      }, 1000);
+    }
+    
+    // チャットにメッセージを追加
+    function addAIMessageToChat(sender, message) {
+      const chatBody = document.getElementById('aiChatBody');
+      
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `ai-message ${sender}`;
+      
+      messageDiv.innerHTML = `
+        <div class="ai-message-bubble">${message}</div>
+      `;
+      
+      chatBody.appendChild(messageDiv);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+    
+    // Enter キー送信対応
+    function handleAIKeyPress(event) {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendAIMessage();
+      }
+    }
+    
+    // テキストエリア自動リサイズ
+    function autoResizeAIInput(textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = Math.min(textarea.scrollHeight, 80) + 'px';
+    }
+    
+    // AI状態更新
+    function updateAIBadgeStatus(status) {
+      const dot = document.getElementById('aiStatusDot');
+      
+      // 既存のクラスを削除
+      dot.classList.remove('loading', 'error');
+      
+      // 新しい状態を設定
+      if (status === 'loading') {
+        dot.classList.add('loading');
+      } else if (status === 'error') {
+        dot.classList.add('error');
+      }
+      // 'ready' の場合はデフォルト（緑）
+    }
+    
+    // ESCキーでチャット閉じる
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isAIChatOpen) {
+        closeAIChat();
+      }
+    });
+    
+    // パネル外クリックで閉じる
+    document.addEventListener('click', (e) => {
+      const panel = document.getElementById('aiChatPanel');
+      const badge = document.getElementById('aiBadge');
+      
+      if (isAIChatOpen && 
+          !panel.contains(e.target) && 
+          !badge.contains(e.target)) {
+        closeAIChat();
+      }
+    });
+    
+    // AIバッジ表示制御関数
+    function showAIBadge() {
+      console.log('🤖 AIバッジを表示');
+      const badge = document.getElementById('aiBadge');
+      if (badge) {
+        badge.classList.add('show');
+        
+        // 少し遅れて表示アニメーション
+        setTimeout(() => {
+          if (badge.style) {
+            badge.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+              badge.style.transform = 'scale(1)';
+            }, 200);
+          }
+        }, 500);
+      }
+    }
+    
+    function hideAIBadge() {
+      console.log('🤖 AIバッジを非表示');
+      const badge = document.getElementById('aiBadge');
+      if (badge) {
+        badge.classList.remove('show');
+        
+        // チャットパネルも確実に閉じる
+        if (isAIChatOpen) {
+          closeAIChat();
+        }
+      }
+    }
+    
+    console.log('✅ AI Chat UI functions loaded');
+  </script>
+</body>
+</html>
