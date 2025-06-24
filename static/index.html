@@ -2656,6 +2656,9 @@
         
         // セッション状態を確認してログイン状態を復元
         checkAndRestoreSession();
+
+        stockEasyAI = new StockEasyAI();
+        debugLog('AI機能を初期化しました');
         
       } catch (error) {
         console.error('初期化エラー:', error);
@@ -2712,12 +2715,12 @@
       isAIChatOpen = false;
     }
     
-    // AIメッセージ送信
-    function sendAIMessage() {
+// AIメッセージ送信
+    async function sendAIMessage() {
       const input = document.getElementById('aiInputField');
       const message = input.value.trim();
       
-      if (!message) return;
+      if (!message || !stockEasyAI) return;
       
       console.log('💬 AIメッセージ送信:', message);
       
@@ -2728,10 +2731,14 @@
       input.value = '';
       autoResizeAIInput(input);
       
-      // AI応答（仮）
-      setTimeout(() => {
-        addAIMessageToChat('ai', 'ありがとうございます！現在AI機能を準備中です。🤖<br>まもなく本格的な会話機能が利用可能になります！');
-      }, 1000);
+      // AI応答を生成
+      try {
+        const response = await stockEasyAI.processMessage(message);
+        addAIMessageToChat('ai', response);
+      } catch (error) {
+        console.error('AI応答エラー:', error);
+        addAIMessageToChat('ai', '申し訳ございません。エラーが発生しました。もう一度お試しください。');
+      }
     }
     
     // チャットにメッセージを追加
@@ -2831,6 +2838,336 @@
     }
     
     console.log('✅ AI Chat UI functions loaded');
+// ====================================
+// StockEasy AI処理エンジン - Stage 2
+// ====================================
+
+// 1. 意図解析エンジン
+class IntentAnalyzer {
+  constructor() {
+    this.patterns = {
+      stock_check: [
+        /(.+)の在庫/, /(.+)はある/, /(.+)どこ/, /(.+)の状態/,
+        /在庫確認/, /どこにある/, /状況教えて/,
+        /(.+)空いてる/, /(.+)ある？/, /(.+)どこ？/, /(.+)、貸して/, /(.+)貸してもらえる？/,
+        /(.+)使いたい/, /(.+)使わせて/, /(.+)、必要なんだけど/, /(.+)が必要です/, /(.+)欲しい/,
+        /(.+)をお願い/, /(.+)頼むわ/, /(.+)ちょうだい/, /(.+)、あるとうれしいんだけど/,
+        /(.+)、どっかにある？/, /(.+)、手配してもらえる？/, /(.+)、使えますか？/, /(.+)出してくれる？/,
+        /(.+)お願いできますか？/, /(.+)、空いてたら貸して/, /空いてる(.+)、ある？/, /空(.+)、今どこ？/,
+        /(.+)持ってきて/, /(.+)呼んで/, /(.+)準備して/, /(.+)、ちょっといる/, /(.+)探して/,
+        /(.+)あったら助かるんだけど/, /(.+)借りたい/, /(.+)、一台ほしい/, /(.+)今使える？/,
+        /(.+)、今手元にある？/, /(.+)お願いね/, /(.+)よろしく/, /(.+)すぐ使いたい/
+      ],
+      
+      item_status: [
+        /([A-Z]+\d+)/, /([A-Z]+\d+)の状態/, /([A-Z]+\d+)どこ/
+      ],
+      
+      borrow: [
+        /借りたい/, /貸し出し/, /使いたい/, /貸出方法/
+      ],
+      
+      return: [
+        /返却/, /戻したい/, /返したい/, /返却方法/, /(.+)返却したい/, /(.+)を返却したい/
+      ],
+      
+      greeting: [
+        /こんにちは/, /はじめまして/, /よろしく/, /ありがとう/, /おはよう/, /こんばんは/
+      ],
+      
+      help: [
+        /使い方/, /ヘルプ/, /何ができる/, /機能/, /操作方法/, /操作を教えて/, /操作教えて/,
+        /教えてほしい/, /操作を教えてほしい/
+      ]
+    };
+  }
+  
+  analyze(text) {
+    const result = {
+      intent: 'unknown',
+      entities: {},
+      confidence: 0,
+      originalText: text
+    };
+    
+    for (const [intent, patterns] of Object.entries(this.patterns)) {
+      for (const pattern of patterns) {
+        const match = text.match(pattern);
+        if (match) {
+          result.intent = intent;
+          result.confidence = 0.8;
+          
+          if (match[1]) {
+            if (intent === 'stock_check') {
+              let itemName = match[1];
+              itemName = itemName.replace(/[をのがにへとで]$/, '');
+              itemName = itemName.replace(/[、，]$/, '');
+              itemName = itemName.trim();
+              result.entities.item_name = itemName;
+            } else if (intent === 'item_status') {
+              result.entities.item_id = match[1];
+            }
+          }
+          
+          return result;
+        }
+      }
+    }
+    
+    return result;
+  }
+}
+
+// 2. 応答生成エンジン
+class ResponseGenerator {
+  constructor() {
+    this.aliases = {
+      '車いす': ['車椅子', 'くるまいす', 'ホイールチェア', 'チェア'],
+      '歩行器': ['ウォーカー', 'あるこうき'],
+      'シルバーカー': ['手押し車', 'カート', 'ワゴン'],
+      '杖': ['つえ', 'ステッキ', 'スティック', 'ツエ'],
+      '四点杖': ['4点杖', '四本杖', '4本杖'],
+      '一本杖': ['1本杖', '普通の杖', 'ストレート杖'],
+      'エアマット': ['エアーマット', 'マットレス', 'マット'],
+      '体圧分散': ['体圧', '褥瘡予防', 'じょくそう']
+    };
+  }
+  
+  findEquipmentByName(searchTerm) {
+    const normalizedSearch = searchTerm.toLowerCase();
+    
+    // 1. 備品名での直接検索（部分マッチ）
+    let matches = items.filter(item => 
+      item.name && item.name.toLowerCase().includes(normalizedSearch)
+    );
+    
+    // 2. 別名・同義語での検索
+    if (matches.length === 0) {
+      for (const [mainName, aliases] of Object.entries(this.aliases)) {
+        if (aliases.some(alias => 
+          alias.toLowerCase().includes(normalizedSearch) || 
+          normalizedSearch.includes(alias.toLowerCase())
+        )) {
+          const mainMatches = items.filter(item => 
+            item.name && item.name.toLowerCase().includes(mainName.toLowerCase())
+          );
+          matches = matches.concat(mainMatches);
+        }
+        
+        if (mainName.toLowerCase().includes(normalizedSearch) || 
+            normalizedSearch.includes(mainName.toLowerCase())) {
+          const mainMatches = items.filter(item => 
+            item.name && item.name.toLowerCase().includes(mainName.toLowerCase())
+          );
+          matches = matches.concat(mainMatches);
+        }
+      }
+    }
+    
+    // 3. カテゴリでの検索
+    if (matches.length === 0) {
+      matches = items.filter(item => 
+        item.category && item.category.toLowerCase().includes(normalizedSearch)
+      );
+    }
+    
+    // 重複を除去
+    const uniqueMatches = matches.filter((item, index, self) => 
+      index === self.findIndex(i => i.id === item.id)
+    );
+    
+    return uniqueMatches;
+  }
+  
+  generate(intentResult) {
+    const { intent, entities } = intentResult;
+    
+    switch (intent) {
+      case 'stock_check':
+        return this.handleStockCheck(entities);
+      case 'item_status':
+        return this.handleItemStatus(entities);
+      case 'borrow':
+        return this.handleBorrowInquiry();
+      case 'return':
+        return this.handleReturnInquiry();
+      case 'greeting':
+        return this.handleGreeting();
+      case 'help':
+        return this.handleHelp();
+      default:
+        return this.handleUnknown(intentResult);
+    }
+  }
+  
+  handleStockCheck(entities) {
+    const itemName = entities.item_name;
+    
+    if (!itemName) {
+      return "どの備品をお探しですか？<br>例：「車いすの在庫は？」「杖ある？」";
+    }
+    
+    const matchingItems = this.findEquipmentByName(itemName);
+    
+    if (matchingItems.length === 0) {
+      return `申し訳ございません。「${itemName}」に該当する備品が見つかりませんでした。<br><br>` +
+             `📋 現在管理している備品：<br>` +
+             `• 車いす（自走式・介助式）<br>` +
+             `• 歩行器・シルバーカー<br>` +
+             `• 杖（四点杖・一本杖）<br>` +
+             `• エアマット<br><br>` +
+             `💡 「車いす」「杖」「歩行器」などで検索してみてください`;
+    }
+    
+    let response = `📋 ${itemName}の検索結果：<br><br>`;
+    
+    matchingItems.forEach(item => {
+      const statusIcon = item.status === '待機' ? '✅' : '⏰';
+      const locationInfo = item.status === '待機' ? 
+        `保管場所：${item.location}` : 
+        `現在地：${item.current}（使用中）`;
+        
+      response += `${statusIcon} ${item.name} (${item.id})<br>`;
+      response += `　${locationInfo}<br><br>`;
+    });
+    
+    const availableCount = matchingItems.filter(item => item.status === '待機').length;
+    response += `💡 利用可能：${availableCount}件 / 全${matchingItems.length}件`;
+    
+    return response;
+  }
+  
+  handleItemStatus(entities) {
+    const itemId = entities.item_id;
+    
+    if (!itemId) {
+      return "備品IDを教えてください。<br>例：「WC001の状態は？」";
+    }
+    
+    const item = items.find(i => i.id === itemId.toUpperCase());
+    
+    if (!item) {
+      return `備品ID「${itemId}」が見つかりませんでした。<br><br>現在登録されている備品：<br>${items.map(i => `• ${i.id}: ${i.name}`).join('<br>')}`;
+    }
+    
+    const statusIcon = item.status === '待機' ? '✅' : '⏰';
+    const statusDetail = item.status === '待機' ? 
+      '利用可能です' : 
+      `${item.user}で使用中です`;
+    
+    return `📦 ${item.name} (${item.id})<br><br>` +
+           `${statusIcon} 状態：${item.status}<br>` +
+           `📍 現在地：${item.current}<br>` +
+           `🏠 保管場所：${item.location}<br><br>` +
+           `💡 ${statusDetail}`;
+  }
+  
+  handleBorrowInquiry() {
+    return `📋 備品の借用方法：<br><br>` +
+           `1️⃣ 借りたい備品を探す<br>` +
+           `　「車いすの在庫は？」と聞いてください<br><br>` +
+           `2️⃣ 「借用」ボタンをクリック<br>` +
+           `　備品一覧から操作できます<br><br>` +
+           `3️⃣ 使用場所を選択<br>` +
+           `　事務所、1F、2F、3F、4F、5F、地域交流室、機能訓練室<br><br>` +
+           `💡 何かご不明な点があればお聞かせください！`;
+  }
+  
+  handleReturnInquiry() {
+    return `📋 備品の返却方法：<br><br>` +
+           `1️⃣ 「返却」ボタンをクリック<br>` +
+           `　備品一覧から操作できます<br><br>` +
+           `2️⃣ 返却場所を選択<br>` +
+           `　推奨場所が表示されます<br><br>` +
+           `3️⃣ 「決定」で完了<br>` +
+           `　自動的に状態が「待機」に変わります<br><br>` +
+           `💡 推奨場所に返却いただくと、次の方が見つけやすくなります！`;
+  }
+  
+  handleGreeting() {
+    const greetings = [
+      "こんにちは！備品管理のお手伝いをします🤖",
+      "いらっしゃいませ！何かお探しですか？",
+      "お疲れさまです！備品のことなら何でもお聞きください！"
+    ];
+    
+    const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
+    
+    return `${randomGreeting}<br><br>` +
+           `💡 こんなことができます：<br>` +
+           `• 「空いてる車いすある？」- 在庫確認<br>` +
+           `• 「歩行器を返却したい」- 返却処理<br>` +
+           `• 「操作を教えてほしい」- 操作説明`;
+  }
+  
+  handleHelp() {
+    return `🤖 StockEasy AI でできること：<br><br>` +
+           `📦 <strong>在庫確認</strong><br>` +
+           `　「空いてる車いすある？」<br>` +
+           `　「歩行器はある？」<br><br>` +
+           `🔍 <strong>個別確認</strong><br>` +
+           `　「WC001の状態は？」<br>` +
+           `　「WK001どこ？」<br><br>` +
+           `📋 <strong>操作説明</strong><br>` +
+           `　「借用方法は？」<br>` +
+           `　「返却方法は？」<br><br>` +
+           `💬 お気軽に話しかけてください！`;
+  }
+  
+  handleUnknown(intentResult) {
+    return `申し訳ございません。よく理解できませんでした。🤔<br><br>` +
+           `💡 こんな感じで話しかけてみてください：<br>` +
+           `• 「空いてる車いすある？」<br>` +
+           `• 「WC001の状態は？」<br>` +
+           `• 「操作を教えてほしい」<br><br>` +
+           `<em>入力内容：「${intentResult.originalText}」</em>`;
+  }
+}
+
+// 3. メインAIエンジン
+class StockEasyAI {
+  constructor() {
+    this.intentAnalyzer = new IntentAnalyzer();
+    this.responseGenerator = new ResponseGenerator();
+    this.isProcessing = false;
+  }
+  
+  async processMessage(message) {
+    if (this.isProcessing) {
+      return "処理中です。少々お待ちください...";
+    }
+    
+    this.isProcessing = true;
+    updateAIBadgeStatus('loading');
+    
+    try {
+      // 1. 意図解析
+      await this.delay(300);
+      const intentResult = this.intentAnalyzer.analyze(message);
+      
+      // 2. 応答生成
+      await this.delay(200);
+      const response = this.responseGenerator.generate(intentResult);
+      
+      updateAIBadgeStatus('ready');
+      return response;
+      
+    } catch (error) {
+      console.error('AI処理エラー:', error);
+      updateAIBadgeStatus('error');
+      return "申し訳ございません。処理中にエラーが発生しました。もう一度お試しください。";
+    } finally {
+      this.isProcessing = false;
+    }
+  }
+  
+  delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+}
+
+// AIインスタンスを作成
+let stockEasyAI = null;
   </script>
 </body>
 </html>
