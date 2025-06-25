@@ -2838,6 +2838,105 @@
     }
     
     console.log('✅ AI Chat UI functions loaded');
+
+// ====================================
+// 日本語正規化エンジン
+// ====================================
+class JapaneseNormalizer {
+  constructor() {
+    // 表記ゆれの統一マップ
+    this.normalizeMap = {
+      // 車いす関連
+      'くるまいす': '車いす',
+      '車椅子': '車いす', 
+      'ホイールチェア': '車いす',
+      'チェアー': '車いす',
+      'チェア': '車いす',
+      
+      // 歩行器関連
+      'あるこうき': '歩行器',
+      'ウォーカー': '歩行器',
+      'ウオーカー': '歩行器',
+      
+      // シルバーカー関連
+      'てぼしぐるま': 'シルバーカー',
+      '手押し車': 'シルバーカー',
+      'カート': 'シルバーカー',
+      'ワゴン': 'シルバーカー',
+      
+      // 杖関連
+      'つえ': '杖',
+      'ツエ': '杖',
+      'ステッキ': '杖',
+      'スティック': '杖',
+      'よんてんづえ': '四点杖',
+      '4点杖': '四点杖',
+      '4本杖': '四点杖',
+      '四本杖': '四点杖',
+      'いっぽんづえ': '一本杖',
+      '1本杖': '一本杖',
+      
+      // エアマット関連
+      'エアーマット': 'エアマット',
+      'マットレス': 'エアマット',
+      'マット': 'エアマット',
+      
+      // 略語・俗語
+      'WC': '車いす',
+      'ホイチェ': '車いす',
+      'あるこー': '歩行器'
+    };
+    
+    // 助詞・語尾パターン
+    this.particlePattern = /[をのがにへとでも、。！？\s]+$/g;
+  }
+  
+  // テキストを正規化
+  normalize(text) {
+    if (!text) return '';
+    
+    let normalized = text.toLowerCase().trim();
+    
+    // 1. 表記ゆれの統一
+    for (const [variant, standard] of Object.entries(this.normalizeMap)) {
+      const regex = new RegExp(variant, 'gi');
+      normalized = normalized.replace(regex, standard);
+    }
+    
+    // 2. 助詞・語尾の除去
+    normalized = normalized.replace(this.particlePattern, '');
+    
+    // 3. 余分な空白の除去
+    normalized = normalized.replace(/\s+/g, ' ').trim();
+    
+    return normalized;
+  }
+  
+  // 語幹抽出（より詳細）
+  extractStem(text) {
+    const normalized = this.normalize(text);
+    
+    // さらに細かい語尾パターンを除去
+    const patterns = [
+      /ください$/,
+      /くれる$/,
+      /もらえる$/,
+      /たい$/,
+      /ほしい$/,
+      /いる$/,
+      /ある$/,
+      /ない$/
+    ];
+    
+    let stem = normalized;
+    for (const pattern of patterns) {
+      stem = stem.replace(pattern, '');
+    }
+    
+    return stem.trim();
+  }
+}
+    
 // ====================================
 // StockEasy AI処理エンジン - Stage 2
 // ====================================
