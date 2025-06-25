@@ -2941,13 +2941,19 @@ class JapaneseNormalizer {
 // StockEasy AI処理エンジン - Stage 2
 // ====================================
 
-// 1. 意図解析エンジン
+// 1. 意図解析エンジン（正規化対応版）
 class IntentAnalyzer {
   constructor() {
+    // 日本語正規化エンジンを初期化
+    this.normalizer = new JapaneseNormalizer();
+    
+    // 備品管理特化のキーワードパターン
     this.patterns = {
+      // 在庫確認・貸出要求
       stock_check: [
         /(.+)の在庫/, /(.+)はある/, /(.+)どこ/, /(.+)の状態/,
         /在庫確認/, /どこにある/, /状況教えて/,
+        // 多様な要求パターンを追加
         /(.+)空いてる/, /(.+)ある？/, /(.+)どこ？/, /(.+)、貸して/, /(.+)貸してもらえる？/,
         /(.+)使いたい/, /(.+)使わせて/, /(.+)、必要なんだけど/, /(.+)が必要です/, /(.+)欲しい/,
         /(.+)をお願い/, /(.+)頼むわ/, /(.+)ちょうだい/, /(.+)、あるとうれしいんだけど/,
@@ -2955,25 +2961,33 @@ class IntentAnalyzer {
         /(.+)お願いできますか？/, /(.+)、空いてたら貸して/, /空いてる(.+)、ある？/, /空(.+)、今どこ？/,
         /(.+)持ってきて/, /(.+)呼んで/, /(.+)準備して/, /(.+)、ちょっといる/, /(.+)探して/,
         /(.+)あったら助かるんだけど/, /(.+)借りたい/, /(.+)、一台ほしい/, /(.+)今使える？/,
-        /(.+)、今手元にある？/, /(.+)お願いね/, /(.+)よろしく/, /(.+)すぐ使いたい/
+        /(.+)、今手元にある？/, /(.+)お願いね/, /(.+)よろしく/, /(.+)すぐ使いたい/,
+        // 単語のみのパターンを追加
+        /^(.+)$/ // 最後に追加：単一単語もキャッチ
       ],
       
+      // 特定備品の確認
       item_status: [
-        /([A-Z]+\d+)/, /([A-Z]+\d+)の状態/, /([A-Z]+\d+)どこ/
+        /([A-Z]+\d+)/, // ID形式 (WC001など)
+        /([A-Z]+\d+)の状態/, /([A-Z]+\d+)どこ/
       ],
       
+      // 貸出関連
       borrow: [
         /借りたい/, /貸し出し/, /使いたい/, /貸出方法/
       ],
       
+      // 返却関連
       return: [
         /返却/, /戻したい/, /返したい/, /返却方法/, /(.+)返却したい/, /(.+)を返却したい/
       ],
       
+      // 一般的な挨拶・質問
       greeting: [
         /こんにちは/, /はじめまして/, /よろしく/, /ありがとう/, /おはよう/, /こんばんは/
       ],
       
+      // ヘルプ・使い方
       help: [
         /使い方/, /ヘルプ/, /何ができる/, /機能/, /操作方法/, /操作を教えて/, /操作教えて/,
         /教えてほしい/, /操作を教えてほしい/
@@ -2989,25 +3003,34 @@ class IntentAnalyzer {
       originalText: text
     };
     
+    // 🔥 重要：テキストを正規化してから解析
+    const normalizedText = this.normalizer.normalize(text);
+    console.log('正規化前:', text);
+    console.log('正規化後:', normalizedText);
+    
+    // 各パターンをチェック
     for (const [intent, patterns] of Object.entries(this.patterns)) {
       for (const pattern of patterns) {
-        const match = text.match(pattern);
+        // 正規化されたテキストでマッチング
+        const match = normalizedText.match(pattern);
         if (match) {
           result.intent = intent;
           result.confidence = 0.8;
           
+          // エンティティ抽出
           if (match[1]) {
             if (intent === 'stock_check') {
+              // 正規化された備品名を使用
               let itemName = match[1];
-              itemName = itemName.replace(/[をのがにへとで]$/, '');
-              itemName = itemName.replace(/[、，]$/, '');
-              itemName = itemName.trim();
+              // さらに語幹を抽出
+              itemName = this.normalizer.extractStem(itemName);
               result.entities.item_name = itemName;
             } else if (intent === 'item_status') {
               result.entities.item_id = match[1];
             }
           }
           
+          console.log('解析結果:', result);
           return result;
         }
       }
@@ -3016,7 +3039,6 @@ class IntentAnalyzer {
     return result;
   }
 }
-
 // 2. 応答生成エンジン
 class ResponseGenerator {
   constructor() {
