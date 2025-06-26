@@ -3173,15 +3173,15 @@ class ResponseGenerator {
     };
   }
   
-  findEquipmentByName(searchTerm) {
+ findEquipmentByName(searchTerm) {
     const normalizedSearch = searchTerm.toLowerCase();
     
-    // 1. 備品名での直接検索（部分マッチ）
+    // 1. 完全一致検索（既存ロジック）
     let matches = items.filter(item => 
       item.name && item.name.toLowerCase().includes(normalizedSearch)
     );
     
-    // 2. 別名・同義語での検索
+    // 2. 別名・同義語での検索（既存ロジック）
     if (matches.length === 0) {
       for (const [mainName, aliases] of Object.entries(this.aliases)) {
         if (aliases.some(alias => 
@@ -3204,11 +3204,22 @@ class ResponseGenerator {
       }
     }
     
-    // 3. カテゴリでの検索
+    // 3. カテゴリでの検索（既存ロジック）
     if (matches.length === 0) {
       matches = items.filter(item => 
         item.category && item.category.toLowerCase().includes(normalizedSearch)
       );
+    }
+    
+    // 🔥 4. 曖昧検索（新機能）
+    if (matches.length === 0) {
+      console.log('曖昧検索を実行:', searchTerm);
+      const fuzzyResults = this.fuzzyEngine.search(searchTerm, items);
+      matches = fuzzyResults.map(result => result.item);
+      
+      if (fuzzyResults.length > 0) {
+        console.log('曖昧検索結果:', fuzzyResults);
+      }
     }
     
     // 重複を除去
