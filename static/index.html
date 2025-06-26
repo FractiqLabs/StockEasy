@@ -2896,29 +2896,34 @@ class JapaneseNormalizer {
     this.particlePattern = /[をのがにへとでも、。！？\s]+$/g;
   }
   
-// テキストを正規化（修正版）
+// テキストを正規化（重複置換防止版）
   normalize(text) {
     if (!text) return '';
     
     let normalized = text.toLowerCase().trim();
     console.log('正規化開始:', normalized);
     
-    // 1. 表記ゆれの統一（一度だけ処理）
-    const processedKeys = new Set(); // 処理済みキーを追跡
+    // 1. 最長一致優先で表記ゆれを統一
+    const sortedEntries = Object.entries(this.normalizeMap)
+      .sort((a, b) => b[0].length - a[0].length); // 長い順にソート
     
-    for (const [variant, standard] of Object.entries(this.normalizeMap)) {
-      if (processedKeys.has(variant)) continue; // 既に処理済みならスキップ
+    let hasReplaced = false;
+    for (const [variant, standard] of sortedEntries) {
+      const variantLower = variant.toLowerCase();
       
-      // 完全一致または部分一致の場合のみ置換
-      if (normalized === variant.toLowerCase() || normalized.includes(variant.toLowerCase())) {
-        const regex = new RegExp(variant, 'gi');
-        const beforeReplace = normalized;
-        normalized = normalized.replace(regex, standard);
-        
-        console.log(`置換: "${variant}" → "${standard}"`, beforeReplace, '→', normalized);
-        processedKeys.add(variant);
-        
-        // 一度置換したらそのキーは終了
+      // 完全一致の場合
+      if (normalized === variantLower) {
+        normalized = standard;
+        console.log(`完全一致置換: "${variant}" → "${standard}"`);
+        hasReplaced = true;
+        break;
+      }
+      
+      // 部分一致の場合（まだ置換されていない場合のみ）
+      if (!hasReplaced && normalized.includes(variantLower)) {
+        normalized = normalized.replace(new RegExp(variantLower, 'g'), standard);
+        console.log(`部分一致置換: "${variant}" → "${standard}"`);
+        hasReplaced = true;
         break;
       }
     }
