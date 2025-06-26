@@ -2896,16 +2896,31 @@ class JapaneseNormalizer {
     this.particlePattern = /[をのがにへとでも、。！？\s]+$/g;
   }
   
-  // テキストを正規化
+// テキストを正規化（修正版）
   normalize(text) {
     if (!text) return '';
     
     let normalized = text.toLowerCase().trim();
+    console.log('正規化開始:', normalized);
     
-    // 1. 表記ゆれの統一
+    // 1. 表記ゆれの統一（一度だけ処理）
+    const processedKeys = new Set(); // 処理済みキーを追跡
+    
     for (const [variant, standard] of Object.entries(this.normalizeMap)) {
-      const regex = new RegExp(variant, 'gi');
-      normalized = normalized.replace(regex, standard);
+      if (processedKeys.has(variant)) continue; // 既に処理済みならスキップ
+      
+      // 完全一致または部分一致の場合のみ置換
+      if (normalized === variant.toLowerCase() || normalized.includes(variant.toLowerCase())) {
+        const regex = new RegExp(variant, 'gi');
+        const beforeReplace = normalized;
+        normalized = normalized.replace(regex, standard);
+        
+        console.log(`置換: "${variant}" → "${standard}"`, beforeReplace, '→', normalized);
+        processedKeys.add(variant);
+        
+        // 一度置換したらそのキーは終了
+        break;
+      }
     }
     
     // 2. 助詞・語尾の除去
@@ -2914,6 +2929,7 @@ class JapaneseNormalizer {
     // 3. 余分な空白の除去
     normalized = normalized.replace(/\s+/g, ' ').trim();
     
+    console.log('正規化完了:', normalized);
     return normalized;
   }
   
