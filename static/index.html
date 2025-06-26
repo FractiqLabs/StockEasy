@@ -3039,6 +3039,125 @@ class IntentAnalyzer {
     return result;
   }
 }
+
+// ====================================
+// 曖昧検索エンジン
+// ====================================
+
+class FuzzySearchEngine {
+  constructor() {
+    // 備品カテゴリの代表的なキーワード
+    this.categoryKeywords = {
+      '車いす': ['車いす', 'くるまいす', '車椅子', '車イス', 'くるま椅子', 'くるまイス', '車'],
+      '歩行器・シルバーカー': ['歩行器', 'ほこうき', 'ウォーカー', 'シルバーカー', '手押し車', 'カート'],
+      '杖': ['杖', 'つえ', 'ステッキ', 'スティック', '四点杖', '一本杖'],
+      'エアマット': ['エアマット', 'エアーマット', 'マット', 'マットレス'],
+      'その他': ['その他', 'そのた']
+    };
+  }
+  
+  // レーベンシュタイン距離を計算
+  calculateDistance(str1, str2) {
+    const matrix = [];
+    
+    // 初期化
+    for (let i = 0; i <= str2.length; i++) {
+      matrix[i] = [i];
+    }
+    for (let j = 0; j <= str1.length; j++) {
+      matrix[0][j] = j;
+    }
+    
+    // 動的プログラミング
+    for (let i = 1; i <= str2.length; i++) {
+      for (let j = 1; j <= str1.length; j++) {
+        if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+          matrix[i][j] = matrix[i - 1][j - 1];
+        } else {
+          matrix[i][j] = Math.min(
+            matrix[i - 1][j - 1] + 1, // 置換
+            matrix[i][j - 1] + 1,     // 挿入
+            matrix[i - 1][j] + 1      // 削除
+          );
+        }
+      }
+    }
+    
+    return matrix[str2.length][str1.length];
+  }
+  
+  // 類似度スコアを計算（0-1の範囲）
+  calculateSimilarity(query, target) {
+    const distance = this.calculateDistance(query.toLowerCase(), target.toLowerCase());
+    const maxLength = Math.max(query.length, target.length);
+    return maxLength === 0 ? 1 : 1 - (distance / maxLength);
+  }
+  
+  // 備品名での曖昧検索
+  searchByName(query, items, threshold = 0.6) {
+    const results = [];
+    
+    for (const item of items) {
+      const similarity = this.calculateSimilarity(query, item.name);
+      if (similarity >= threshold) {
+        results.push({
+          item: item,
+          similarity: similarity,
+          matchType: 'name'
+        });
+      }
+    }
+    
+    return results.sort((a, b) => b.similarity - a.similarity);
+  }
+  
+  // カテゴリキーワードでの曖昧検索
+  searchByCategory(query, items, threshold = 0.5) {
+    const results = [];
+    
+    for (const [category, keywords] of Object.entries(this.categoryKeywords)) {
+      for (const keyword of keywords) {
+        const similarity = this.calculateSimilarity(query, keyword);
+        if (similarity >= threshold) {
+          // このカテゴリの備品を検索
+          const categoryItems = items.filter(item => item.category === category);
+          for (const item of categoryItems) {
+            results.push({
+              item: item,
+              similarity: similarity,
+              matchType: 'category',
+              matchedKeyword: keyword
+            });
+          }
+          break; // 一つマッチしたらそのカテゴリは終了
+        }
+      }
+    }
+    
+    return results.sort((a, b) => b.similarity - a.similarity);
+  }
+  
+  // 統合検索（名前 + カテゴリ）
+  search(query, items, nameThreshold = 0.6, categoryThreshold = 0.5) {
+    const nameResults = this.searchByName(query, items, nameThreshold);
+    const categoryResults = this.searchByCategory(query, items, categoryThreshold);
+    
+    // 結果をマージして重複を除去
+    const allResults = [...nameResults, ...categoryResults];
+    const uniqueResults = [];
+    const seenIds = new Set();
+    
+    for (const result of allResults) {
+      if (!seenIds.has(result.item.id)) {
+        seenIds.add(result.item.id);
+        uniqueResults.push(result);
+      }
+    }
+    
+    return uniqueResults.sort((a, b) => b.similarity - a.similarity);
+  }
+}
+
 // 2. 応答生成エンジン
 class ResponseGenerator {
   constructor() {
