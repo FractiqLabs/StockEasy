@@ -2896,45 +2896,52 @@ class JapaneseNormalizer {
     this.particlePattern = /[をのがにへとでも、。！？\s]+$/g;
   }
   
-// テキストを正規化（重複置換防止版）
+// テキストを正規化（デバッグ版）
   normalize(text) {
     if (!text) return '';
     
     let normalized = text.toLowerCase().trim();
-    console.log('正規化開始:', normalized);
+    console.log('🔍 正規化開始:', `"${text}" → "${normalized}"`);
     
-    // 1. 最長一致優先で表記ゆれを統一
-    const sortedEntries = Object.entries(this.normalizeMap)
-      .sort((a, b) => b[0].length - a[0].length); // 長い順にソート
+    // normalizeMapの内容を確認
+    console.log('📋 normalizeMap確認:', this.normalizeMap);
     
-    let hasReplaced = false;
-    for (const [variant, standard] of sortedEntries) {
-      const variantLower = variant.toLowerCase();
+    // 1. 表記ゆれの統一（一つずつ確認）
+    for (const [variant, standard] of Object.entries(this.normalizeMap)) {
+      const beforeReplace = normalized;
       
-      // 完全一致の場合
-      if (normalized === variantLower) {
-        normalized = standard;
-        console.log(`完全一致置換: "${variant}" → "${standard}"`);
-        hasReplaced = true;
-        break;
-      }
-      
-      // 部分一致の場合（まだ置換されていない場合のみ）
-      if (!hasReplaced && normalized.includes(variantLower)) {
-        normalized = normalized.replace(new RegExp(variantLower, 'g'), standard);
-        console.log(`部分一致置換: "${variant}" → "${standard}"`);
-        hasReplaced = true;
-        break;
+      // 文字列が含まれているかチェック
+      if (normalized.includes(variant.toLowerCase())) {
+        console.log(`⚠️  マッチ発見: "${variant}" が "${normalized}" に含まれています`);
+        
+        const regex = new RegExp(variant.toLowerCase(), 'g');
+        normalized = normalized.replace(regex, standard);
+        
+        console.log(`🔄 置換実行: "${beforeReplace}" → "${normalized}"`);
+        
+        // 置換が行われた場合は終了
+        if (beforeReplace !== normalized) {
+          console.log(`✅ 置換完了: 最終結果 "${normalized}"`);
+          break;
+        }
       }
     }
     
     // 2. 助詞・語尾の除去
+    const beforeParticle = normalized;
     normalized = normalized.replace(this.particlePattern, '');
+    if (beforeParticle !== normalized) {
+      console.log(`🧹 助詞除去: "${beforeParticle}" → "${normalized}"`);
+    }
     
     // 3. 余分な空白の除去
+    const beforeSpace = normalized;
     normalized = normalized.replace(/\s+/g, ' ').trim();
+    if (beforeSpace !== normalized) {
+      console.log(`🧹 空白除去: "${beforeSpace}" → "${normalized}"`);
+    }
     
-    console.log('正規化完了:', normalized);
+    console.log('🎯 正規化完了:', `"${normalized}"`);
     return normalized;
   }
   
