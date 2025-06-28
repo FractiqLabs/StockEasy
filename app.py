@@ -442,7 +442,7 @@ def update_equipment(item_id):
         
         # カテゴリが送信されている場合のみチェック
         if 'category' in data:
-            allowed_categories = ['車いす', '歩行器・シルバーカー', '家具', 'エアマット', 'その他']
+            allowed_categories = ['車いす', '歩行器・シルバーカー', '家具・家電', 'エアマット', 'その他']
             if data.get('category') not in allowed_categories:
                 errors.append('無効なカテゴリです')
         
@@ -857,7 +857,7 @@ def validate_equipment_data(data):
         errors.append('IDは英数字、ハイフン、アンダースコアのみ使用可能です')
     
     # カテゴリチェック
-    allowed_categories = ['車いす', '歩行器・シルバーカー', '家具', 'エアマット', 'その他']
+    allowed_categories = ['車いす', '歩行器・シルバーカー', '家具・家電', 'エアマット', 'その他']
     category = data.get('category', '')
     if not category:
         errors.append('カテゴリは必須です')
