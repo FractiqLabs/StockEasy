@@ -590,29 +590,36 @@
       box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.1);
     }
     
+/* テーブルコンテナ */
+    .table-container {
+      position: relative;
+      max-height: 70vh;
+      overflow-y: auto;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(139, 92, 246, 0.08);
+      border: 1px solid rgba(139, 92, 246, 0.1);
+      background: white;
+      margin-top: 1rem;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 1rem;
       background: white;
-      box-shadow: 0 8px 30px rgba(139, 92, 246, 0.08);
-      border-radius: 12px;
-      overflow: hidden;
-      border: 1px solid rgba(139, 92, 246, 0.1);
+      margin-top: 0;
     }
-    th, td {
-      border: 1px solid #f3f0ff;
-      padding: 1rem 0.8rem;
-      text-align: left;
+
+    /* ヘッダー固定 */
+    thead {
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
+
     th {
       background: linear-gradient(135deg, #a78bfa 0%, #c4b5fd 100%);
       color: white;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      font-size: 0.85rem;
-    }
+      font-w
     th:hover {
       background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
     }
@@ -1440,23 +1447,25 @@
       <button class="tab-button" data-category="その他" onclick="filterByTab('その他')">その他</button>
     </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>画像</th>
-          <th onclick="sortTable('name')" style="cursor: pointer;">備品名 ↕</th>
-          <th onclick="sortTable('id')" style="cursor: pointer;">ID ↕</th>
-          <th onclick="sortTable('location')" style="cursor: pointer;">保管場所 ↕</th>
-          <th onclick="sortTable('current')" style="cursor: pointer;">現在地 ↕</th>
-          <th onclick="sortTable('user')" style="cursor: pointer;">使用者 ↕</th>
-          <th onclick="sortTable('status')" style="cursor: pointer;">状態 ↕</th>
-          <th>備考</th>
-          <th onclick="sortTable('category')" style="cursor: pointer;">種別 ↕</th>
-          <th>操作</th>
-        </tr>
-      </thead>
-      <tbody id="itemTable"></tbody>
-    </table>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>画像</th>
+            <th onclick="sortTable('name')" style="cursor: pointer;">備品名 ↕</th>
+            <th onclick="sortTable('id')" style="cursor: pointer;">ID ↕</th>
+            <th onclick="sortTable('location')" style="cursor: pointer;">保管場所 ↕</th>
+            <th onclick="sortTable('current')" style="cursor: pointer;">現在地 ↕</th>
+            <th onclick="sortTable('user')" style="cursor: pointer;">使用者 ↕</th>
+            <th onclick="sortTable('status')" style="cursor: pointer;">状態 ↕</th>
+            <th>備考</th>
+            <th onclick="sortTable('category')" style="cursor: pointer;">種別 ↕</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="itemTable"></tbody>
+      </table>
+    </div>
 
     <div class="modal" id="borrowModal">
       <div class="modal-content">
