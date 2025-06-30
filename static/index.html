@@ -546,7 +546,49 @@
       font-size: 1.3rem;
       font-weight: 600;
     }
+
+    /* 管理者タブナビゲーション */
+    .admin-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+      border-bottom: 2px solid #f3f0ff;
+      padding-bottom: 0.5rem;
+    }
     
+    .admin-tab {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px 8px 0 0;
+      background: #f8fafc;
+      color: #6b7280;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      font-size: 0.9rem;
+      border-bottom: 3px solid transparent;
+    }
+    
+    .admin-tab:hover {
+      background: #f1f5f9;
+      color: #374151;
+    }
+    
+    .admin-tab.active {
+      background: white;
+      color: #7c3aed;
+      border-bottom-color: #a78bfa;
+      box-shadow: 0 -2px 8px rgba(139, 92, 246, 0.1);
+    }
+    
+    /* タブコンテンツ */
+    .admin-tab-content {
+      display: none;
+    }
+    
+    .admin-tab-content.active {
+      display: block;
+    }
     .status-available {
       color: #7c3aed;
       font-weight: 600;
@@ -1400,29 +1442,44 @@
     </div>
 
     <div id="adminArea" class="admin-section" style="display: none">
-      <h2>新規登録</h2>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
-        <input type="text" id="itemName" placeholder="備品名" />
-        <input type="text" id="itemId" placeholder="ID" />
-        <select id="itemLocation">
-          <option value="事務所">事務所</option>
-          <option value="1F">1F</option>
-          <option value="2F">2F</option>
-          <option value="3F">3F</option>
-          <option value="4F">4F</option>
-          <option value="5F">5F</option>
-          <option value="地域交流室">地域交流室</option>
-          <option value="機能訓練室">機能訓練室</option>
-        </select>
-        <select id="itemCategory">
-          <option value="車いす">車いす</option>
-          <option value="歩行器・シルバーカー">歩行器・シルバーカー</option>
-          <option value="家具・家電">家具・家電</option>
-          <option value="">エアマット</option>
-          <option value="その他">その他</option>
-        </select>
-        <input type="file" id="itemImage" accept="image/*" />
-        <button onclick="registerItem()">登録</button>
+      <!-- タブナビゲーション -->
+      <div class="admin-tabs">
+        <button class="admin-tab active" data-tab="register" onclick="switchAdminTab('register')">備品登録</button>
+        <button class="admin-tab" data-tab="settings" onclick="switchAdminTab('settings')">施設設定</button>
+      </div>
+
+      <!-- 備品登録タブ -->
+      <div id="registerTab" class="admin-tab-content active">
+        <h2>新規登録</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+          <input type="text" id="itemName" placeholder="備品名" />
+          <input type="text" id="itemId" placeholder="ID" />
+          <select id="itemLocation">
+            <option value="事務所">事務所</option>
+            <option value="1F">1F</option>
+            <option value="2F">2F</option>
+            <option value="3F">3F</option>
+            <option value="4F">4F</option>
+            <option value="5F">5F</option>
+            <option value="地域交流室">地域交流室</option>
+            <option value="機能訓練室">機能訓練室</option>
+          </select>
+          <select id="itemCategory">
+            <option value="車いす">車いす</option>
+            <option value="歩行器・シルバーカー">歩行器・シルバーカー</option>
+            <option value="家具・家電">家具・家電</option>
+            <option value="">エアマット</option>
+            <option value="その他">その他</option>
+          </select>
+          <input type="file" id="itemImage" accept="image/*" />
+          <button onclick="registerItem()">登録</button>
+        </div>
+      </div>
+
+      <!-- 施設設定タブ -->
+      <div id="settingsTab" class="admin-tab-content">
+        <h2>施設設定</h2>
+        <p>ここに設定フォームを追加予定</p>
       </div>
     </div>
 
@@ -2395,6 +2452,27 @@
           closeEditModal();
         }
       });
+    }
+
+    // 管理者タブ切り替え
+    function switchAdminTab(tabName) {
+      // 全てのタブボタンからactiveクラスを削除
+      document.querySelectorAll('.admin-tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      
+      // 全てのタブコンテンツを非表示
+      document.querySelectorAll('.admin-tab-content').forEach(content => {
+        content.classList.remove('active');
+      });
+      
+      // 選択されたタブボタンにactiveクラスを追加
+      document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+      
+      // 選択されたタブコンテンツを表示
+      document.getElementById(`${tabName}Tab`).classList.add('active');
+      
+      console.log(`管理者タブ切り替え: ${tabName}`);
     }
 
     function setupTabEvents() {
