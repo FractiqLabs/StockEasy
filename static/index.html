@@ -2463,19 +2463,17 @@
     }
 
     // セッション状態復元関数
-    async function checkAndRestoreSession() {
-      try {
-        const response = await fetch('/api/session/check', {
-          credentials: 'include'
-        });
-        const result = await response.json();
-        
+    function checkAndRestoreSession() {
+      fetch('/api/session/check', {
+        credentials: 'include'
+      })
+      .then(response => response.json())
+      .then(result => {
         if (result.success && result.logged_in) {
           // ログイン状態を復元
           document.getElementById('loginArea').style.display = 'none';
           document.getElementById('mainContent').style.display = 'block';
           
-          // ユーザータイプに応じて画面を設定
           isAdmin = result.user_type === 'admin';
           
           if (isAdmin) {
@@ -2484,7 +2482,6 @@
             document.getElementById('adminArea').style.display = 'none';
           }
           
-          // 施設IDが保存されている場合は復元
           if (result.facility_id) {
             currentFacilityId = result.facility_id;
             const facilityName = getCurrentFacilityName();
@@ -2493,23 +2490,25 @@
             }
           }
           
-          // データを読み込み
-          await loadItems();
-          renderItems();
-
-          // AIバッジを表示
-          showAIBadge();
-          
-          debugLog('セッション復元完了:', result.user_type, 'isAdmin:', isAdmin);
+          // データを読み込み（awaitを削除）
+          loadItems()
+            .then(() => {
+              renderItems();
+              showAIBadge();
+              debugLog('セッション復元完了:', result.user_type, 'isAdmin:', isAdmin);
+            })
+            .catch(error => {
+              console.error('データ読み込みエラー:', error);
+              renderItems();
+            });
         }
-      } catch (error) {
+      })
+      .catch(error => {
         console.error('セッション確認エラー:', error);
-      }
+      });
     }
-
-   // 初期化処理
     // 初期化処理
-    async function initializeApp() {
+    function initializeApp() {
       debugLog('アプリケーション初期化開始');
       
       try {
@@ -2531,6 +2530,12 @@
           login();
         });
         
+        // モバイル対応
+        loginButton.addEventListener('touchstart', function(e) {
+          e.preventDefault();
+          login();
+        });
+        
         debugLog('ログインボタンのイベントリスナーを設定');
         
         // モーダルイベントの設定
@@ -2547,6 +2552,21 @@
             }
           });
         }
+        
+        debugLog('アプリケーション初期化完了');
+        
+        // セッション状態を確認（awaitを削除）
+        checkAndRestoreSession();
+        
+        // AI機能は無効化
+        // stockEasyAI = new StockEasyAI();
+        // debugLog('AI機能を初期化しました');
+        
+      } catch (error) {
+        console.error('初期化エラー:', error);
+        alert('アプリケーションの初期化に失敗しました。ページを再読み込みしてください。');
+      }
+    }
         
         debugLog('アプリケーション初期化完了');
         
