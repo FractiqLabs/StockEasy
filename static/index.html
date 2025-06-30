@@ -266,6 +266,26 @@
     .facility-btn.secondary {
       background: linear-gradient(45deg, #6b7280, #9ca3af);
     }
+    .facility-btn.secondary:hover {
+      box-shadow: 0 10px 30px rgba(107, 114, 128, 0.4);
+    }
+    
+    /* 施設ID入力エリア */
+    .facility-id-area {
+      margin-bottom: 1.5rem;
+    }
+    
+    .facility-id-area .form-group {
+      margin-bottom: 1rem;
+    }
+    
+    .facility-id-area label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #374151;
+      font-size: 0.9rem;
+    }
     
     .facility-btn.secondary:hover {
       box-shadow: 0 10px 30px rgba(107, 114, 128, 0.4);
@@ -1178,41 +1198,14 @@
               <div class="facility-tab" data-facility="new">新規施設登録</div>
             </div>
             
-            <!-- 既存施設の選択 -->
-            <div id="existingFacilityArea">
-              <select id="facilitySelect" class="facility-input">
-                <option value="">施設を選択してください...</option>
-                <!-- 施設リストは動的に読み込み -->
-              </select>
-            </div>
-            
-            <!-- 新規施設登録フォーム -->
-            <div id="newFacilityArea" class="new-facility-form">
-              <div class="form-group">
-                <label for="facilityName">施設名 *</label>
-                <input type="text" id="facilityName" class="facility-input" placeholder="例：デイサービス みどりの丘" required />
-              </div>
-              <div class="form-grid">
-                <div class="form-group">
-                  <label for="facilityAddress">住所</label>
-                  <input type="text" id="facilityAddress" class="facility-input" placeholder="例：東京都..." />
-                </div>
-                <div class="form-group">
-                  <label for="facilityPhone">電話番号</label>
-                  <input type="tel" id="facilityPhone" class="facility-input" placeholder="例：03-1234-5678" />
-                </div>
-              </div>
-              <div class="form-grid">
-                <div class="form-group">
-                  <label for="adminUsername">管理者ユーザー名</label>
-                  <input type="text" id="adminUsername" class="facility-input" value="admin" />
-                </div>
-                <div class="form-group">
-                  <label for="adminPassword">管理者パスワード *</label>
-                  <input type="password" id="adminPassword" class="facility-input" placeholder="6文字以上" required />
-                </div>
-              </div>
-              <button type="button" class="facility-btn" onclick="registerFacility()">施設を登録</button>
+            <!-- 施設ID入力エリア -->
+          <div class="facility-id-area">
+            <div class="form-group">
+              <label for="facilityIdInput">施設ID</label>
+              <input type="text" id="facilityIdInput" class="facility-input" placeholder="例: midorinooksa" />
+              <small style="color: #666; font-size: 0.85rem; margin-top: 5px; display: block;">
+                ※ 施設IDは事前にお渡しした専用IDを入力してください
+              </small>
             </div>
           </div>
           
@@ -1552,6 +1545,26 @@
     let sortDirection = 'asc';
     let currentFacilityId = null;
     let facilities = [];
+    let items = [];
+    let currentIndex = null;
+    let isAdmin = false;
+    let editingIndex = null;
+    let connectionRetries = 0;
+    const maxRetries = 3;
+    let sortColumn = '';
+    let sortDirection = 'asc';
+    let currentFacilityId = null;
+    let facilities = [];
+    
+    // 施設ID → 施設名のマッピング
+    const facilityMapping = {
+      'demo': 'デモ施設',
+      'midorinooksa': 'デイサービス みどりの丘',
+      'himawari': 'グループホーム ひまわり荘', 
+      'kibounosato': '特養 希望の里'
+    };
+    
+    let currentFacilityName = null;
     
     // API URLを動的に設定
     const USE_LOCAL_STORAGE = false; // 本番用（サーバー保存）
@@ -1640,87 +1653,6 @@
       }
     }
 
-    // 施設関連の関数
-    async function loadFacilities() {
-      try {
-        // 実際のAPIが未実装の場合はデモデータを返す
-        facilities = [
-          { id: 1, name: 'デイサービス みどりの丘' },
-          { id: 2, name: 'グループホーム ひまわり荘' },
-          { id: 3, name: '特別養護老人ホーム フォレスト指扇' }
-        ];
-        
-        const facilitySelect = document.getElementById('facilitySelect');
-        facilitySelect.innerHTML = '<option value="">施設を選択してください...</option>';
-        
-        facilities.forEach(facility => {
-          const option = document.createElement('option');
-          option.value = facility.id;
-          option.textContent = facility.name;
-          facilitySelect.appendChild(option);
-        });
-        
-        debugLog('施設リストを読み込みました:', facilities);
-      } catch (error) {
-        console.error('施設リストの読み込みに失敗:', error);
-        // エラーでも続行
-      }
-    }
-
-    // 施設登録
-    async function registerFacility() {
-      try {
-        const facilityName = document.getElementById('facilityName').value.trim();
-        const facilityAddress = document.getElementById('facilityAddress').value.trim();
-        const facilityPhone = document.getElementById('facilityPhone').value.trim();
-        const adminUsername = document.getElementById('adminUsername').value.trim();
-        const adminPassword = document.getElementById('adminPassword').value;
-
-        if (!facilityName || !adminPassword) {
-          alert('施設名と管理者パスワードは必須です');
-          return;
-        }
-
-        if (adminPassword.length < 6) {
-          alert('パスワードは6文字以上で入力してください');
-          return;
-        }
-
-        const response = await apiCall(`${API_BASE}/facilities`, {
-          method: 'POST',
-          body: JSON.stringify({
-            name: facilityName,
-            address: facilityAddress,
-            phone: facilityPhone,
-            admin_username: adminUsername,
-            admin_password: adminPassword
-          })
-        });
-
-        if (response.success) {
-          alert('施設が正常に登録されました！');
-          
-          // 新規登録した施設を選択状態にする
-          currentFacilityId = response.facility_id;
-          
-          // 施設リストを再読み込み
-          await loadFacilities();
-          
-          // 既存施設タブに切り替えて、新しい施設を選択
-          switchFacilityTab('existing');
-          document.getElementById('facilitySelect').value = currentFacilityId;
-          
-          // フォームをクリア
-          clearNewFacilityForm();
-        } else {
-          alert(response.message || '施設登録に失敗しました');
-        }
-      } catch (error) {
-        console.error('施設登録エラー:', error);
-        alert('施設登録中にエラーが発生しました');
-      }
-    }
-
     function clearNewFacilityForm() {
       document.getElementById('facilityName').value = '';
       document.getElementById('facilityAddress').value = '';
@@ -1729,64 +1661,6 @@
       document.getElementById('adminPassword').value = '';
     }
 
-    // 施設選択タブの切り替え
-    function switchFacilityTab(type) {
-      // タブのアクティブ状態を更新
-      document.querySelectorAll('.facility-tab').forEach(tab => {
-        tab.classList.remove('active');
-        if (tab.dataset.facility === type) {
-          tab.classList.add('active');
-        }
-      });
-
-      // 表示エリアの切り替え
-      const existingArea = document.getElementById('existingFacilityArea');
-      const newArea = document.getElementById('newFacilityArea');
-
-      if (type === 'existing') {
-        existingArea.style.display = 'block';
-        newArea.classList.remove('show');
-      } else {
-        existingArea.style.display = 'none';
-        newArea.classList.add('show');
-      }
-    }
-
-    // 施設選択をスキップ
-    function skipFacilitySelection() {
-      debugLog('施設選択をスキップ - 単一施設モード');
-      currentFacilityId = null;
-      document.getElementById('facilitySelectArea').classList.remove('show');
-    }
-
-    // データの読み込み（施設対応版）
-    async function loadItems() {
-      try {
-        if (!isLoggedIn()) {
-          console.log('ログインしていないため、データ読み込みをスキップ');
-          return;
-        }
-        
-        console.log('データ読み込み開始');
-        let url = `${API_BASE}/equipment`;
-        
-        // 施設IDが指定されている場合はクエリパラメータに追加
-        if (currentFacilityId) {
-          url += `?facility_id=${currentFacilityId}`;
-        }
-        
-        items = await apiCall(url);
-        console.log(`${items.length}件のデータを読み込みました`);
-        hideError();
-      } catch (error) {
-        console.error('データの読み込みに失敗しました:', error);
-        items = [];
-        if (connectionRetries < maxRetries) {
-          showError('データの読み込みに失敗しました。再試行してください。');
-        }
-      }
-    }
-    
     // ログイン状態確認
     function isLoggedIn() {
       return document.getElementById('mainContent').style.display === 'block';
@@ -2340,31 +2214,42 @@
     }
 
     // ログイン処理
+    // ログイン処理（修正版）
     async function login() {
       try {
         debugLog('ログイン処理開始');
         
         const role = document.getElementById('roleSelect').value;
         const password = document.getElementById('loginPassword').value;
-        const facilityId = document.getElementById('facilitySelect').value;
+        const facilityId = document.getElementById('facilityIdInput').value.trim();
         
         debugLog('選択された役割:', role);
-        debugLog('選択された施設ID:', facilityId);
+        debugLog('入力された施設ID:', facilityId);
         
-        // 施設が選択されている場合は施設IDを設定
-        if (facilityId) {
-          currentFacilityId = parseInt(facilityId);
+        // 施設ID入力チェック
+        if (!facilityId) {
+          alert('施設IDを入力してください');
+          return;
         }
+        
+        // 施設IDの存在確認
+        if (!facilityMapping[facilityId]) {
+          alert('入力された施設IDが見つかりません。正しい施設IDを入力してください。');
+          return;
+        }
+        
+        // 施設情報を設定
+        currentFacilityId = facilityId;
+        currentFacilityName = facilityMapping[facilityId];
+        
+        debugLog('施設名:', currentFacilityName);
 
         if (role === 'admin') {
           const body = {
             username: 'admin',
-            password: password
+            password: password,
+            facility_id: currentFacilityId
           };
-          
-          if (currentFacilityId) {
-            body.facility_id = currentFacilityId;
-          }
           
           const response = await fetch('/api/admin/login', {
             method: 'POST',
@@ -2383,11 +2268,9 @@
           }
         } else {
           // 職員ログイン処理
-          const body = {};
-          
-          if (currentFacilityId) {
-            body.facility_id = currentFacilityId;
-          }
+          const body = {
+            facility_id: currentFacilityId
+          };
           
           const response = await fetch('/api/staff/login', {
             method: 'POST',
@@ -2407,6 +2290,38 @@
             return;
           }
         }
+        
+        debugLog('認証成功、画面切り替え開始');
+        
+        // 画面を切り替え
+        document.getElementById('loginArea').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'block';
+        isAdmin = role === 'admin';
+        document.getElementById('adminArea').style.display = isAdmin ? 'block' : 'none';
+        
+        // AIバッジを表示
+        showAIBadge();
+        
+        // 施設名を表示
+        document.getElementById('facilityNameDisplay').textContent = `${currentFacilityName} - らくらく備品管理システム`;
+        
+        debugLog('画面切り替え完了、データ読み込み開始');
+        
+        // ログイン後にデータを読み込み
+        try {
+          await loadItems();
+          renderItems();
+          debugLog('ログイン完了');
+        } catch (error) {
+          console.error('ログイン後のデータ読み込みに失敗:', error);
+          renderItems();
+          showError('データの読み込みに失敗しました。再試行してください。');
+        }
+      } catch (error) {
+        console.error('ログイン処理でエラー:', error);
+        alert('ログイン処理中にエラーが発生しました: ' + error.message);
+      }
+    }
         
         debugLog('認証成功、画面切り替え開始');
         
@@ -2645,12 +2560,6 @@
             }
           });
         }
-        
-        // 施設選択エリアの初期表示
-        document.getElementById('facilitySelectArea').classList.add('show');
-        
-        // 施設リストを読み込み
-        loadFacilities();
         
         debugLog('アプリケーション初期化完了');
         
