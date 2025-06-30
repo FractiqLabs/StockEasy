@@ -1195,6 +1195,7 @@
           <div class="facility-id-area">
             <div class="form-group">
               <label for="facilityIdInput">施設ID</label>
+              <input type="text" id="facilityIdInput" class="facility-input" placeholder="例: midorinooksa" />
               <small style="color: #666; font-size: 0.85rem; margin-top: 5px; display: block;">
                 ※ 施設IDは事前にお渡しした専用IDを入力してください
               </small>
@@ -1205,10 +1206,13 @@
             <option value="staff">職員としてログイン</option>
             <option value="admin">管理者としてログイン</option>
           </select>
+          
           <div id="passwordArea" class="password-area" style="display: block;">
             <input type="password" id="loginPassword" placeholder="パスワードを入力" />
           </div>
+          
           <button id="loginButton" class="login-btn">ログイン</button>
+          
           <div class="storage-notice">
             <strong>Ver.4.0</strong> - 施設ID入力式での専用システム
           </div>
@@ -2515,7 +2519,7 @@
     }
 
    // 初期化処理
-    function initializeApp() {
+    async function initializeApp() {
       debugLog('アプリケーション初期化開始');
       
       try {
@@ -2565,7 +2569,7 @@
         debugLog('アプリケーション初期化完了');
         
         // セッション状態を確認してログイン状態を復元
-        checkAndRestoreSession();
+        await checkAndRestoreSession();
         
         // AI機能を初期化（この行を追加）
         stockEasyAI = new StockEasyAI();
