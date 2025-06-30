@@ -2508,6 +2508,7 @@
     }
 
    // 初期化処理
+    // 初期化処理
     async function initializeApp() {
       debugLog('アプリケーション初期化開始');
       
@@ -2524,14 +2525,8 @@
           throw new Error('役割選択が見つかりません');
         }
         
-        // クリックイベントとタッチイベントの両方に対応
+        // ログインボタンのイベント設定
         loginButton.addEventListener('click', function(e) {
-          e.preventDefault();
-          login();
-        });
-        
-        // モバイル対応
-        loginButton.addEventListener('touchstart', function(e) {
           e.preventDefault();
           login();
         });
@@ -2540,11 +2535,9 @@
         
         // モーダルイベントの設定
         setupModalEvents();
-        
-        // タブイベントの設定
         setupTabEvents();
         
-        // Enterキーでログインできるようにする
+        // Enterキーでログイン
         const loginPassword = document.getElementById('loginPassword');
         if (loginPassword) {
           loginPassword.addEventListener('keypress', function(e) {
@@ -2557,10 +2550,10 @@
         
         debugLog('アプリケーション初期化完了');
         
-        // セッション状態を確認してログイン状態を復元
+        // セッション状態を確認
         await checkAndRestoreSession();
         
-        // AI機能を初期化（この行を追加）
+        // AI機能を初期化
         stockEasyAI = new StockEasyAI();
         debugLog('AI機能を初期化しました');
         
