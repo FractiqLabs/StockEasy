@@ -1191,6 +1191,30 @@
         <div class="login-card">
           <h3>システムにログイン</h3>
           
+          <!-- 施設ID入力エリア -->
+          <div class="facility-id-area">
+            <div class="form-group">
+              <label for="facilityIdInput">施設ID</label>
+              <input type="text" id="facilityIdInput" class="facility-input" placeholder="例: midorinooksa" />
+              <small style="color: #666; font-size: 0.85rem; margin-top: 5px; display: block;">
+                ※ 施設IDは事前にお渡しした専用IDを入力してください
+              </small>
+            </div>
+          </div>
+          
+          <select id="roleSelect" class="role-select">
+            <option value="staff">職員としてログイン</option>
+            <option value="admin">管理者としてログイン</option>
+          </select>
+          <div id="passwordArea" class="password-area">
+            <input type="password" id="loginPassword" placeholder="管理者パスワードを入力" />
+          </div>
+          <button id="loginButton" class="login-btn">ログイン</button>
+          <div class="storage-notice">
+            <strong>Ver.4.0</strong> - 施設ID入力式での専用システム
+          </div>
+        </div>
+          
           <!-- 施設選択エリア -->
           <div id="facilitySelectArea" class="facility-select-area">
             <div class="facility-tabs">
