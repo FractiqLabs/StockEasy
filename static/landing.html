@@ -616,6 +616,12 @@
     th:hover {
       background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
     }
+    /* ヘッダー固定（最小限実装） */
+    thead {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
     
     tbody tr {
       transition: all 0.3s ease;
