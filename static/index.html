@@ -1567,15 +1567,6 @@
     let sortDirection = 'asc';
     let currentFacilityId = null;
     let facilities = [];
-    let currentIndex = null;
-    let isAdmin = false;
-    let editingIndex = null;
-    let connectionRetries = 0;
-    const maxRetries = 3;
-    let sortColumn = '';
-    let sortDirection = 'asc';
-    let currentFacilityId = null;
-    let facilities = [];
     
     // 施設ID → 施設名のマッピング
     const facilityMapping = {
@@ -1588,7 +1579,7 @@
     let currentFacilityName = null;
     
     // API URLを動的に設定
-    const USE_LOCAL_STORAGE = false; // 本番用（サーバー保存）
+    const USE_LOCAL_STORAGE = false;
     const API_BASE = window.location.origin + '/api';
     
     // デバッグモード
