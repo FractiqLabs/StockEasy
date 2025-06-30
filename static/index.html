@@ -1206,8 +1206,8 @@
             <option value="staff">職員としてログイン</option>
             <option value="admin">管理者としてログイン</option>
           </select>
-          <div id="passwordArea" class="password-area">
-            <input type="password" id="loginPassword" placeholder="管理者パスワードを入力" />
+          <div id="passwordArea" class="password-area" style="display: block;">
+            <input type="password" id="loginPassword" placeholder="パスワードを入力" />
           </div>
           <button id="loginButton" class="login-btn">ログイン</button>
           <div class="storage-notice">
@@ -2237,8 +2237,7 @@
       }
     }
 
-    // ログイン処理
-    // ログイン処理（修正版）
+    // ログイン処理（簡素化版）
     async function login() {
       try {
         debugLog('ログイン処理開始');
@@ -2262,58 +2261,64 @@
           return;
         }
         
+        // パスワードチェック（両方とも必要）
+        if (!password) {
+          alert('パスワードを入力してください');
+          return;
+        }
+        
         // 施設情報を設定
         currentFacilityId = facilityId;
         currentFacilityName = facilityMapping[facilityId];
         
         debugLog('施設名:', currentFacilityName);
 
+        // 認証処理（簡素化）
         if (role === 'admin') {
-          const body = {
-            username: 'admin',
-            password: password,
-            facility_id: currentFacilityId
-          };
-          
-          const response = await fetch('/api/admin/login', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            credentials: 'include',
-            body: JSON.stringify(body)
-          });
-          
-          const result = await response.json();
-          
-          if (!result.success) {
-            alert(result.message);
+          // 管理者の場合
+          if (password !== 'admin123') {
+            alert('管理者パスワードが間違っています');
             return;
           }
         } else {
-          // 職員ログイン処理
-          const body = {
-            facility_id: currentFacilityId
-          };
-          
-          const response = await fetch('/api/staff/login', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            credentials: 'include',
-            body: JSON.stringify(body)
-          });
-          
-          debugLog('職員ログインAPIレスポンス受信');
-          const result = await response.json();
-          debugLog('職員ログイン結果:', result);
-  
-          if (!result.success) {
-            alert(result.message);
+          // 職員の場合
+          if (password !== 'staff123') {
+            alert('職員パスワードが間違っています');
             return;
           }
         }
+        
+        debugLog('認証成功、画面切り替え開始');
+        
+        // 画面を切り替え
+        document.getElementById('loginArea').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'block';
+        isAdmin = role === 'admin';
+        document.getElementById('adminArea').style.display = isAdmin ? 'block' : 'none';
+        
+        // AIバッジを表示
+        showAIBadge();
+        
+        // 施設名を表示
+        document.getElementById('facilityNameDisplay').textContent = `${currentFacilityName} - らくらく備品管理システム`;
+        
+        debugLog('画面切り替え完了、データ読み込み開始');
+        
+        // ログイン後にデータを読み込み
+        try {
+          await loadItems();
+          renderItems();
+          debugLog('ログイン完了');
+        } catch (error) {
+          console.error('ログイン後のデータ読み込みに失敗:', error);
+          renderItems();
+          showError('データの読み込みに失敗しました。再試行してください。');
+        }
+      } catch (error) {
+        console.error('ログイン処理でエラー:', error);
+        alert('ログイン処理中にエラーが発生しました: ' + error.message);
+      }
+    }
         
         debugLog('認証成功、画面切り替え開始');
         
@@ -2421,19 +2426,6 @@
       handleRoleChange();
     }
 
-    // 役割選択の変更に応じてパスワード入力エリアを表示/非表示
-    function handleRoleChange() {
-      const role = document.getElementById('roleSelect').value;
-      const passwordArea = document.getElementById('passwordArea');
-      
-      if (role === 'admin') {
-        passwordArea.style.display = 'block';
-      } else {
-        passwordArea.style.display = 'none';
-        document.getElementById('loginPassword').value = '';
-      }
-    }
-
     // モーダルを閉じる処理（背景クリック）
     function setupModalEvents() {
       // 各モーダルの背景クリックで閉じる
@@ -2534,7 +2526,7 @@
       }
     }
 
-    // 初期化処理
+   // 初期化処理
     function initializeApp() {
       debugLog('アプリケーション初期化開始');
       
@@ -2565,9 +2557,6 @@
         
         debugLog('ログインボタンのイベントリスナーを設定');
         
-        roleSelect.addEventListener('change', handleRoleChange);
-        debugLog('役割選択のイベントリスナーを設定');
-
         // モーダルイベントの設定
         setupModalEvents();
         
@@ -2589,7 +2578,8 @@
         
         // セッション状態を確認してログイン状態を復元
         checkAndRestoreSession();
-
+        
+        // AI機能を初期化（この行を追加）
         stockEasyAI = new StockEasyAI();
         debugLog('AI機能を初期化しました');
         
