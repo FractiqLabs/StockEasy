@@ -1603,7 +1603,7 @@
     }
 
     // 接続再試行
-    async function retryConnection() {
+    function retryConnection() {
       hideError();
       if (connectionRetries < maxRetries) {
         connectionRetries++;
@@ -1616,7 +1616,7 @@
     }
 
     // API呼び出し用のヘルパー関数
-    async function apiCall(url, options = {}) {
+    function apiCall(url, options = {}) {
       showLoading();
       try {
         console.log('API呼び出し:', url);
@@ -1672,7 +1672,7 @@
     }
 
     // データのエクスポート・インポート機能
-    async function exportData() {
+    function exportData() {
       try {
         let url = `${API_BASE}/export`;
         if (currentFacilityId) {
@@ -1700,12 +1700,12 @@
       }
     }
 
-    async function importData() {
+    function importData() {
       const file = document.getElementById('importFile').files[0];
       if (!file) return;
 
       const reader = new FileReader();
-      reader.onload = async function(e) {
+      reader.onload = function(e) {
         try {
           const importedData = JSON.parse(e.target.result);
           if (confirm('現在のデータを置き換えますか？')) {
@@ -1847,7 +1847,7 @@
     }
 
     // 備考更新
-    async function updateNote(index, note) {
+    function updateNote(index, note) {
       try {
         const item = items[index];
         const body = { note };
@@ -1889,7 +1889,7 @@
       });
     }
 
-    async function registerItem() {
+    function registerItem() {
       const name = document.getElementById('itemName').value;
       const id = document.getElementById('itemId').value;
       const location = document.getElementById('itemLocation').value;
@@ -1958,9 +1958,9 @@
       document.getElementById('itemImage').value = '';
     }
 
-    async function editImage(index) {
+    function editImage(index) {
       const input = document.getElementById('editImageInput');
-      input.onchange = async () => {
+      input.onchange =  () => {
         const file = input.files[0];
         if (file) {
           try {
@@ -2029,7 +2029,7 @@
       editingIndex = null;
     }
 
-    async function confirmEdit() {
+    function confirmEdit() {
       if (editingIndex === null) return;
       
       const name = document.getElementById('editItemName').value;
@@ -2082,7 +2082,7 @@
       }
     }
 
-    async function confirmDelete() {
+    function confirmDelete() {
       if (editingIndex === null) return;
       
       if (confirm(`備品「${items[editingIndex].name}」を本当に削除しますか？`)) {
@@ -2117,7 +2117,7 @@
       document.getElementById('borrowModal').style.display = 'none';
     }
 
-    async function confirmBorrow() {
+    function confirmBorrow() {
       const place = document.getElementById('borrowSelect').value;
       const timestamp = new Date().toLocaleString('ja-JP');
       
@@ -2176,7 +2176,7 @@
       document.getElementById('returnModal').style.display = 'none';
     }
 
-    async function confirmReturn() {
+    function confirmReturn() {
       const place = document.getElementById('returnSelect').value;
       const timestamp = new Date().toLocaleString('ja-JP');
       
@@ -2219,7 +2219,7 @@
     }
 
     // ログイン処理（簡素化版）
-    async function login() {
+    function login() {
       try {
         debugLog('ログイン処理開始');
         
@@ -2287,7 +2287,7 @@
         
         // ログイン後にデータを読み込み
         try {
-          await loadItems();
+          loadItems();
           renderItems();
           debugLog('ログイン完了');
         } catch (error) {
@@ -2633,7 +2633,7 @@
     }
     
 // AIメッセージ送信
-    async function sendAIMessage() {
+    function sendAIMessage() {
       const input = document.getElementById('aiInputField');
       const message = input.value.trim();
       
@@ -3333,7 +3333,7 @@ class StockEasyAI {
     this.isProcessing = false;
   }
   
-  async processMessage(message) {
+  processMessage(message) {
     if (this.isProcessing) {
       return "処理中です。少々お待ちください...";
     }
