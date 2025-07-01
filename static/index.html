@@ -589,6 +589,139 @@
     .admin-tab-content.active {
       display: block;
     }
+    /* 設定ボタンエリア */
+    .settings-separator {
+      width: 1px;
+      height: 24px;
+      background: #e5e7eb;
+      margin: 0 0.5rem;
+    }
+    
+    .settings-btn {
+      background: linear-gradient(45deg, #6366f1, #8b5cf6) !important;
+      color: white !important;
+      border: none !important;
+      padding: 0.6rem 1.2rem !important;
+      border-radius: 8px !important;
+      font-size: 0.9rem !important;
+      font-weight: 600 !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 0.5rem !important;
+      cursor: pointer !important;
+      transition: all 0.3s ease !important;
+    }
+    
+    .settings-btn:hover {
+      transform: translateY(-1px) !important;
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4) !important;
+    }
+    /* 設定モーダル */
+    .settings-modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 16px;
+      width: 500px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    }
+    
+    .settings-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid #f3f0ff;
+    }
+    
+    .settings-header h3 {
+      margin: 0;
+      color: #7c3aed;
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+    
+    .close-btn {
+      background: #f3f4f6;
+      border: none;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.2rem;
+      color: #6b7280;
+      transition: all 0.3s ease;
+    }
+    
+    .close-btn:hover {
+      background: #e5e7eb;
+      color: #374151;
+    }
+    
+    .settings-section {
+      margin-bottom: 2rem;
+    }
+    
+    .settings-section h4 {
+      margin: 0 0 1rem 0;
+      color: #374151;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    
+    /* カラーパレット */
+    .color-palette {
+      display: flex;
+      gap: 1rem;
+    }
+    
+    .color-option {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 3px solid transparent;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    
+    .color-option:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .color-option.active {
+      border-color: white;
+      box-shadow: 0 0 0 2px currentColor, 0 4px 15px rgba(0, 0, 0, 0.3);
+      transform: scale(1.15);
+    }
+    
+    /* 設定グリッド */
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+    }
+    
+    .settings-item-btn {
+      padding: 1rem;
+      border: 2px solid #e9d5ff;
+      border-radius: 12px;
+      background: white;
+      color: #7c3aed;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      text-align: center;
+    }
+    
+    .settings-item-btn:hover {
+      background: linear-gradient(45deg, #f3f0ff, #e9d5ff);
+      border-color: #a78bfa;
+      transform: translateY(-2px);
+    }
     .status-available {
       color: #7c3aed;
       font-weight: 600;
@@ -1426,14 +1559,16 @@
         </div>
       </div>
       
-      <div class="header-controls">
+     <div class="header-controls">
         <input type="text" id="searchInput" placeholder="備品名・ID・場所で検索..." style="padding: 0.6rem 1rem; margin: 0.2rem; border-radius: 8px; border: 2px solid #e9d5ff; font-size: 0.9rem; background: white; min-width: 200px;" oninput="searchItems()" />
         <button onclick="exportData()">エクスポート</button>
         <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData()" />
         <button onclick="document.getElementById('importFile').click()">インポート</button>
         <button onclick="logout()">ログアウト</button>
+        <!-- 設定ボタン（管理者のみ表示） -->
+        <div class="settings-separator"></div>
+        <button id="settingsBtn" onclick="openSettings()" class="settings-btn" style="display: none;">⚙️ 設定</button>
       </div>
-    </div>
 
     <!-- エラー表示エリア -->
     <div id="errorNotice" class="error-notice" style="display: none;">
@@ -1441,12 +1576,32 @@
       <button class="retry-button" onclick="retryConnection()">再試行</button>
     </div>
 
-    <div id="adminArea" class="admin-section" style="display: none">
-      <!-- タブナビゲーション -->
-      <div class="admin-tabs">
-        <button class="admin-tab active" data-tab="register" onclick="switchAdminTab('register')">備品登録</button>
-        <button class="admin-tab" data-tab="settings" onclick="switchAdminTab('settings')">施設設定</button>
+   <div id="adminArea" class="admin-section" style="display: none">
+      <h2>新規登録</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+        <input type="text" id="itemName" placeholder="備品名" />
+        <input type="text" id="itemId" placeholder="ID" />
+        <select id="itemLocation">
+          <option value="事務所">事務所</option>
+          <option value="1F">1F</option>
+          <option value="2F">2F</option>
+          <option value="3F">3F</option>
+          <option value="4F">4F</option>
+          <option value="5F">5F</option>
+          <option value="地域交流室">地域交流室</option>
+          <option value="機能訓練室">機能訓練室</option>
+        </select>
+        <select id="itemCategory">
+          <option value="車いす">車いす</option>
+          <option value="歩行器・シルバーカー">歩行器・シルバーカー</option>
+          <option value="家具・家電">家具・家電</option>
+          <option value="エアマット">エアマット</option>
+          <option value="その他">その他</option>
+        </select>
+        <input type="file" id="itemImage" accept="image/*" />
+        <button onclick="registerItem()">登録</button>
       </div>
+    </div>
 
       <!-- 備品登録タブ -->
       <div id="registerTab" class="admin-tab-content active">
@@ -1586,6 +1741,38 @@
           <button onclick="confirmEdit()">保存</button>
           <button onclick="closeEditModal()">キャンセル</button>
           <button class="delete-button" onclick="confirmDelete()">削除</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 設定モーダル -->
+    <div class="modal" id="settingsModal">
+      <div class="settings-modal-content">
+        <div class="settings-header">
+          <h3>⚙️ 施設設定</h3>
+          <button class="close-btn" onclick="closeSettings()">×</button>
+        </div>
+        
+        <!-- カラーパレット -->
+        <div class="settings-section">
+          <h4>🎨 テーマカラー</h4>
+          <div class="color-palette">
+            <div class="color-option active" data-color="#667eea" style="background: #667eea;" onclick="changeThemeColor('#667eea')"></div>
+            <div class="color-option" data-color="#10b981" style="background: #10b981;" onclick="changeThemeColor('#10b981')"></div>
+            <div class="color-option" data-color="#f59e0b" style="background: #f59e0b;" onclick="changeThemeColor('#f59e0b')"></div>
+            <div class="color-option" data-color="#ef4444" style="background: #ef4444;" onclick="changeThemeColor('#ef4444')"></div>
+            <div class="color-option" data-color="#8b5cf6" style="background: #8b5cf6;" onclick="changeThemeColor('#8b5cf6')"></div>
+          </div>
+        </div>
+        
+        <!-- その他設定ボタン -->
+        <div class="settings-section">
+          <h4>🛠️ 詳細設定</h4>
+          <div class="settings-grid">
+            <button onclick="openLocationSettings()" class="settings-item-btn">📍 保管場所編集</button>
+            <button onclick="openCategorySettings()" class="settings-item-btn">📋 種別編集</button>
+            <button onclick="openDisplaySettings()" class="settings-item-btn">📊 表示設定</button>
+          </div>
         </div>
       </div>
     </div>
@@ -2366,6 +2553,9 @@
         isAdmin = role === 'admin';
         document.getElementById('adminArea').style.display = isAdmin ? 'block' : 'none';
         
+        // 設定ボタンを管理者の時だけ表示
+        document.getElementById('settingsBtn').style.display = isAdmin ? 'flex' : 'none';
+        
         // AIバッジを表示
         showAIBadge();
         
@@ -2424,6 +2614,45 @@
       document.getElementById('roleSelect').value = 'staff';
       document.getElementById('loginPassword').value = '';
       document.getElementById('facilityId').value = '';
+    }
+    // 設定モーダル関連
+    function openSettings() {
+      document.getElementById('settingsModal').style.display = 'flex';
+      console.log('設定モーダルを開きました');
+    }
+    
+    function closeSettings() {
+      document.getElementById('settingsModal').style.display = 'none';
+      console.log('設定モーダルを閉じました');
+    }
+    
+    // テーマカラー変更
+    function changeThemeColor(color) {
+      // 全ての色オプションからactiveクラスを削除
+      document.querySelectorAll('.color-option').forEach(option => {
+        option.classList.remove('active');
+      });
+      
+      // 選択された色にactiveクラスを追加
+      document.querySelector(`[data-color="${color}"]`).classList.add('active');
+      
+      // CSS変数を更新（実際のテーマ変更は後で実装）
+      console.log(`テーマカラーを ${color} に変更`);
+      
+      // TODO: 実際のテーマ適用処理
+    }
+    
+    // 詳細設定モーダル（ダミー）
+    function openLocationSettings() {
+      alert('保管場所編集画面（準備中）');
+    }
+    
+    function openCategorySettings() {
+      alert('種別編集画面（準備中）');
+    }
+    
+    function openDisplaySettings() {
+      alert('表示設定画面（準備中）');
     }
     
     // 役割選択の変更に応じてパスワード入力エリアを表示/非表示
