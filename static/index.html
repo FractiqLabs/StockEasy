@@ -2527,7 +2527,7 @@
         document.getElementById('loginArea').style.display = 'none';
         document.getElementById('mainContent').style.display = 'block';
         isAdmin = role === 'admin';
-        document.getElementById('adminArea').style.display = isAdmin ? 'block' : 'none';
+        document.getElementById('adminLayout').style.display = isAdmin ? 'block' : 'none';
         
         // 設定ボタンを管理者の時だけ表示
         document.getElementById('settingsBtn').style.display = isAdmin ? 'flex' : 'none';
