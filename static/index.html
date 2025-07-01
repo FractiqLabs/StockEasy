@@ -1603,41 +1603,6 @@
       </div>
     </div>
 
-      <!-- 備品登録タブ -->
-      <div id="registerTab" class="admin-tab-content active">
-        <h2>新規登録</h2>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
-          <input type="text" id="itemName" placeholder="備品名" />
-          <input type="text" id="itemId" placeholder="ID" />
-          <select id="itemLocation">
-            <option value="事務所">事務所</option>
-            <option value="1F">1F</option>
-            <option value="2F">2F</option>
-            <option value="3F">3F</option>
-            <option value="4F">4F</option>
-            <option value="5F">5F</option>
-            <option value="地域交流室">地域交流室</option>
-            <option value="機能訓練室">機能訓練室</option>
-          </select>
-          <select id="itemCategory">
-            <option value="車いす">車いす</option>
-            <option value="歩行器・シルバーカー">歩行器・シルバーカー</option>
-            <option value="家具・家電">家具・家電</option>
-            <option value="">エアマット</option>
-            <option value="その他">その他</option>
-          </select>
-          <input type="file" id="itemImage" accept="image/*" />
-          <button onclick="registerItem()">登録</button>
-        </div>
-      </div>
-
-      <!-- 施設設定タブ -->
-      <div id="settingsTab" class="admin-tab-content">
-        <h2>施設設定</h2>
-        <p>ここに設定フォームを追加予定</p>
-      </div>
-    </div>
-
     <div class="tab-navigation" style="margin-bottom: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
       <button class="tab-button active" data-category="" onclick="filterByTab('')">全て</button>
       <button class="tab-button" data-category="車いす" onclick="filterByTab('車いす')">車いす</button>
