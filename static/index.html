@@ -2035,9 +2035,7 @@
     }
 
     function renderItems(filterCategory = '', searchTerm = '') {
-      // 管理者・職員で異なるテーブルを使用
-      const tableId = isAdmin ? 'itemTable' : 'itemTable2';
-      const tbody = document.getElementById(tableId);
+      const tbody = document.getElementById('itemTable');
       tbody.innerHTML = '';
       // フィルタリングと検索
       let filteredItems = items;
