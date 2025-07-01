@@ -2560,8 +2560,11 @@
         document.getElementById('mainContent').style.display = 'block';
         isAdmin = role === 'admin';
         // レイアウト切り替え
+        console.log('isAdmin:', isAdmin);
         document.getElementById('adminLayout').style.display = isAdmin ? 'block' : 'none';
         document.getElementById('staffLayout').style.display = isAdmin ? 'none' : 'block';
+        console.log('adminLayout display:', document.getElementById('adminLayout').style.display);
+        console.log('staffLayout display:', document.getElementById('staffLayout').style.display);
         
         // 設定ボタンを管理者の時だけ表示
         document.getElementById('settingsBtn').style.display = isAdmin ? 'flex' : 'none';
