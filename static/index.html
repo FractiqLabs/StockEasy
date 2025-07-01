@@ -1638,7 +1638,7 @@
             <th>操作</th>
           </tr>
         </thead>
-        <tbody id="itemTable"></tbody>
+        <tbody id="itemTableStaff"></tbody>
       </table>
     </div>
         
@@ -1668,7 +1668,7 @@
                 <th>操作</th>
               </tr>
             </thead>
-            <tbody id="itemTable"></tbody>
+            <tbody id="itemTableStaff"></tbody>
           </table>
         </div>
       </div>
@@ -2035,8 +2035,8 @@
     }
 
     function renderItems(filterCategory = '', searchTerm = '') {
-      const tbody = document.getElementById('itemTable');
-      tbody.innerHTML = '';
+     const tableId = isAdmin ? 'itemTable' : 'itemTableStaff';
+     const tbody = document.getElementById(tableId);
       // フィルタリングと検索
       let filteredItems = items;
       
