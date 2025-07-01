@@ -2035,8 +2035,15 @@
     }
 
     function renderItems(filterCategory = '', searchTerm = '') {
-     const tableId = isAdmin ? 'itemTable' : 'itemTableStaff';
-     const tbody = document.getElementById(tableId);
+      const tableId = isAdmin ? 'itemTable' : 'itemTableStaff';
+      const tbody = document.getElementById(tableId);
+      
+      if (!tbody) {
+        console.error('テーブルが見つかりません:', tableId);
+        return;
+      }
+      
+      tbody.innerHTML = '';
       // フィルタリングと検索
       let filteredItems = items;
       
