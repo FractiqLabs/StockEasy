@@ -1608,6 +1608,35 @@
             </div>
           </div>
         </div>
+        <!-- 職員レイアウト -->
+    <div id="staffLayout" style="display: none;">
+      <div class="tab-navigation" style="margin-bottom: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <button class="tab-button active" data-category="" onclick="filterByTab('')">全て</button>
+        <button class="tab-button" data-category="車いす" onclick="filterByTab('車いす')">車いす</button>
+        <button class="tab-button" data-category="歩行器・シルバーカー" onclick="filterByTab('歩行器・シルバーカー')">歩行器・シルバーカー</button>
+        <button class="tab-button" data-category="家具・家電" onclick="filterByTab('家具・家電')">家具・家電</button>
+        <button class="tab-button" data-category="エアマット" onclick="filterByTab('エアマット')">エアマット</button>
+        <button class="tab-button" data-category="その他" onclick="filterByTab('その他')">その他</button>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>画像</th>
+            <th onclick="sortTable('name')" style="cursor: pointer;">備品名 ↕</th>
+            <th onclick="sortTable('id')" style="cursor: pointer;">ID ↕</th>
+            <th onclick="sortTable('location')" style="cursor: pointer;">保管場所 ↕</th>
+            <th onclick="sortTable('current')" style="cursor: pointer;">現在地 ↕</th>
+            <th onclick="sortTable('user')" style="cursor: pointer;">使用者 ↕</th>
+            <th onclick="sortTable('status')" style="cursor: pointer;">状態 ↕</th>
+            <th>備考</th>
+            <th onclick="sortTable('category')" style="cursor: pointer;">種別 ↕</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="itemTable2"></tbody>
+      </table>
+    </div>
         
         <!-- 右側：メイン表示エリア -->
         <div style="flex: 1;">
@@ -2002,9 +2031,10 @@
     }
 
     function renderItems(filterCategory = '', searchTerm = '') {
-      const tbody = document.getElementById('itemTable');
+      // 管理者・職員で異なるテーブルを使用
+      const tableId = isAdmin ? 'itemTable' : 'itemTable2';
+      const tbody = document.getElementById(tableId);
       tbody.innerHTML = '';
-      
       // フィルタリングと検索
       let filteredItems = items;
       
@@ -2527,7 +2557,9 @@
         document.getElementById('loginArea').style.display = 'none';
         document.getElementById('mainContent').style.display = 'block';
         isAdmin = role === 'admin';
+        // レイアウト切り替え
         document.getElementById('adminLayout').style.display = isAdmin ? 'block' : 'none';
+        document.getElementById('staffLayout').style.display = isAdmin ? 'none' : 'block';
         
         // 設定ボタンを管理者の時だけ表示
         document.getElementById('settingsBtn').style.display = isAdmin ? 'flex' : 'none';
