@@ -1580,8 +1580,8 @@
    <!-- 管理者レイアウト -->
     <div id="adminLayout" style="display: none;">
       <div style="display: flex; gap: 2rem; align-items: flex-start;">
-        <!-- 左側：新規登録フォーム -->
-        <div style="flex: 0 0 400px;">
+        <!-- 左側：新規登録フォーム（固定） -->
+        <div style="flex: 0 0 400px; position: sticky; top: 1rem;">
           <div class="admin-section">
             <h2>新規登録</h2>
             <div style="display: grid; grid-template-columns: 1fr; gap: 1rem; margin-bottom: 1rem;">
@@ -1609,6 +1609,7 @@
             </div>
           </div>
         </div>
+        
         <!-- 職員レイアウト -->
     <div id="staffLayout" style="display: none;">
       <div class="tab-navigation" style="margin-bottom: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
@@ -2035,7 +2036,14 @@
       // 管理者・職員で異なるテーブルを使用
       const tableId = isAdmin ? 'itemTable' : 'itemTable2';
       const tbody = document.getElementById(tableId);
+      
+      if (!tbody) {
+        console.error(`テーブル要素が見つかりません: ${tableId}`);
+        return;
+      }
+      
       tbody.innerHTML = '';
+      
       // フィルタリングと検索
       let filteredItems = items;
       
