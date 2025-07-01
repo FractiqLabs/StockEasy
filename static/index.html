@@ -60,7 +60,7 @@
       font-family: "Noto Sans JP", "Segoe UI", sans-serif;
       margin: 0;
       background: linear-gradient(to bottom right, #f3e8ff, #ede9fe);
-      zoom: 0.75; /* 75%に縮小表示 */
+      zoom: 0.8; /* 80%に縮小表示 */
     }
 
     .sub-heading {
@@ -539,9 +539,6 @@
       margin-bottom: 2rem;
       border-left: 4px solid #a78bfa;
       border: 1px solid rgba(139, 92, 246, 0.1);
-      position: sticky;
-      top: 0;
-      z-index: 100;
     }
     
     .admin-section h2 {
@@ -1580,59 +1577,67 @@
       <button class="retry-button" onclick="retryConnection()">再試行</button>
     </div>
 
-   <div id="adminArea" class="admin-section" style="display: none">
-      <h2>新規登録</h2>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
-        <input type="text" id="itemName" placeholder="備品名" />
-        <input type="text" id="itemId" placeholder="ID" />
-        <select id="itemLocation">
-          <option value="事務所">事務所</option>
-          <option value="1F">1F</option>
-          <option value="2F">2F</option>
-          <option value="3F">3F</option>
-          <option value="4F">4F</option>
-          <option value="5F">5F</option>
-          <option value="地域交流室">地域交流室</option>
-          <option value="機能訓練室">機能訓練室</option>
-        </select>
-        <select id="itemCategory">
-          <option value="車いす">車いす</option>
-          <option value="歩行器・シルバーカー">歩行器・シルバーカー</option>
-          <option value="家具・家電">家具・家電</option>
-          <option value="エアマット">エアマット</option>
-          <option value="その他">その他</option>
-        </select>
-        <input type="file" id="itemImage" accept="image/*" />
-        <button onclick="registerItem()">登録</button>
+   <!-- 管理者レイアウト -->
+    <div id="adminLayout" style="display: none;">
+      <div style="display: flex; gap: 2rem; align-items: flex-start;">
+        <!-- 左側：新規登録フォーム -->
+        <div style="flex: 0 0 400px;">
+          <div class="admin-section">
+            <h2>新規登録</h2>
+            <div style="display: grid; grid-template-columns: 1fr; gap: 1rem; margin-bottom: 1rem;">
+              <input type="text" id="itemName" placeholder="備品名" />
+              <input type="text" id="itemId" placeholder="ID" />
+              <select id="itemLocation">
+                <option value="事務所">事務所</option>
+                <option value="1F">1F</option>
+                <option value="2F">2F</option>
+                <option value="3F">3F</option>
+                <option value="4F">4F</option>
+                <option value="5F">5F</option>
+                <option value="地域交流室">地域交流室</option>
+                <option value="機能訓練室">機能訓練室</option>
+              </select>
+              <select id="itemCategory">
+                <option value="車いす">車いす</option>
+                <option value="歩行器・シルバーカー">歩行器・シルバーカー</option>
+                <option value="家具・家電">家具・家電</option>
+                <option value="エアマット">エアマット</option>
+                <option value="その他">その他</option>
+              </select>
+              <input type="file" id="itemImage" accept="image/*" />
+              <button onclick="registerItem()">登録</button>
+            </div>
+          </div>
+        </div>
+        <!-- 職員レイアウト -->
+    <div id="staffLayout" style="display: none;">
+      <div class="tab-navigation" style="margin-bottom: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <button class="tab-button active" data-category="" onclick="filterByTab('')">全て</button>
+        <button class="tab-button" data-category="車いす" onclick="filterByTab('車いす')">車いす</button>
+        <button class="tab-button" data-category="歩行器・シルバーカー" onclick="filterByTab('歩行器・シルバーカー')">歩行器・シルバーカー</button>
+        <button class="tab-button" data-category="家具・家電" onclick="filterByTab('家具・家電')">家具・家電</button>
+        <button class="tab-button" data-category="エアマット" onclick="filterByTab('エアマット')">エアマット</button>
+        <button class="tab-button" data-category="その他" onclick="filterByTab('その他')">その他</button>
       </div>
-    </div>
 
-    <div class="tab-navigation" style="margin-bottom: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
-      <button class="tab-button active" data-category="" onclick="filterByTab('')">全て</button>
-      <button class="tab-button" data-category="車いす" onclick="filterByTab('車いす')">車いす</button>
-      <button class="tab-button" data-category="歩行器・シルバーカー" onclick="filterByTab('歩行器・シルバーカー')">歩行器・シルバーカー</button>
-      <button class="tab-button" data-category="家具・家電" onclick="filterByTab('家具・家電')">家具・家電</button>
-      <button class="tab-button" data-category="エアマット" onclick="filterByTab('エアマット')">エアマット</button>
-      <button class="tab-button" data-category="その他" onclick="filterByTab('その他')">その他</button>
+      <table>
+        <thead>
+          <tr>
+            <th>画像</th>
+            <th onclick="sortTable('name')" style="cursor: pointer;">備品名 ↕</th>
+            <th onclick="sortTable('id')" style="cursor: pointer;">ID ↕</th>
+            <th onclick="sortTable('location')" style="cursor: pointer;">保管場所 ↕</th>
+            <th onclick="sortTable('current')" style="cursor: pointer;">現在地 ↕</th>
+            <th onclick="sortTable('user')" style="cursor: pointer;">使用者 ↕</th>
+            <th onclick="sortTable('status')" style="cursor: pointer;">状態 ↕</th>
+            <th>備考</th>
+            <th onclick="sortTable('category')" style="cursor: pointer;">種別 ↕</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="itemTable2"></tbody>
+      </table>
     </div>
-
-    <table>
-      <thead>
-        <tr>
-          <th>画像</th>
-          <th onclick="sortTable('name')" style="cursor: pointer;">備品名 ↕</th>
-          <th onclick="sortTable('id')" style="cursor: pointer;">ID ↕</th>
-          <th onclick="sortTable('location')" style="cursor: pointer;">保管場所 ↕</th>
-          <th onclick="sortTable('current')" style="cursor: pointer;">現在地 ↕</th>
-          <th onclick="sortTable('user')" style="cursor: pointer;">使用者 ↕</th>
-          <th onclick="sortTable('status')" style="cursor: pointer;">状態 ↕</th>
-          <th>備考</th>
-          <th onclick="sortTable('category')" style="cursor: pointer;">種別 ↕</th>
-          <th>操作</th>
-        </tr>
-      </thead>
-      <tbody id="itemTable"></tbody>
-    </table>
         
         <!-- 右側：メイン表示エリア -->
         <div style="flex: 1;">
@@ -1660,7 +1665,7 @@
                 <th>操作</th>
               </tr>
             </thead>
-            <tbody id="itemTableStaff"></tbody>
+            <tbody id="itemTable"></tbody>
           </table>
         </div>
       </div>
@@ -2027,14 +2032,9 @@
     }
 
     function renderItems(filterCategory = '', searchTerm = '') {
-      const tableId = isAdmin ? 'itemTable' : 'itemTableStaff';
+      // 管理者・職員で異なるテーブルを使用
+      const tableId = isAdmin ? 'itemTable' : 'itemTable2';
       const tbody = document.getElementById(tableId);
-      
-      if (!tbody) {
-        console.error('テーブルが見つかりません:', tableId);
-        return;
-      }
-      
       tbody.innerHTML = '';
       // フィルタリングと検索
       let filteredItems = items;
@@ -2559,11 +2559,8 @@
         document.getElementById('mainContent').style.display = 'block';
         isAdmin = role === 'admin';
         // レイアウト切り替え
-        console.log('isAdmin:', isAdmin);
         document.getElementById('adminLayout').style.display = isAdmin ? 'block' : 'none';
         document.getElementById('staffLayout').style.display = isAdmin ? 'none' : 'block';
-        console.log('adminLayout display:', document.getElementById('adminLayout').style.display);
-        console.log('staffLayout display:', document.getElementById('staffLayout').style.display);
         
         // 設定ボタンを管理者の時だけ表示
         document.getElementById('settingsBtn').style.display = isAdmin ? 'flex' : 'none';
