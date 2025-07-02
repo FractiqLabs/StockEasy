@@ -2747,49 +2747,50 @@
     }
 
     // セッション状態復元関数
-    async function checkAndRestoreSession() {
-      try {
-        const response = await fetch('/api/session/check', {
-          credentials: 'include'
-        });
-        const result = await response.json();
-        
-        if (result.success && result.logged_in) {
-          // ログイン状態を復元
-          document.getElementById('loginArea').style.display = 'none';
-          document.getElementById('mainContent').style.display = 'block';
-          
-          // ユーザータイプに応じて画面を設定
-          isAdmin = result.user_type === 'admin';
-          
-          if (isAdmin) {
-            document.getElementById('adminArea').style.display = 'block';
-          } else {
-            document.getElementById('adminArea').style.display = 'none';
-          }
-          
-          // 施設IDが保存されている場合は復元
-          if (result.facility_id) {
-            currentFacilityId = result.facility_id;
-            const facilityName = getCurrentFacilityName();
-            if (facilityName) {
-              document.getElementById('facilityNameDisplay').textContent = `${facilityName} - らくらく備品管理システム`;
-            }
-          }
-          
-          // データを読み込み
-          await loadItems();
-          renderItems();
-
-          // AIバッジを表示
-          showAIBadge();
-          
-          debugLog('セッション復元完了:', result.user_type, 'isAdmin:', isAdmin);
+async function checkAndRestoreSession() {
+  try {
+    const response = await fetch('/api/session/check', {
+      credentials: 'include'
+    });
+    const result = await response.json();
+    
+    if (result.success && result.logged_in) {
+      // ログイン状態を復元
+      document.getElementById('loginArea').style.display = 'none';
+      document.getElementById('mainContent').style.display = 'block';
+      
+      // ユーザータイプに応じて画面を設定
+      isAdmin = result.user_type === 'admin';
+      
+      // 修正：adminLayout と staffLayout に変更
+      document.getElementById('adminLayout').style.display = isAdmin ? 'block' : 'none';
+      document.getElementById('staffLayout').style.display = isAdmin ? 'none' : 'block';
+      
+      // 設定ボタンを管理者の時だけ表示
+      document.getElementById('settingsBtn').style.display = isAdmin ? 'flex' : 'none';
+      
+      // 施設IDが保存されている場合は復元
+      if (result.facility_id) {
+        currentFacilityId = result.facility_id;
+        const facilityName = getCurrentFacilityName();
+        if (facilityName) {
+          document.getElementById('facilityNameDisplay').textContent = `${facilityName} - らくらく備品管理システム`;
         }
-      } catch (error) {
-        console.error('セッション確認エラー:', error);
       }
+      
+      // データを読み込み
+      await loadItems();
+      renderItems();
+
+      // AIバッジを表示
+      showAIBadge();
+      
+      debugLog('セッション復元完了:', result.user_type, 'isAdmin:', isAdmin);
     }
+  } catch (error) {
+    console.error('セッション確認エラー:', error);
+  }
+}
 
     // 初期化処理
     function initializeApp() {
