@@ -60,7 +60,7 @@
       font-family: "Noto Sans JP", "Segoe UI", sans-serif;
       margin: 0;
       background: linear-gradient(to bottom right, #f3e8ff, #ede9fe);
-      zoom: 0.75; /* 75%に縮小表示 */
+      zoom: 0.7; /* 70%に縮小表示 */
     }
 
     .sub-heading {
@@ -723,27 +723,6 @@
       border-color: #a78bfa;
       transform: translateY(-2px);
     }
-
-    /* 🔥 修正: 管理者レイアウト - 左右バランス調整 */
-    .admin-layout-container {
-      display: flex;
-      gap: 2rem;
-      align-items: flex-start;
-    }
-    
-    /* 左側：新規登録フォーム（固定幅） */
-    .admin-form-section {
-      flex: 0 0 350px; /* 400px → 350px に縮小 */
-      position: sticky;
-      top: 1rem;
-    }
-    
-    /* 右側：メイン表示エリア（残り全体） */
-    .admin-table-section {
-      flex: 1;
-      min-width: 0; /* フレックスアイテムの幅制限を解除 */
-    }
-
     .status-available {
       color: #7c3aed;
       font-weight: 600;
@@ -1057,17 +1036,6 @@
       
       .facility-tabs {
         flex-direction: column;
-      }
-
-      /* 🔥 修正: モバイル版の管理者レイアウト */
-      .admin-layout-container {
-        flex-direction: column;
-        gap: 1rem;
-      }
-      
-      .admin-form-section {
-        flex: none;
-        position: static;
       }
     }
     /* ====================================
@@ -1602,7 +1570,6 @@
         <div class="settings-separator"></div>
         <button id="settingsBtn" onclick="openSettings()" class="settings-btn" style="display: none;">設定</button>
       </div>
-    </div>
 
     <!-- エラー表示エリア -->
     <div id="errorNotice" class="error-notice" style="display: none;">
@@ -1610,11 +1577,11 @@
       <button class="retry-button" onclick="retryConnection()">再試行</button>
     </div>
 
-   <!-- 🔥 修正: 管理者レイアウト -->
+   <!-- 管理者レイアウト -->
     <div id="adminLayout" style="display: none;">
-      <div class="admin-layout-container">
+      <div style="display: flex; gap: 2rem; align-items: flex-start;">
         <!-- 左側：新規登録フォーム（固定） -->
-        <div class="admin-form-section">
+        <div style="flex: 0 0 400px; position: sticky; top: 1rem;">
           <div class="admin-section">
             <h2>新規登録</h2>
             <div style="display: grid; grid-template-columns: 1fr; gap: 1rem; margin-bottom: 1rem;">
@@ -1643,9 +1610,39 @@
           </div>
         </div>
         
-        <!-- 右側：メイン表示エリア（テーブル） -->
-        <div class="admin-table-section">
-          <div class="tab-navigation">
+        <!-- 職員レイアウト -->
+    <div id="staffLayout" style="display: none;">
+      <div class="tab-navigation" style="margin-bottom: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <button class="tab-button active" data-category="" onclick="filterByTab('')">全て</button>
+        <button class="tab-button" data-category="車いす" onclick="filterByTab('車いす')">車いす</button>
+        <button class="tab-button" data-category="歩行器・シルバーカー" onclick="filterByTab('歩行器・シルバーカー')">歩行器・シルバーカー</button>
+        <button class="tab-button" data-category="家具・家電" onclick="filterByTab('家具・家電')">家具・家電</button>
+        <button class="tab-button" data-category="エアマット" onclick="filterByTab('エアマット')">エアマット</button>
+        <button class="tab-button" data-category="その他" onclick="filterByTab('その他')">その他</button>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>画像</th>
+            <th onclick="sortTable('name')" style="cursor: pointer;">備品名 ↕</th>
+            <th onclick="sortTable('id')" style="cursor: pointer;">ID ↕</th>
+            <th onclick="sortTable('location')" style="cursor: pointer;">保管場所 ↕</th>
+            <th onclick="sortTable('current')" style="cursor: pointer;">現在地 ↕</th>
+            <th onclick="sortTable('user')" style="cursor: pointer;">使用者 ↕</th>
+            <th onclick="sortTable('status')" style="cursor: pointer;">状態 ↕</th>
+            <th>備考</th>
+            <th onclick="sortTable('category')" style="cursor: pointer;">種別 ↕</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="itemTable2"></tbody>
+      </table>
+    </div>
+        
+        <!-- 右側：メイン表示エリア -->
+        <div style="flex: 1;">
+          <div class="tab-navigation" style="margin-bottom: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
             <button class="tab-button active" data-category="" onclick="filterByTab('')">全て</button>
             <button class="tab-button" data-category="車いす" onclick="filterByTab('車いす')">車いす</button>
             <button class="tab-button" data-category="歩行器・シルバーカー" onclick="filterByTab('歩行器・シルバーカー')">歩行器・シルバーカー</button>
@@ -1673,36 +1670,6 @@
           </table>
         </div>
       </div>
-    </div>
-        
-    <!-- 🔥 修正: 職員レイアウト -->
-    <div id="staffLayout" style="display: none;">
-      <div class="tab-navigation">
-        <button class="tab-button active" data-category="" onclick="filterByTab('')">全て</button>
-        <button class="tab-button" data-category="車いす" onclick="filterByTab('車いす')">車いす</button>
-        <button class="tab-button" data-category="歩行器・シルバーカー" onclick="filterByTab('歩行器・シルバーカー')">歩行器・シルバーカー</button>
-        <button class="tab-button" data-category="家具・家電" onclick="filterByTab('家具・家電')">家具・家電</button>
-        <button class="tab-button" data-category="エアマット" onclick="filterByTab('エアマット')">エアマット</button>
-        <button class="tab-button" data-category="その他" onclick="filterByTab('その他')">その他</button>
-      </div>
-
-      <table>
-        <thead>
-          <tr>
-            <th>画像</th>
-            <th onclick="sortTable('name')" style="cursor: pointer;">備品名 ↕</th>
-            <th onclick="sortTable('id')" style="cursor: pointer;">ID ↕</th>
-            <th onclick="sortTable('location')" style="cursor: pointer;">保管場所 ↕</th>
-            <th onclick="sortTable('current')" style="cursor: pointer;">現在地 ↕</th>
-            <th onclick="sortTable('user')" style="cursor: pointer;">使用者 ↕</th>
-            <th onclick="sortTable('status')" style="cursor: pointer;">状態 ↕</th>
-            <th>備考</th>
-            <th onclick="sortTable('category')" style="cursor: pointer;">種別 ↕</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody id="itemTable2"></tbody>
-      </table>
     </div>
 
     <div class="modal" id="borrowModal">
@@ -1853,6 +1820,465 @@
 
     // ローディング表示
     function showLoading() {
+      document.getElementById('loading').style.display = 'block';
+    }
+
+    function hideLoading() {
+      document.getElementById('loading').style.display = 'none';
+    }
+
+    // エラー表示
+    function showError(message) {
+      const errorNotice = document.getElementById('errorNotice');
+      const errorMessage = document.getElementById('errorMessage');
+      errorMessage.textContent = message;
+      errorNotice.style.display = 'block';
+    }
+
+    function hideError() {
+      document.getElementById('errorNotice').style.display = 'none';
+    }
+
+    // 接続再試行
+    async function retryConnection() {
+      hideError();
+      if (connectionRetries < maxRetries) {
+        connectionRetries++;
+        console.log(`接続再試行 ${connectionRetries}/${maxRetries}`);
+        await loadItems();
+        renderItems();
+      } else {
+        showError('接続に失敗しました。ページを再読み込みしてください。');
+      }
+    }
+
+    // API呼び出し用のヘルパー関数
+    async function apiCall(url, options = {}) {
+      showLoading();
+      try {
+        console.log('API呼び出し:', url);
+        
+        const response = await fetch(url, {
+          headers: {
+            'Content-Type': 'application/json',
+            ...options.headers
+          },
+          credentials: 'include', // セッション情報を含める
+          timeout: 10000, // 10秒タイムアウト
+          ...options
+        });
+        
+        console.log('レスポンス状態:', response.status);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('APIエラー詳細:', errorText);
+          throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
+        
+        const data = await response.json();
+        console.log('取得データ:', data);
+        hideError();
+        connectionRetries = 0;
+        return data;
+      } catch (error) {
+        console.error('API Error:', error);
+        
+        if (error.name === 'TypeError' && error.message.includes('fetch')) {
+          showError('ネットワークエラー: サーバーに接続できません');
+        } else {
+          showError(`エラー: ${error.message}`);
+        }
+        throw error;
+      } finally {
+        hideLoading();
+      }
+    }
+
+    // データの読み込み（施設対応版）
+    async function loadItems() {
+      try {
+        if (!isLoggedIn()) {
+          console.log('ログインしていないため、データ読み込みをスキップ');
+          return;
+        }
+        
+        console.log('データ読み込み開始');
+        let url = `${API_BASE}/equipment`;
+        
+        // 施設IDが指定されている場合はクエリパラメータに追加
+        if (currentFacilityId) {
+          url += `?facility_id=${currentFacilityId}`;
+        }
+        
+        items = await apiCall(url);
+        console.log(`${items.length}件のデータを読み込みました`);
+        hideError();
+      } catch (error) {
+        console.error('データの読み込みに失敗しました:', error);
+        items = [];
+        if (connectionRetries < maxRetries) {
+          showError('データの読み込みに失敗しました。再試行してください。');
+        }
+      }
+    }
+    
+    // ログイン状態確認
+    function isLoggedIn() {
+      return document.getElementById('mainContent').style.display === 'block';
+    }
+
+    // データのエクスポート・インポート機能
+    async function exportData() {
+      try {
+        let url = `${API_BASE}/export`;
+        if (currentFacilityId) {
+          url += `?facility_id=${currentFacilityId}`;
+        }
+        
+        const data = await apiCall(url);
+        const dataStr = JSON.stringify(data, null, 2);
+        const dataBlob = new Blob([dataStr], {type: 'application/json'});
+        const url2 = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url2;
+        
+        const facilityName = getCurrentFacilityName();
+        const filename = facilityName ? 
+          `equipment_data_${facilityName}.json` : 
+          'equipment_data.json';
+        
+        link.download = filename;
+        link.click();
+        URL.revokeObjectURL(url2);
+      } catch (error) {
+        console.error('エクスポートに失敗しました:', error);
+        alert('エクスポートに失敗しました');
+      }
+    }
+
+    async function importData() {
+      const file = document.getElementById('importFile').files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        try {
+          const importedData = JSON.parse(e.target.result);
+          if (confirm('現在のデータを置き換えますか？')) {
+            let url = `${API_BASE}/import`;
+            const body = { data: importedData };
+            
+            if (currentFacilityId) {
+              body.facility_id = currentFacilityId;
+            }
+            
+            await apiCall(url, {
+              method: 'POST',
+              body: JSON.stringify(body)
+            });
+            
+            await loadItems();
+            renderItems();
+            alert('データをインポートしました');
+          }
+        } catch (error) {
+          alert('ファイルの読み込みに失敗しました');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // ソート機能
+    function sortTable(column) {
+      // 同じ列をクリックした場合は、ソート方向を反転
+      if (sortColumn === column) {
+        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+      } else {
+        sortColumn = column;
+        sortDirection = 'asc';
+      }
+      
+      // アイテムをソート
+      items.sort((a, b) => {
+        let aValue = a[column] || '';
+        let bValue = b[column] || '';
+        
+        // 数値として比較できる場合は数値比較
+        if (!isNaN(aValue) && !isNaN(bValue) && aValue !== '' && bValue !== '') {
+          aValue = parseFloat(aValue);
+          bValue = parseFloat(bValue);
+        } else {
+          // 文字列として比較（大文字小文字を無視）
+          aValue = aValue.toString().toLowerCase();
+          bValue = bValue.toString().toLowerCase();
+        }
+        
+        if (sortDirection === 'asc') {
+          return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
+        } else {
+          return aValue < bValue ? 1 : aValue > bValue ? -1 : 0;
+        }
+      });
+      
+      // 検索窓の内容を取得して再描画
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      renderItems('', searchTerm);
+    }
+
+    // 検索機能
+    function searchItems() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      renderItems('', searchTerm);
+    }
+
+    function renderItems(filterCategory = '', searchTerm = '') {
+      // 管理者・職員で異なるテーブルを使用
+      const tableId = isAdmin ? 'itemTable' : 'itemTable2';
+      const tbody = document.getElementById(tableId);
+      
+      if (!tbody) {
+        console.error(`テーブル要素が見つかりません: ${tableId}`);
+        return;
+      }
+      
+      tbody.innerHTML = '';
+      
+      // フィルタリングと検索
+      let filteredItems = items;
+      
+      // カテゴリフィルタ
+      if (filterCategory) {
+        filteredItems = filteredItems.filter(item => item.category === filterCategory);
+      }
+      
+      // 検索フィルタ
+      if (searchTerm) {
+        filteredItems = filteredItems.filter(item => 
+          (item.name && item.name.toLowerCase().includes(searchTerm)) ||
+          (item.id && item.id.toLowerCase().includes(searchTerm)) ||
+          (item.location && item.location.toLowerCase().includes(searchTerm)) ||
+          (item.current && item.current.toLowerCase().includes(searchTerm)) ||
+          (item.user && item.user.toLowerCase().includes(searchTerm))
+        );
+      }
+      
+      if (filteredItems.length === 0) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td colspan="10" style="text-align: center; padding: 2rem;">データがありません</td>';
+        tbody.appendChild(tr);
+        return;
+      }
+      
+      filteredItems.forEach((item, originalIndex) => {
+        // 元の配列でのインデックスを取得
+        const actualIndex = items.findIndex(i => i.id === item.id);
+        
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>
+            <div class="image-wrapper">
+              <img src="${item.image || ''}" class="image-preview" onerror="this.style.display='none'" />
+              ${isAdmin ? `<button class="edit-button" onclick="editImage(${actualIndex})">画像</button>` : ''}
+            </div>
+          </td>
+          <td>${item.name || ''}</td>
+          <td>${item.id || ''}</td>
+          <td>${item.location || ''}</td>
+          <td>${item.current || ''}</td>
+          <td>${item.user || ''}</td>
+          <td>
+            <span class="${item.status === '待機' ? 'status-available' : 'status-in-use'}">
+              ${item.status || '待機'}
+            </span>
+          </td>
+          <td><input type="text" value="${item.note || ''}" onchange="updateNote(${actualIndex}, this.value)" /></td>
+          <td>${item.category || ''}</td>
+          <td>
+            <button onclick="openBorrow(${actualIndex})">借用</button>
+            <button onclick="openReturn(${actualIndex})">返却</button>
+            ${isAdmin ? `<button onclick="openEdit(${actualIndex})">編集</button>` : ''}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // 備考更新
+    async function updateNote(index, note) {
+      try {
+        const item = items[index];
+        const body = { note };
+        
+        if (currentFacilityId) {
+          body.facility_id = currentFacilityId;
+        }
+        
+        await apiCall(`${API_BASE}/equipment/${item.id}`, {
+          method: 'PUT',
+          body: JSON.stringify(body)
+        });
+        items[index].note = note;
+      } catch (error) {
+        console.error('備考の更新に失敗しました:', error);
+        alert('備考の更新に失敗しました');
+      }
+    }
+
+    // 画像を圧縮する関数
+    function compressImage(file, maxWidth = 300, quality = 0.7) {
+      return new Promise((resolve) => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        
+        img.onload = () => {
+          const ratio = Math.min(maxWidth / img.width, maxWidth / img.height);
+          canvas.width = img.width * ratio;
+          canvas.height = img.height * ratio;
+          
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+          resolve(compressedDataUrl);
+        };
+        
+        img.src = URL.createObjectURL(file);
+      });
+    }
+
+    async function registerItem() {
+      const name = document.getElementById('itemName').value;
+      const id = document.getElementById('itemId').value;
+      const location = document.getElementById('itemLocation').value;
+      const category = document.getElementById('itemCategory').value;
+      const imageFile = document.getElementById('itemImage').files[0];
+
+      if (!name || !id || !location) {
+        alert('必要な情報を入力してください');
+        return;
+      }
+
+      const item = {
+        name: name,
+        id: id,
+        location: location,
+        category: category,
+        history: []
+      };
+
+      if (currentFacilityId) {
+        item.facility_id = currentFacilityId;
+      }
+
+      if (imageFile) {
+        try {
+          console.log('画像を圧縮中...');
+          const compressedImage = await compressImage(imageFile, 300, 0.6);
+          console.log(`圧縮完了: ${compressedImage.length} 文字`);
+          
+          item.image = compressedImage;
+          
+          await apiCall(`${API_BASE}/equipment`, {
+            method: 'POST',
+            body: JSON.stringify(item)
+          });
+          await loadItems();
+          renderItems();
+          clearForm();
+          alert('備品を登録しました（画像圧縮済み）');
+        } catch (error) {
+          console.error('登録に失敗しました:', error);
+          alert(`登録に失敗しました: ${error.message}`);
+        }
+      } else {
+        try {
+          await apiCall(`${API_BASE}/equipment`, {
+            method: 'POST',
+            body: JSON.stringify(item)
+          });
+          await loadItems();
+          renderItems();
+          clearForm();
+          alert('備品を登録しました');
+        } catch (error) {
+          console.error('登録に失敗しました:', error);
+          alert(`登録に失敗しました: ${error.message}`);
+        }
+      }
+    }
+
+    function clearForm() {
+      document.getElementById('itemName').value = '';
+      document.getElementById('itemId').value = '';
+      document.getElementById('itemLocation').value = '事務所';
+      document.getElementById('itemCategory').value = '車いす';
+      document.getElementById('itemImage').value = '';
+    }
+
+    async function editImage(index) {
+      const input = document.getElementById('editImageInput');
+      input.onchange = async () => {
+        const file = input.files[0];
+        if (file) {
+          try {
+            console.log('画像を圧縮中...');
+            const compressedImage = await compressImage(file, 300, 0.6);
+            console.log(`圧縮完了: ${compressedImage.length} 文字`);
+            
+            const item = items[index];
+            const body = { image: compressedImage };
+            
+            if (currentFacilityId) {
+              body.facility_id = currentFacilityId;
+            }
+            
+            await apiCall(`${API_BASE}/equipment/${item.id}`, {
+              method: 'PUT',
+              body: JSON.stringify(body)
+            });
+            items[index].image = compressedImage;
+            renderItems();
+            alert('画像を更新しました（圧縮済み）');
+          } catch (error) {
+            console.error('画像の更新に失敗しました:', error);
+            alert('画像の更新に失敗しました');
+          }
+        } else {
+          try {
+            const item = items[index];
+            const body = { image: '' };
+            
+            if (currentFacilityId) {
+              body.facility_id = currentFacilityId;
+            }
+            
+            await apiCall(`${API_BASE}/equipment/${item.id}`, {
+              method: 'PUT',
+              body: JSON.stringify(body)
+            });
+            delete items[index].image;
+            renderItems();
+            alert('画像を削除しました');
+          } catch (error) {
+            console.error('画像の削除に失敗しました:', error);
+            alert('画像の削除に失敗しました');
+          }
+        }
+      };
+      input.click();
+    }
+
+    // 編集モーダル関連の関数
+    function openEdit(index) {
+      editingIndex = index;
+      const item = items[index];
+      
+      document.getElementById('editItemName').value = item.name || '';
+      document.getElementById('editItemId').value = item.id || '';
+      document.getElementById('editItemLocation').value = item.location || '';
+      document.getElementById('editItemCategory').value = item.category || '';
+      
       document.getElementById('editModal').style.display = 'flex';
     }
 
@@ -2140,20 +2566,12 @@
         document.getElementById('loginArea').style.display = 'none';
         document.getElementById('mainContent').style.display = 'block';
         isAdmin = role === 'admin';
-        
         // レイアウト切り替え
         document.getElementById('adminLayout').style.display = isAdmin ? 'block' : 'none';
         document.getElementById('staffLayout').style.display = isAdmin ? 'none' : 'block';
         
         // 設定ボタンを管理者の時だけ表示
         document.getElementById('settingsBtn').style.display = isAdmin ? 'flex' : 'none';
-        
-        console.log('=== ログイン後レイアウト切り替え ===');
-        console.log('isAdmin:', isAdmin);
-        console.log('adminLayout表示:', document.getElementById('adminLayout').style.display);
-        console.log('staffLayout表示:', document.getElementById('staffLayout').style.display);
-        console.log('itemTable存在:', !!document.getElementById('itemTable'));
-        console.log('itemTable2存在:', !!document.getElementById('itemTable2'));
         
         // AIバッジを表示
         showAIBadge();
@@ -2260,18 +2678,6 @@
       // 将来的にプレースホルダーを変更する場合はここで実装
     }
 
-    // 施設選択をスキップ
-    function skipFacilitySelection() {
-      debugLog('施設選択をスキップ - 単一施設モード');
-      currentFacilityId = null;
-    }
-
-    // 現在の施設名を取得
-    function getCurrentFacilityName() {
-      if (!currentFacilityId) return null;
-      return facilityMap[currentFacilityId] || null;
-    }
-
     // モーダルを閉じる処理（背景クリック）
     function setupModalEvents() {
       // 各モーダルの背景クリックで閉じる
@@ -2292,12 +2698,27 @@
           closeEditModal();
         }
       });
+    }
 
-      document.getElementById('settingsModal').addEventListener('click', function(e) {
-        if (e.target === this) {
-          closeSettings();
-        }
+    // 管理者タブ切り替え
+    function switchAdminTab(tabName) {
+      // 全てのタブボタンからactiveクラスを削除
+      document.querySelectorAll('.admin-tab').forEach(tab => {
+        tab.classList.remove('active');
       });
+      
+      // 全てのタブコンテンツを非表示
+      document.querySelectorAll('.admin-tab-content').forEach(content => {
+        content.classList.remove('active');
+      });
+      
+      // 選択されたタブボタンにactiveクラスを追加
+      document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+      
+      // 選択されたタブコンテンツを表示
+      document.getElementById(`${tabName}Tab`).classList.add('active');
+      
+      console.log(`管理者タブ切り替え: ${tabName}`);
     }
 
     function setupTabEvents() {
@@ -2341,12 +2762,11 @@
           // ユーザータイプに応じて画面を設定
           isAdmin = result.user_type === 'admin';
           
-          // レイアウト切り替え
-          document.getElementById('adminLayout').style.display = isAdmin ? 'block' : 'none';
-          document.getElementById('staffLayout').style.display = isAdmin ? 'none' : 'block';
-          
-          // 設定ボタンを管理者の時だけ表示
-          document.getElementById('settingsBtn').style.display = isAdmin ? 'flex' : 'none';
+          if (isAdmin) {
+            document.getElementById('adminArea').style.display = 'block';
+          } else {
+            document.getElementById('adminArea').style.display = 'none';
+          }
           
           // 施設IDが保存されている場合は復元
           if (result.facility_id) {
@@ -3013,6 +3433,17 @@ class ResponseGenerator {
       );
     }
     
+    // 🔥 4. 曖昧検索（新機能）
+    if (matches.length === 0) {
+      console.log('曖昧検索を実行:', searchTerm);
+      const fuzzyResults = this.fuzzyEngine.search(searchTerm, items);
+      matches = fuzzyResults.map(result => result.item);
+      
+      if (fuzzyResults.length > 0) {
+        console.log('曖昧検索結果:', fuzzyResults);
+      }
+    }
+    
     // 重複を除去
     const uniqueMatches = matches.filter((item, index, self) => 
       index === self.findIndex(i => i.id === item.id)
@@ -3212,495 +3643,4 @@ class StockEasyAI {
 let stockEasyAI = null;
   </script>
 </body>
-</html>d('loading').style.display = 'block';
-    }
-
-    function hideLoading() {
-      document.getElementById('loading').style.display = 'none';
-    }
-
-    // エラー表示
-    function showError(message) {
-      const errorNotice = document.getElementById('errorNotice');
-      const errorMessage = document.getElementById('errorMessage');
-      errorMessage.textContent = message;
-      errorNotice.style.display = 'block';
-    }
-
-    function hideError() {
-      document.getElementById('errorNotice').style.display = 'none';
-    }
-
-    // 接続再試行
-    async function retryConnection() {
-      hideError();
-      if (connectionRetries < maxRetries) {
-        connectionRetries++;
-        console.log(`接続再試行 ${connectionRetries}/${maxRetries}`);
-        await loadItems();
-        renderItems();
-      } else {
-        showError('接続に失敗しました。ページを再読み込みしてください。');
-      }
-    }
-
-    // API呼び出し用のヘルパー関数
-    async function apiCall(url, options = {}) {
-      showLoading();
-      try {
-        console.log('API呼び出し:', url);
-        
-        const response = await fetch(url, {
-          headers: {
-            'Content-Type': 'application/json',
-            ...options.headers
-          },
-          credentials: 'include', // セッション情報を含める
-          timeout: 10000, // 10秒タイムアウト
-          ...options
-        });
-        
-        console.log('レスポンス状態:', response.status);
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('APIエラー詳細:', errorText);
-          throw new Error(`HTTP ${response.status}: ${errorText}`);
-        }
-        
-        const data = await response.json();
-        console.log('取得データ:', data);
-        items = data;
-        console.log('データ読み込み完了、画面更新開始');
-        hideError();
-        connectionRetries = 0;
-        return data;
-      } catch (error) {
-        console.error('API Error:', error);
-        
-        if (error.name === 'TypeError' && error.message.includes('fetch')) {
-          showError('ネットワークエラー: サーバーに接続できません');
-        } else {
-          showError(`エラー: ${error.message}`);
-        }
-        throw error;
-      } finally {
-        hideLoading();
-      }
-    }
-
-    // データの読み込み（施設対応版）
-    async function loadItems() {
-      try {
-        if (!isLoggedIn()) {
-          console.log('ログインしていないため、データ読み込みをスキップ');
-          return;
-        }
-        
-        console.log('データ読み込み開始');
-        let url = `${API_BASE}/equipment`;
-        
-        // 施設IDが指定されている場合はクエリパラメータに追加
-        if (currentFacilityId) {
-          url += `?facility_id=${currentFacilityId}`;
-        }
-        
-        items = await apiCall(url);
-        console.log(`${items.length}件のデータを読み込みました`);
-        hideError();
-      } catch (error) {
-        console.error('データの読み込みに失敗しました:', error);
-        items = [];
-        if (connectionRetries < maxRetries) {
-          showError('データの読み込みに失敗しました。再試行してください。');
-        }
-      }
-    }
-    
-    // ログイン状態確認
-    function isLoggedIn() {
-      return document.getElementById('mainContent').style.display === 'block';
-    }
-
-    // データのエクスポート・インポート機能
-    async function exportData() {
-      try {
-        let url = `${API_BASE}/export`;
-        if (currentFacilityId) {
-          url += `?facility_id=${currentFacilityId}`;
-        }
-        
-        const data = await apiCall(url);
-        const dataStr = JSON.stringify(data, null, 2);
-        const dataBlob = new Blob([dataStr], {type: 'application/json'});
-        const url2 = URL.createObjectURL(dataBlob);
-        const link = document.createElement('a');
-        link.href = url2;
-        
-        const facilityName = getCurrentFacilityName();
-        const filename = facilityName ? 
-          `equipment_data_${facilityName}.json` : 
-          'equipment_data.json';
-        
-        link.download = filename;
-        link.click();
-        URL.revokeObjectURL(url2);
-      } catch (error) {
-        console.error('エクスポートに失敗しました:', error);
-        alert('エクスポートに失敗しました');
-      }
-    }
-
-    async function importData() {
-      const file = document.getElementById('importFile').files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = async function(e) {
-        try {
-          const importedData = JSON.parse(e.target.result);
-          if (confirm('現在のデータを置き換えますか？')) {
-            let url = `${API_BASE}/import`;
-            const body = { data: importedData };
-            
-            if (currentFacilityId) {
-              body.facility_id = currentFacilityId;
-            }
-            
-            await apiCall(url, {
-              method: 'POST',
-              body: JSON.stringify(body)
-            });
-            
-            await loadItems();
-            renderItems();
-            alert('データをインポートしました');
-          }
-        } catch (error) {
-          alert('ファイルの読み込みに失敗しました');
-        }
-      };
-      reader.readAsText(file);
-    }
-
-    // ソート機能
-    function sortTable(column) {
-      // 同じ列をクリックした場合は、ソート方向を反転
-      if (sortColumn === column) {
-        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-      } else {
-        sortColumn = column;
-        sortDirection = 'asc';
-      }
-      
-      // アイテムをソート
-      items.sort((a, b) => {
-        let aValue = a[column] || '';
-        let bValue = b[column] || '';
-        
-        // 数値として比較できる場合は数値比較
-        if (!isNaN(aValue) && !isNaN(bValue) && aValue !== '' && bValue !== '') {
-          aValue = parseFloat(aValue);
-          bValue = parseFloat(bValue);
-        } else {
-          // 文字列として比較（大文字小文字を無視）
-          aValue = aValue.toString().toLowerCase();
-          bValue = bValue.toString().toLowerCase();
-        }
-        
-        if (sortDirection === 'asc') {
-          return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
-        } else {
-          return aValue < bValue ? 1 : aValue > bValue ? -1 : 0;
-        }
-      });
-      
-      // 検索窓の内容を取得して再描画
-      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-      renderItems('', searchTerm);
-    }
-
-    // 検索機能
-    function searchItems() {
-      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-      renderItems('', searchTerm);
-    }
-
-    // 🔥 修正: renderItems関数 - 状態マッピング修正
-    function renderItems(filterCategory = '', searchTerm = '') {
-      // 管理者・職員で異なるテーブルを使用
-      const tableId = isAdmin ? 'itemTable' : 'itemTable2';
-      const tbody = document.getElementById(tableId);
-      
-      console.log('=== renderItems デバッグ情報 ===');
-      console.log('isAdmin:', isAdmin);
-      console.log('tableId:', tableId);
-      console.log('tbody要素:', tbody);
-      console.log('items配列:', items);
-      console.log('items長さ:', items.length);
-      console.log('filterCategory:', filterCategory);
-      console.log('searchTerm:', searchTerm);
-      
-      if (!tbody) {
-        console.error(`テーブル要素が見つかりません: ${tableId}`);
-        console.log('itemTable:', document.getElementById('itemTable'));
-        console.log('itemTable2:', document.getElementById('itemTable2'));
-        console.log('adminLayout表示:', document.getElementById('adminLayout').style.display);
-        console.log('staffLayout表示:', document.getElementById('staffLayout').style.display);
-        return;
-      }
-      
-      tbody.innerHTML = '';
-      
-      // フィルタリングと検索
-      let filteredItems = items;
-      
-      if (filterCategory) {
-        filteredItems = filteredItems.filter(item => item.category === filterCategory);
-        console.log('カテゴリフィルタ後:', filteredItems.length);
-      }
-      
-      if (searchTerm) {
-        filteredItems = filteredItems.filter(item => 
-          (item.name && item.name.toLowerCase().includes(searchTerm)) ||
-          (item.id && item.id.toLowerCase().includes(searchTerm)) ||
-          (item.location && item.location.toLowerCase().includes(searchTerm)) ||
-          (item.current && item.current.toLowerCase().includes(searchTerm)) ||
-          (item.user && item.user.toLowerCase().includes(searchTerm))
-        );
-        console.log('検索フィルタ後:', filteredItems.length);
-      }
-      
-      console.log('最終表示アイテム数:', filteredItems.length);
-      
-      if (filteredItems.length === 0) {
-        const row = tbody.insertRow();
-        row.innerHTML = `<td colspan="10" style="text-align: center; padding: 2rem; color: #666;">該当する備品がありません</td>`;
-        return;
-      }
-      
-      filteredItems.forEach((item, originalIndex) => {
-        // 元の配列でのインデックスを取得
-        const actualIndex = items.findIndex(i => i.id === item.id);
-        
-        // 🔥 修正: 状態マッピング
-        let displayStatus, statusClass;
-        if (item.status === '待機' || item.status === 'available' || !item.status) {
-          displayStatus = '待機';
-          statusClass = 'status-available';
-        } else if (item.status === '使用中' || item.status === 'in_use') {
-          displayStatus = '使用中';
-          statusClass = 'status-in-use';
-        } else {
-          displayStatus = item.status || '待機';
-          statusClass = 'status-available';
-        }
-        
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>
-            <div class="image-wrapper">
-              <img src="${item.image || ''}" class="image-preview" onerror="this.style.display='none'" />
-              ${isAdmin ? `<button class="edit-button" onclick="editImage(${actualIndex})">画像</button>` : ''}
-            </div>
-          </td>
-          <td>${item.name || ''}</td>
-          <td>${item.id || ''}</td>
-          <td>${item.location || ''}</td>
-          <td>${item.current || item.current_location || ''}</td>
-          <td>${item.user || item.user_location || ''}</td>
-          <td>
-            <span class="${statusClass}">
-              ${displayStatus}
-            </span>
-          </td>
-          <td><input type="text" value="${item.note || ''}" onchange="updateNote(${actualIndex}, this.value)" /></td>
-          <td>${item.category || ''}</td>
-          <td>
-            <button onclick="openBorrow(${actualIndex})">借用</button>
-            <button onclick="openReturn(${actualIndex})">返却</button>
-            ${isAdmin ? `<button onclick="openEdit(${actualIndex})">編集</button>` : ''}
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-      
-      console.log('=== renderItems 完了 ===');
-    }
-
-    // 備考更新
-    async function updateNote(index, note) {
-      try {
-        const item = items[index];
-        const body = { note };
-        
-        if (currentFacilityId) {
-          body.facility_id = currentFacilityId;
-        }
-        
-        await apiCall(`${API_BASE}/equipment/${item.id}`, {
-          method: 'PUT',
-          body: JSON.stringify(body)
-        });
-        items[index].note = note;
-      } catch (error) {
-        console.error('備考の更新に失敗しました:', error);
-        alert('備考の更新に失敗しました');
-      }
-    }
-
-    // 画像を圧縮する関数
-    function compressImage(file, maxWidth = 300, quality = 0.7) {
-      return new Promise((resolve) => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const img = new Image();
-        
-        img.onload = () => {
-          const ratio = Math.min(maxWidth / img.width, maxWidth / img.height);
-          canvas.width = img.width * ratio;
-          canvas.height = img.height * ratio;
-          
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          
-          const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
-          resolve(compressedDataUrl);
-        };
-        
-        img.src = URL.createObjectURL(file);
-      });
-    }
-
-    async function registerItem() {
-      const name = document.getElementById('itemName').value;
-      const id = document.getElementById('itemId').value;
-      const location = document.getElementById('itemLocation').value;
-      const category = document.getElementById('itemCategory').value;
-      const imageFile = document.getElementById('itemImage').files[0];
-
-      if (!name || !id || !location) {
-        alert('必要な情報を入力してください');
-        return;
-      }
-
-      const item = {
-        name: name,
-        id: id,
-        location: location,
-        category: category,
-        history: []
-      };
-
-      if (currentFacilityId) {
-        item.facility_id = currentFacilityId;
-      }
-
-      if (imageFile) {
-        try {
-          console.log('画像を圧縮中...');
-          const compressedImage = await compressImage(imageFile, 300, 0.6);
-          console.log(`圧縮完了: ${compressedImage.length} 文字`);
-          
-          item.image = compressedImage;
-          
-          await apiCall(`${API_BASE}/equipment`, {
-            method: 'POST',
-            body: JSON.stringify(item)
-          });
-          await loadItems();
-          renderItems();
-          clearForm();
-          alert('備品を登録しました（画像圧縮済み）');
-        } catch (error) {
-          console.error('登録に失敗しました:', error);
-          alert(`登録に失敗しました: ${error.message}`);
-        }
-      } else {
-        try {
-          await apiCall(`${API_BASE}/equipment`, {
-            method: 'POST',
-            body: JSON.stringify(item)
-          });
-          await loadItems();
-          renderItems();
-          clearForm();
-          alert('備品を登録しました');
-        } catch (error) {
-          console.error('登録に失敗しました:', error);
-          alert(`登録に失敗しました: ${error.message}`);
-        }
-      }
-    }
-
-    function clearForm() {
-      document.getElementById('itemName').value = '';
-      document.getElementById('itemId').value = '';
-      document.getElementById('itemLocation').value = '事務所';
-      document.getElementById('itemCategory').value = '車いす';
-      document.getElementById('itemImage').value = '';
-    }
-
-    async function editImage(index) {
-      const input = document.getElementById('editImageInput');
-      input.onchange = async () => {
-        const file = input.files[0];
-        if (file) {
-          try {
-            console.log('画像を圧縮中...');
-            const compressedImage = await compressImage(file, 300, 0.6);
-            console.log(`圧縮完了: ${compressedImage.length} 文字`);
-            
-            const item = items[index];
-            const body = { image: compressedImage };
-            
-            if (currentFacilityId) {
-              body.facility_id = currentFacilityId;
-            }
-            
-            await apiCall(`${API_BASE}/equipment/${item.id}`, {
-              method: 'PUT',
-              body: JSON.stringify(body)
-            });
-            items[index].image = compressedImage;
-            renderItems();
-            alert('画像を更新しました（圧縮済み）');
-          } catch (error) {
-            console.error('画像の更新に失敗しました:', error);
-            alert('画像の更新に失敗しました');
-          }
-        } else {
-          try {
-            const item = items[index];
-            const body = { image: '' };
-            
-            if (currentFacilityId) {
-              body.facility_id = currentFacilityId;
-            }
-            
-            await apiCall(`${API_BASE}/equipment/${item.id}`, {
-              method: 'PUT',
-              body: JSON.stringify(body)
-            });
-            delete items[index].image;
-            renderItems();
-            alert('画像を削除しました');
-          } catch (error) {
-            console.error('画像の削除に失敗しました:', error);
-            alert('画像の削除に失敗しました');
-          }
-        }
-      };
-      input.click();
-    }
-
-    // 編集モーダル関連の関数
-    function openEdit(index) {
-      editingIndex = index;
-      const item = items[index];
-      
-      document.getElementById('editItemName').value = item.name || '';
-      document.getElementById('editItemId').value = item.id || '';
-      document.getElementById('editItemLocation').value = item.location || '';
-      document.getElementById('editItemCategory').value = item.category || '';
-      
-      document.getElementByI
+</html>
