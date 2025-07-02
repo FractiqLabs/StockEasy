@@ -1878,6 +1878,8 @@
         
         const data = await response.json();
         console.log('取得データ:', data);
+        items = data;
+        console.log('データ読み込み完了、画面更新開始');
         hideError();
         connectionRetries = 0;
         return data;
