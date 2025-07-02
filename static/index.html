@@ -60,7 +60,7 @@
       font-family: "Noto Sans JP", "Segoe UI", sans-serif;
       margin: 0;
       background: linear-gradient(to bottom right, #f3e8ff, #ede9fe);
-      zoom: 0.8; /* 80%に縮小表示 */
+      zoom: 0.75; /* 75%に縮小表示 */
     }
 
     .sub-heading {
@@ -2553,12 +2553,96 @@
           debugLog('職員ログインAPIレスポンス受信');
           const result = await response.json();
           debugLog('職員ログイン結果:', result);
-  
+    
           if (!result.success) {
             alert(result.message);
             return;
           }
         }
+        
+        debugLog('認証成功、画面切り替え開始');
+        
+        // 画面を切り替え
+        document.getElementById('loginArea').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'block';
+        isAdmin = role === 'admin';
+        
+        // 🔥 追加：レイアウト切り替え
+        document.getElementById('adminLayout').style.display = isAdmin ? 'block' : 'none';
+        document.getElementById('staffLayout').style.display = isAdmin ? 'none' : 'block';
+        
+        // 設定ボタンを管理者の時だけ表示
+        document.getElementById('settingsBtn').style.display = isAdmin ? 'flex' : 'none';
+        
+        // AIバッジを表示
+        showAIBadge();
+        
+        // 施設名を表示
+        const facilityName = facilityMap[currentFacilityId];
+        if (facilityName) {
+          document.getElementById('facilityNameDisplay').textContent = `${facilityName} - らくらく備品管理システム`;
+        }
+        
+        debugLog('画面切り替え完了、データ読み込み開始');
+        
+        // ログイン後にデータを読み込み
+        try {
+          await loadItems();
+          renderItems();
+          debugLog('ログイン完了');
+        } catch (error) {
+          console.error('ログイン後のデータ読み込みに失敗:', error);
+          // データ読み込みに失敗してもログイン状態は維持
+          renderItems(); // 空のテーブルを表示
+          showError('データの読み込みに失敗しました。再試行してください。');
+        }
+      } catch (error) {
+        console.error('ログイン処理でエラー:', error);
+        alert('ログイン処理中にエラーが発生しました: ' + error.message);
+      }
+    }
+    
+    debugLog('認証成功、画面切り替え開始');
+    
+    // 画面を切り替え
+    document.getElementById('loginArea').style.display = 'none';
+    document.getElementById('mainContent').style.display = 'block';
+    isAdmin = role === 'admin';
+    
+    // 🔥 ここを追加！レイアウト切り替え
+    document.getElementById('adminLayout').style.display = isAdmin ? 'block' : 'none';
+    document.getElementById('staffLayout').style.display = isAdmin ? 'none' : 'block';
+    
+    // 設定ボタンを管理者の時だけ表示
+    document.getElementById('settingsBtn').style.display = isAdmin ? 'flex' : 'none';
+    
+    // AIバッジを表示
+    showAIBadge();
+    
+    // 施設名を表示
+    const facilityName = facilityMap[currentFacilityId];
+    if (facilityName) {
+      document.getElementById('facilityNameDisplay').textContent = `${facilityName} - らくらく備品管理システム`;
+    }
+    
+    debugLog('画面切り替え完了、データ読み込み開始');
+    
+    // ログイン後にデータを読み込み
+    try {
+      await loadItems();
+      renderItems();
+      debugLog('ログイン完了');
+    } catch (error) {
+      console.error('ログイン後のデータ読み込みに失敗:', error);
+      // データ読み込みに失敗してもログイン状態は維持
+      renderItems(); // 空のテーブルを表示
+      showError('データの読み込みに失敗しました。再試行してください。');
+    }
+  } catch (error) {
+    console.error('ログイン処理でエラー:', error);
+    alert('ログイン処理中にエラーが発生しました: ' + error.message);
+  }
+}
         
         debugLog('認証成功、画面切り替え開始');
         
