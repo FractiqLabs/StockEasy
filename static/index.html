@@ -1878,6 +1878,8 @@
         
         const data = await response.json();
         console.log('取得データ:', data);
+        items = data;
+        console.log('データ読み込み完了、画面更新開始');
         hideError();
         connectionRetries = 0;
         return data;
@@ -2037,8 +2039,21 @@
       const tableId = isAdmin ? 'itemTable' : 'itemTable2';
       const tbody = document.getElementById(tableId);
       
+      console.log('=== renderItems デバッグ情報 ===');
+      console.log('isAdmin:', isAdmin);
+      console.log('tableId:', tableId);
+      console.log('tbody要素:', tbody);
+      console.log('items配列:', items);
+      console.log('items長さ:', items.length);
+      console.log('filterCategory:', filterCategory);
+      console.log('searchTerm:', searchTerm);
+      
       if (!tbody) {
         console.error(`テーブル要素が見つかりません: ${tableId}`);
+        console.log('itemTable:', document.getElementById('itemTable'));
+        console.log('itemTable2:', document.getElementById('itemTable2'));
+        console.log('adminLayout表示:', document.getElementById('adminLayout').style.display);
+        console.log('staffLayout表示:', document.getElementById('staffLayout').style.display);
         return;
       }
       
@@ -2047,61 +2062,53 @@
       // フィルタリングと検索
       let filteredItems = items;
       
-      // カテゴリフィルタ
       if (filterCategory) {
         filteredItems = filteredItems.filter(item => item.category === filterCategory);
+        console.log('カテゴリフィルタ後:', filteredItems.length);
       }
       
-      // 検索フィルタ
       if (searchTerm) {
         filteredItems = filteredItems.filter(item => 
-          (item.name && item.name.toLowerCase().includes(searchTerm)) ||
-          (item.id && item.id.toLowerCase().includes(searchTerm)) ||
-          (item.location && item.location.toLowerCase().includes(searchTerm)) ||
-          (item.current && item.current.toLowerCase().includes(searchTerm)) ||
-          (item.user && item.user.toLowerCase().includes(searchTerm))
+          item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.id.toLowerCase().includes(searchTerm.toLowerCase())
         );
+        console.log('検索フィルタ後:', filteredItems.length);
       }
       
+      console.log('最終表示アイテム数:', filteredItems.length);
+      
       if (filteredItems.length === 0) {
-        const tr = document.createElement('tr');
-        tr.innerHTML = '<td colspan="10" style="text-align: center; padding: 2rem;">データがありません</td>';
-        tbody.appendChild(tr);
+        const row = tbody.insertRow();
+        row.innerHTML = `<td colspan="10" style="text-align: center; padding: 2rem; color: #666;">該当する備品がありません</td>`;
         return;
       }
       
-      filteredItems.forEach((item, originalIndex) => {
-        // 元の配列でのインデックスを取得
-        const actualIndex = items.findIndex(i => i.id === item.id);
-        
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>
-            <div class="image-wrapper">
-              <img src="${item.image || ''}" class="image-preview" onerror="this.style.display='none'" />
-              ${isAdmin ? `<button class="edit-button" onclick="editImage(${actualIndex})">画像</button>` : ''}
-            </div>
+      filteredItems.forEach(item => {
+        const row = tbody.insertRow();
+        row.innerHTML = `
+          <td style="text-align: center; width: 80px;">
+            ${item.image ? `<img src="${item.image}" alt="${item.name}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;">` : '<div style="width: 60px; height: 60px; background: #f0f0f0; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #999;">画像なし</div>'}
           </td>
-          <td>${item.name || ''}</td>
-          <td>${item.id || ''}</td>
-          <td>${item.location || ''}</td>
-          <td>${item.current || ''}</td>
-          <td>${item.user || ''}</td>
-          <td>
-            <span class="${item.status === '待機' ? 'status-available' : 'status-in-use'}">
-              ${item.status || '待機'}
-            </span>
-          </td>
-          <td><input type="text" value="${item.note || ''}" onchange="updateNote(${actualIndex}, this.value)" /></td>
-          <td>${item.category || ''}</td>
-          <td>
-            <button onclick="openBorrow(${actualIndex})">借用</button>
-            <button onclick="openReturn(${actualIndex})">返却</button>
-            ${isAdmin ? `<button onclick="openEdit(${actualIndex})">編集</button>` : ''}
+          <td style="font-weight: bold;">${item.name}</td>
+          <td><span class="item-id">${item.id}</span></td>
+          <td>${item.location}</td>
+          <td>${item.current_location || item.location}</td>
+          <td>${item.user || '-'}</td>
+          <td><span class="status ${item.status}">${item.status === 'available' ? '利用可能' : item.status === 'in_use' ? '使用中' : item.status === 'maintenance' ? 'メンテナンス' : item.status}</span></td>
+          <td>${item.notes || '-'}</td>
+          <td><span class="category-tag">${item.category}</span></td>
+          <td style="white-space: nowrap;">
+            ${item.status === 'available' ? 
+              `<button onclick="showLendDialog('${item.id}')" class="btn-lend">貸出</button>` : 
+              item.status === 'in_use' ? 
+                `<button onclick="returnItem('${item.id}')" class="btn-return">返却</button>` : 
+                `<button disabled class="btn-disabled">-</button>`
+            }
           </td>
         `;
-        tbody.appendChild(tr);
       });
+      
+      console.log('=== renderItems 完了 ===');
     }
 
     // 備考更新
@@ -2553,7 +2560,7 @@
           debugLog('職員ログインAPIレスポンス受信');
           const result = await response.json();
           debugLog('職員ログイン結果:', result);
-    
+  
           if (!result.success) {
             alert(result.message);
             return;
@@ -2567,95 +2574,25 @@
         document.getElementById('mainContent').style.display = 'block';
         isAdmin = role === 'admin';
         
-        // 🔥 追加：レイアウト切り替え
-        document.getElementById('adminLayout').style.display = isAdmin ? 'block' : 'none';
-        document.getElementById('staffLayout').style.display = isAdmin ? 'none' : 'block';
-        
-        // 設定ボタンを管理者の時だけ表示
-        document.getElementById('settingsBtn').style.display = isAdmin ? 'flex' : 'none';
-        
-        // AIバッジを表示
-        showAIBadge();
-        
-        // 施設名を表示
-        const facilityName = facilityMap[currentFacilityId];
-        if (facilityName) {
-          document.getElementById('facilityNameDisplay').textContent = `${facilityName} - らくらく備品管理システム`;
-        }
-        
-        debugLog('画面切り替え完了、データ読み込み開始');
-        
-        // ログイン後にデータを読み込み
-        try {
-          await loadItems();
-          renderItems();
-          debugLog('ログイン完了');
-        } catch (error) {
-          console.error('ログイン後のデータ読み込みに失敗:', error);
-          // データ読み込みに失敗してもログイン状態は維持
-          renderItems(); // 空のテーブルを表示
-          showError('データの読み込みに失敗しました。再試行してください。');
-        }
-      } catch (error) {
-        console.error('ログイン処理でエラー:', error);
-        alert('ログイン処理中にエラーが発生しました: ' + error.message);
-      }
-    }
-    
-    debugLog('認証成功、画面切り替え開始');
-    
-    // 画面を切り替え
-    document.getElementById('loginArea').style.display = 'none';
-    document.getElementById('mainContent').style.display = 'block';
-    isAdmin = role === 'admin';
-    
-    // 🔥 ここを追加！レイアウト切り替え
-    document.getElementById('adminLayout').style.display = isAdmin ? 'block' : 'none';
-    document.getElementById('staffLayout').style.display = isAdmin ? 'none' : 'block';
-    
-    // 設定ボタンを管理者の時だけ表示
-    document.getElementById('settingsBtn').style.display = isAdmin ? 'flex' : 'none';
-    
-    // AIバッジを表示
-    showAIBadge();
-    
-    // 施設名を表示
-    const facilityName = facilityMap[currentFacilityId];
-    if (facilityName) {
-      document.getElementById('facilityNameDisplay').textContent = `${facilityName} - らくらく備品管理システム`;
-    }
-    
-    debugLog('画面切り替え完了、データ読み込み開始');
-    
-    // ログイン後にデータを読み込み
-    try {
-      await loadItems();
-      renderItems();
-      debugLog('ログイン完了');
-    } catch (error) {
-      console.error('ログイン後のデータ読み込みに失敗:', error);
-      // データ読み込みに失敗してもログイン状態は維持
-      renderItems(); // 空のテーブルを表示
-      showError('データの読み込みに失敗しました。再試行してください。');
-    }
-  } catch (error) {
-    console.error('ログイン処理でエラー:', error);
-    alert('ログイン処理中にエラーが発生しました: ' + error.message);
-  }
-}
-        
-        debugLog('認証成功、画面切り替え開始');
-        
-        // 画面を切り替え
-        document.getElementById('loginArea').style.display = 'none';
-        document.getElementById('mainContent').style.display = 'block';
-        isAdmin = role === 'admin';
         // レイアウト切り替え
         document.getElementById('adminLayout').style.display = isAdmin ? 'block' : 'none';
         document.getElementById('staffLayout').style.display = isAdmin ? 'none' : 'block';
         
         // 設定ボタンを管理者の時だけ表示
         document.getElementById('settingsBtn').style.display = isAdmin ? 'flex' : 'none';
+        
+        console.log('=== ログイン後レイアウト切り替え ===');
+        console.log('isAdmin:', isAdmin);
+        console.log('adminLayout表示:', document.getElementById('adminLayout').style.display);
+        console.log('staffLayout表示:', document.getElementById('staffLayout').style.display);
+        console.log('itemTable存在:', !!document.getElementById('itemTable'));
+        console.log('itemTable2存在:', !!document.getElementById('itemTable2'));
+        
+        // 強制的にrenderItemsを呼び出し
+        console.log('強制renderItems呼び出し開始');
+        setTimeout(() => {
+          renderItems();
+        }, 100);
         
         // AIバッジを表示
         showAIBadge();
@@ -2831,50 +2768,49 @@
     }
 
     // セッション状態復元関数
-async function checkAndRestoreSession() {
-  try {
-    const response = await fetch('/api/session/check', {
-      credentials: 'include'
-    });
-    const result = await response.json();
-    
-    if (result.success && result.logged_in) {
-      // ログイン状態を復元
-      document.getElementById('loginArea').style.display = 'none';
-      document.getElementById('mainContent').style.display = 'block';
-      
-      // ユーザータイプに応じて画面を設定
-      isAdmin = result.user_type === 'admin';
-      
-      // 修正：adminLayout と staffLayout に変更
-      document.getElementById('adminLayout').style.display = isAdmin ? 'block' : 'none';
-      document.getElementById('staffLayout').style.display = isAdmin ? 'none' : 'block';
-      
-      // 設定ボタンを管理者の時だけ表示
-      document.getElementById('settingsBtn').style.display = isAdmin ? 'flex' : 'none';
-      
-      // 施設IDが保存されている場合は復元
-      if (result.facility_id) {
-        currentFacilityId = result.facility_id;
-        const facilityName = getCurrentFacilityName();
-        if (facilityName) {
-          document.getElementById('facilityNameDisplay').textContent = `${facilityName} - らくらく備品管理システム`;
-        }
-      }
-      
-      // データを読み込み
-      await loadItems();
-      renderItems();
+    async function checkAndRestoreSession() {
+      try {
+        const response = await fetch('/api/session/check', {
+          credentials: 'include'
+        });
+        const result = await response.json();
+        
+        if (result.success && result.logged_in) {
+          // ログイン状態を復元
+          document.getElementById('loginArea').style.display = 'none';
+          document.getElementById('mainContent').style.display = 'block';
+          
+          // ユーザータイプに応じて画面を設定
+          isAdmin = result.user_type === 'admin';
+          
+          if (isAdmin) {
+            document.getElementById('adminArea').style.display = 'block';
+          } else {
+            document.getElementById('adminArea').style.display = 'none';
+          }
+          
+          // 施設IDが保存されている場合は復元
+          if (result.facility_id) {
+            currentFacilityId = result.facility_id;
+            const facilityName = getCurrentFacilityName();
+            if (facilityName) {
+              document.getElementById('facilityNameDisplay').textContent = `${facilityName} - らくらく備品管理システム`;
+            }
+          }
+          
+          // データを読み込み
+          await loadItems();
+          renderItems();
 
-      // AIバッジを表示
-      showAIBadge();
-      
-      debugLog('セッション復元完了:', result.user_type, 'isAdmin:', isAdmin);
+          // AIバッジを表示
+          showAIBadge();
+          
+          debugLog('セッション復元完了:', result.user_type, 'isAdmin:', isAdmin);
+        }
+      } catch (error) {
+        console.error('セッション確認エラー:', error);
+      }
     }
-  } catch (error) {
-    console.error('セッション確認エラー:', error);
-  }
-}
 
     // 初期化処理
     function initializeApp() {
