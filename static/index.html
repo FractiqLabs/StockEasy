@@ -2564,9 +2564,16 @@
         document.getElementById('loginArea').style.display = 'none';
         document.getElementById('mainContent').style.display = 'block';
         isAdmin = role === 'admin';
+        
         // レイアウト切り替え
-        document.getElementById('adminLayout').style.display = isAdmin ? 'block' : 'none';
-        document.getElementById('staffLayout').style.display = isAdmin ? 'none' : 'block';
+        if (isAdmin) {
+          document.getElementById('adminLayout').style.display = 'block';
+          document.getElementById('staffLayout').style.display = 'none';
+        } else {
+          document.getElementById('adminLayout').style.display = 'none';
+          document.getElementById('staffLayout').style.display = 'block';
+          console.log('職員レイアウトに切り替えました');
+        }
         
         // 設定ボタンを管理者の時だけ表示
         document.getElementById('settingsBtn').style.display = isAdmin ? 'flex' : 'none';
