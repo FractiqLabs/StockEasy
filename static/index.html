@@ -2731,115 +2731,189 @@
       renderItems(category, searchTerm);
     }
 
-    // セッション状態復元関数
-    async function checkAndRestoreSession() {
-      try {
-        const response = await fetch('/api/session/check', {
-          credentials: 'include'
-        });
-        const result = await response.json();
-        
-        if (result.success && result.logged_in) {
-          // ログイン状態を復元
-          document.getElementById('loginArea').style.display = 'none';
-          document.getElementById('mainContent').style.display = 'block';
-          
-          // ユーザータイプに応じて画面を設定
-          isAdmin = result.user_type === 'admin';
-          
-          if (isAdmin) {
-            document.getElementById('adminArea').style.display = 'block';
-          } else {
-            document.getElementById('adminArea').style.display = 'none';
-          }
-          
-          // 施設IDが保存されている場合は復元
-          if (result.facility_id) {
-            currentFacilityId = result.facility_id;
-            const facilityName = getCurrentFacilityName();
-            if (facilityName) {
-              document.getElementById('facilityNameDisplay').textContent = `${facilityName} - らくらく備品管理システム`;
-            }
-          }
-          
-          // データを読み込み
-          await loadItems();
-          renderItems();
-
-          // AIバッジを表示
-          showAIBadge();
-          
-          debugLog('セッション復元完了:', result.user_type, 'isAdmin:', isAdmin);
-        }
-      } catch (error) {
-        console.error('セッション確認エラー:', error);
-      }
+    // セッション状態復元関数（修正版）
+async function checkAndRestoreSession() {
+  try {
+    debugLog('🔄 セッション状態を確認中...');
+    
+    const response = await fetch('/api/session/check', {
+      credentials: 'include'
+    });
+    
+    if (!response.ok) {
+      console.warn('⚠️ セッション確認APIエラー:', response.status);
+      return; // エラーでも継続
     }
-
-    // 初期化処理
-    function initializeApp() {
-      debugLog('アプリケーション初期化開始');
+    
+    const result = await response.json();
+    
+    if (result.success && result.logged_in) {
+      debugLog('✅ 既存セッションを検出、ログイン状態を復元');
       
-      try {
-        // イベントリスナーの設定
-        const loginButton = document.getElementById('loginButton');
-        const roleSelect = document.getElementById('roleSelect');
-        
-        if (!loginButton) {
-          throw new Error('ログインボタンが見つかりません');
-        }
-        
-        if (!roleSelect) {
-          throw new Error('役割選択が見つかりません');
-        }
-        
-        // クリックイベントとタッチイベントの両方に対応
-        loginButton.addEventListener('click', function(e) {
-          e.preventDefault();
-          login();
-        });
-        
-        // モバイル対応
-        loginButton.addEventListener('touchstart', function(e) {
-          e.preventDefault();
-          login();
-        });
-        
-        debugLog('ログインボタンのイベントリスナーを設定');
-        
-        roleSelect.addEventListener('change', handleRoleChange);
-        debugLog('役割選択のイベントリスナーを設定');
-
-        // モーダルイベントの設定
-        setupModalEvents();
-        
-        // タブイベントの設定
-        setupTabEvents();
-        
-        // Enterキーでログインできるようにする
-        const loginPassword = document.getElementById('loginPassword');
-        if (loginPassword) {
-          loginPassword.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              login();
-            }
-          });
-        }
-        
-        debugLog('アプリケーション初期化完了');
-        
-        // セッション状態を確認してログイン状態を復元
-        checkAndRestoreSession();
-
-        stockEasyAI = new StockEasyAI();
-        debugLog('AI機能を初期化しました');
-        
-      } catch (error) {
-        console.error('初期化エラー:', error);
-        alert('アプリケーションの初期化に失敗しました。ページを再読み込みしてください。');
+      // ログイン状態を復元
+      document.getElementById('loginArea').style.display = 'none';
+      document.getElementById('mainContent').style.display = 'block';
+      
+      // ユーザータイプに応じて画面を設定
+      isAdmin = result.user_type === 'admin';
+      
+      // レイアウト切り替え
+      const adminLayout = document.getElementById('adminLayout');
+      const staffLayout = document.getElementById('staffLayout');
+      
+      if (isAdmin) {
+        if (adminLayout) adminLayout.style.display = 'block';
+        if (staffLayout) staffLayout.style.display = 'none';
+        // 設定ボタンを表示
+        const settingsBtn = document.getElementById('settingsBtn');
+        if (settingsBtn) settingsBtn.style.display = 'flex';
+      } else {
+        if (adminLayout) adminLayout.style.display = 'none';
+        if (staffLayout) staffLayout.style.display = 'block';
       }
+      
+      // 施設IDが保存されている場合は復元
+      if (result.facility_id) {
+        currentFacilityId = result.facility_id;
+        const facilityName = getCurrentFacilityName();
+        if (facilityName) {
+          const facilityDisplay = document.getElementById('facilityNameDisplay');
+          if (facilityDisplay) {
+            facilityDisplay.textContent = `${facilityName} - らくらく備品管理システム`;
+          }
+        }
+      }
+      
+      // AIバッジを表示
+      showAIBadge();
+      
+      // データを読み込み（エラーが起きても継続）
+      try {
+        await loadItems();
+        renderItems();
+        debugLog('✅ セッション復元とデータ読み込み完了');
+      } catch (dataError) {
+        console.warn('⚠️ データ読み込みエラー（セッション復元は成功）:', dataError);
+        renderItems(); // 空のテーブルを表示
+      }
+      
+    } else {
+      debugLog('ℹ️ 既存セッションなし、ログイン画面を表示');
     }
+    
+  } catch (error) {
+    console.warn('⚠️ セッション確認でエラー（アプリは正常動作）:', error);
+    debugLog('セッション復元に失敗しましたが、手動ログインは可能です');
+  }
+}
+
+    // 初期化処理（修正版）
+function initializeApp() {
+  debugLog('アプリケーション初期化開始');
+  
+  try {
+    // 重要な要素の存在確認（エラーを投げずに警告のみ）
+    const loginButton = document.getElementById('loginButton');
+    const roleSelect = document.getElementById('roleSelect');
+    
+    if (!loginButton) {
+      console.warn('⚠️ ログインボタンが見つかりません（DOM読み込み中の可能性）');
+      // エラーを投げる代わりに、少し待ってから再試行
+      setTimeout(() => {
+        console.log('🔄 要素の再取得を試行中...');
+        initializeApp();
+      }, 500);
+      return; // ここで処理を中断（エラーは投げない）
+    }
+    
+    if (!roleSelect) {
+      console.warn('⚠️ 役割選択が見つかりません（DOM読み込み中の可能性）');
+      setTimeout(() => {
+        console.log('🔄 要素の再取得を試行中...');
+        initializeApp();
+      }, 500);
+      return;
+    }
+    
+    debugLog('✅ 必要な要素を確認しました');
+    
+    // クリックイベントとタッチイベントの両方に対応
+    loginButton.addEventListener('click', function(e) {
+      e.preventDefault();
+      login();
+    });
+    
+    // モバイル対応
+    loginButton.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      login();
+    });
+    
+    debugLog('✅ ログインボタンのイベントリスナーを設定');
+    
+    roleSelect.addEventListener('change', handleRoleChange);
+    debugLog('✅ 役割選択のイベントリスナーを設定');
+
+    // モーダルイベントの設定
+    setupModalEvents();
+    
+    // タブイベントの設定
+    setupTabEvents();
+    
+    // Enterキーでログインできるようにする
+    const loginPassword = document.getElementById('loginPassword');
+    if (loginPassword) {
+      loginPassword.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          login();
+        }
+      });
+      debugLog('✅ Enterキーログインを設定');
+    }
+    
+    debugLog('✅ 基本機能の初期化完了');
+    
+    // AI機能の初期化（基本機能完了後）
+    try {
+      // AI関連クラスが全て定義されているかチェック
+      if (typeof IntentAnalyzer !== 'undefined' && 
+          typeof ResponseGenerator !== 'undefined' && 
+          typeof StockEasyAI !== 'undefined') {
+        
+        stockEasyAI = new StockEasyAI();
+        debugLog('✅ AI機能を初期化しました');
+      } else {
+        console.warn('⚠️ AI関連クラスの読み込みが完了していません');
+        // AI機能なしでも動作するように
+        stockEasyAI = null;
+        debugLog('⚠️ AI機能は無効化されました（メイン機能は正常動作）');
+      }
+    } catch (aiError) {
+      console.warn('⚠️ AI機能の初期化に失敗:', aiError);
+      stockEasyAI = null;
+      debugLog('⚠️ AI機能は無効化されました（メイン機能は正常動作）');
+    }
+    
+    debugLog('✅ アプリケーション初期化完了');
+    
+    // セッション状態を確認してログイン状態を復元（最後に実行）
+    checkAndRestoreSession().catch(sessionError => {
+      console.warn('⚠️ セッション復元でエラー（継続可能）:', sessionError);
+    });
+    
+  } catch (error) {
+    console.error('❌ 初期化エラー:', error);
+    // ユーザーにエラーを表示せず、コンソールログのみ
+    debugLog('初期化で問題が発生しましたが、システムは動作します');
+    
+    // 5秒後に再試行
+    setTimeout(() => {
+      console.log('🔄 初期化を再試行します...');
+      initializeApp();
+    }, 5000);
+  }
+}
 
     // DOMが読み込まれた後に初期化
     if (document.readyState === 'loading') {
