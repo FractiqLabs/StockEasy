@@ -1996,84 +1996,80 @@
     }
 
     function renderItems(filterCategory = '', searchTerm = '') {
-  // 現在のレイアウトに応じて適切なテーブルを選択
-  let tbody;
-  if (isAdmin) {
-    // 管理者の場合は、管理者レイアウト内のテーブルを取得
-    const adminLayout = document.getElementById('adminLayout');
-    tbody = adminLayout ? adminLayout.querySelector('#itemTable') : null;
-  } else {
-    // 職員の場合は、職員レイアウト内のテーブルを取得
-    const staffLayout = document.getElementById('staffLayout');
-    tbody = staffLayout ? staffLayout.querySelector('#itemTable') : null;
-  }
-  
-  if (!tbody) {
-    console.error('テーブル要素が見つかりません');
-    return;
-  }
-      
-      tbody.innerHTML = '';
-      
-      // フィルタリングと検索
-      let filteredItems = items;
-      
-      // カテゴリフィルタ
-      if (filterCategory) {
+    // 現在のレイアウトに応じて適切なテーブルを選択
+    let tbody;
+    if (isAdmin) {
+        tbody = document.getElementById('adminItemTable'); // ✅ 管理者専用
+    } else {
+        tbody = document.getElementById('staffItemTable');  // ✅ 職員専用
+    }
+    
+    if (!tbody) {
+        console.error('テーブル要素が見つかりません', 'isAdmin:', isAdmin);
+        return;
+    }
+    
+    tbody.innerHTML = '';
+    
+    // フィルタリングと検索
+    let filteredItems = items;
+    
+    // カテゴリフィルタ
+    if (filterCategory) {
         filteredItems = filteredItems.filter(item => item.category === filterCategory);
-      }
-      
-      // 検索フィルタ
-      if (searchTerm) {
+    }
+    
+    // 検索フィルタ
+    if (searchTerm) {
         filteredItems = filteredItems.filter(item => 
-          (item.name && item.name.toLowerCase().includes(searchTerm)) ||
-          (item.id && item.id.toLowerCase().includes(searchTerm)) ||
-          (item.location && item.location.toLowerCase().includes(searchTerm)) ||
-          (item.current && item.current.toLowerCase().includes(searchTerm)) ||
-          (item.user && item.user.toLowerCase().includes(searchTerm))
+            (item.name && item.name.toLowerCase().includes(searchTerm)) ||
+            (item.id && item.id.toLowerCase().includes(searchTerm)) ||
+            (item.location && item.location.toLowerCase().includes(searchTerm)) ||
+            (item.current && item.current.toLowerCase().includes(searchTerm)) ||
+            (item.user && item.user.toLowerCase().includes(searchTerm))
         );
-      }
-      
-      if (filteredItems.length === 0) {
+    }
+    
+    if (filteredItems.length === 0) {
         const tr = document.createElement('tr');
         tr.innerHTML = '<td colspan="10" style="text-align: center; padding: 2rem;">データがありません</td>';
         tbody.appendChild(tr);
         return;
-      }
-      
-      filteredItems.forEach((item, originalIndex) => {
+    }
+    
+    filteredItems.forEach((item, originalIndex) => {
         // 元の配列でのインデックスを取得
         const actualIndex = items.findIndex(i => i.id === item.id);
         
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td>
-            <div class="image-wrapper">
-              <img src="${item.image || ''}" class="image-preview" onerror="this.style.display='none'" />
-              ${isAdmin ? `<button class="edit-button" onclick="editImage(${actualIndex})">編集</button>` : ''}
-            </div>
-          </td>
-          <td>${item.name || ''}</td>
-          <td>${item.id || ''}</td>
-          <td>${item.location || ''}</td>
-          <td>${item.current || ''}</td>
-          <td>${item.user || ''}</td>
-          <td>
-            <span class="${item.status === '待機' ? 'status-available' : 'status-in-use'}">
-              ${item.status || '待機'}
-            </span>
-          </td>
-          <td><input type="text" value="${item.note || ''}" onchange="updateNote(${actualIndex}, this.value)" /></td>
-          <td>${item.category || ''}</td>
-          <td>
-            <button onclick="openBorrow(${actualIndex})">借用</button>
-            <button onclick="openReturn(${actualIndex})">返却</button>
-            ${isAdmin ? `<button onclick="openEdit(${actualIndex})">編集</button>` : ''}
-          </td>
+            <td>
+                <div class="image-wrapper">
+                    <img src="${item.image || ''}" class="image-preview" onerror="this.style.display='none'" />
+                    ${isAdmin ? `<button class="edit-button" onclick="editImage(${actualIndex})">編集</button>` : ''}
+                </div>
+            </td>
+            <td>${item.name || ''}</td>
+            <td>${item.id || ''}</td>
+            <td>${item.location || ''}</td>
+            <td>${item.current || ''}</td>
+            <td>${item.user || ''}</td>
+            <td>
+                <span class="${item.status === '待機' ? 'status-available' : 'status-in-use'}">
+                    ${item.status || '待機'}
+                </span>
+            </td>
+            <td><input type="text" value="${item.note || ''}" onchange="updateNote(${actualIndex}, this.value)" /></td>
+            <td>${item.category || ''}</td>
+            <td>
+                <button onclick="openBorrow(${actualIndex})">借用</button>
+                <button onclick="openReturn(${actualIndex})">返却</button>
+                ${isAdmin ? `<button onclick="openEdit(${actualIndex})">編集</button>` : ''}
+            </td>
         `;
         tbody.appendChild(tr);
-      });
-    }
+    });
+}
 
     // 備考更新
     async function updateNote(index, note) {
