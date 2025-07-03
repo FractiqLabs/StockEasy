@@ -2033,12 +2033,22 @@
     }
 
     function renderItems(filterCategory = '', searchTerm = '') {
-      const tbody = document.getElementById('itemTable');
-      
-      if (!tbody) {
-        console.error(`テーブル要素が見つかりません: ${tableId}`);
-        return;
-      }
+  // 現在のレイアウトに応じて適切なテーブルを選択
+  let tbody;
+  if (isAdmin) {
+    // 管理者の場合は、管理者レイアウト内のテーブルを取得
+    const adminLayout = document.getElementById('adminLayout');
+    tbody = adminLayout ? adminLayout.querySelector('#itemTable') : null;
+  } else {
+    // 職員の場合は、職員レイアウト内のテーブルを取得
+    const staffLayout = document.getElementById('staffLayout');
+    tbody = staffLayout ? staffLayout.querySelector('#itemTable') : null;
+  }
+  
+  if (!tbody) {
+    console.error('テーブル要素が見つかりません');
+    return;
+  }
       
       tbody.innerHTML = '';
       
