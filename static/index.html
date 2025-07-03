@@ -2565,14 +2565,26 @@
         document.getElementById('mainContent').style.display = 'block';
         isAdmin = role === 'admin';
         
-        // レイアウト切り替え
+        // レイアウト切り替え（確実な方法）
+        const adminLayout = document.getElementById('adminLayout');
+        const staffLayout = document.getElementById('staffLayout');
+        
         if (isAdmin) {
-          document.getElementById('adminLayout').style.display = 'block';
-          document.getElementById('staffLayout').style.display = 'none';
+          console.log('管理者レイアウトを表示');
+          adminLayout.style.display = 'block';
+          staffLayout.style.display = 'none';
         } else {
-          document.getElementById('adminLayout').style.display = 'none';
-          document.getElementById('staffLayout').style.display = 'block';
-          console.log('職員レイアウトに切り替えました');
+          console.log('職員レイアウトを表示');
+          adminLayout.style.display = 'none';
+          staffLayout.style.display = 'block';
+          staffLayout.style.visibility = 'visible';
+          staffLayout.style.opacity = '1';
+          
+          // 職員画面が確実に表示されるよう強制設定
+          setTimeout(() => {
+            console.log('職員テーブル強制表示');
+            renderItems();
+          }, 100);
         }
         
         // 設定ボタンを管理者の時だけ表示
