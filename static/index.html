@@ -2033,24 +2033,12 @@
     }
 
     function renderItems(filterCategory = '', searchTerm = '') {
-      // 管理者と職員で異なるテーブルIDを使用
-      let tableId = 'itemTable';
-      if (!isAdmin) {
-        // 職員の場合は itemTable2 を優先的に使用（存在しない場合は itemTable）
-        const staffTable = document.getElementById('itemTable2');
-        if (staffTable) {
-          tableId = 'itemTable2';
-        }
-      }
-      
-      const tbody = document.getElementById(tableId);
+      const tbody = document.getElementById('itemTable');
       
       if (!tbody) {
         console.error(`テーブル要素が見つかりません: ${tableId}`);
         return;
       }
-      
-      console.log(`テーブル描画開始: ${tableId}, 管理者: ${isAdmin}`);
       
       tbody.innerHTML = '';
       
@@ -2112,8 +2100,6 @@
         `;
         tbody.appendChild(tr);
       });
-      
-      console.log(`テーブル描画完了: ${filteredItems.length}件表示`);
     }
 
     // 備考更新
@@ -2571,78 +2557,6 @@
             return;
           }
         }
-        
-        debugLog('認証成功、画面切り替え開始');
-        
-        // 画面を切り替え
-        document.getElementById('loginArea').style.display = 'none';
-        document.getElementById('mainContent').style.display = 'block';
-        isAdmin = role === 'admin';
-        
-        // レイアウト切り替え（確実な方法）
-        const adminLayout = document.getElementById('adminLayout');
-        const staffLayout = document.getElementById('staffLayout');
-        
-        if (isAdmin) {
-          console.log('管理者レイアウトを表示');
-          if (adminLayout) {
-            adminLayout.style.display = 'block';
-            adminLayout.style.visibility = 'visible';
-          }
-          if (staffLayout) {
-            staffLayout.style.display = 'none';
-          }
-        } else {
-          console.log('職員レイアウトを表示');
-          if (adminLayout) {
-            adminLayout.style.display = 'none';
-          }
-          if (staffLayout) {
-            staffLayout.style.display = 'block';
-            staffLayout.style.visibility = 'visible';
-            staffLayout.style.opacity = '1';
-          }
-          
-          // 職員画面が確実に表示されるよう強制設定
-          setTimeout(() => {
-            console.log('職員テーブル強制表示');
-            renderItems();
-          }, 100);
-        }
-        
-        // 設定ボタンを管理者の時だけ表示
-        const settingsBtn = document.getElementById('settingsBtn');
-        if (settingsBtn) {
-          settingsBtn.style.display = isAdmin ? 'flex' : 'none';
-        }
-        
-        // AIバッジを表示
-        showAIBadge();
-        
-        // 施設名を表示
-        const facilityName = facilityMap[currentFacilityId];
-        if (facilityName) {
-          document.getElementById('facilityNameDisplay').textContent = `${facilityName} - らくらく備品管理システム`;
-        }
-        
-        debugLog('画面切り替え完了、データ読み込み開始');
-        
-        // ログイン後にデータを読み込み
-        try {
-          await loadItems();
-          renderItems();
-          debugLog('ログイン完了');
-        } catch (error) {
-          console.error('ログイン後のデータ読み込みに失敗:', error);
-          // データ読み込みに失敗してもログイン状態は維持
-          renderItems(); // 空のテーブルを表示
-          showError('データの読み込みに失敗しました。再試行してください。');
-        }
-      } catch (error) {
-        console.error('ログイン処理でエラー:', error);
-        alert('ログイン処理中にエラーが発生しました: ' + error.message);
-      }
-    }
         
         debugLog('認証成功、画面切り替え開始');
         
