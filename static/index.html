@@ -1303,6 +1303,73 @@
         font-size: 13px;
       }
     }
+    /* 管理者画面のテーブル列幅固定 */
+  #adminLayout table {
+    width: 100%;
+    table-layout: fixed; /* 重要：列幅を固定 */
+  }
+
+  #adminLayout th, #adminLayout td {
+    white-space: nowrap; /* テキストの改行を防ぐ */
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* 管理者画面の列幅指定 */
+  #adminLayout th:nth-child(1) { width: 80px; }   /* 画像 */
+  #adminLayout th:nth-child(2) { width: 150px; }  /* 備品名 */
+  #adminLayout th:nth-child(3) { width: 80px; }   /* ID */
+  #adminLayout th:nth-child(4) { width: 100px; }  /* 保管場所 */
+  #adminLayout th:nth-child(5) { width: 100px; }  /* 現在地 */
+  #adminLayout th:nth-child(6) { width: 100px; }  /* 使用者 */
+  #adminLayout th:nth-child(7) { width: 90px; }   /* 状態（広く） */
+  #adminLayout th:nth-child(8) { width: 150px; }  /* 備考 */
+  #adminLayout th:nth-child(9) { width: 120px; }  /* 種別 */
+  #adminLayout th:nth-child(10) { width: 150px; } /* 操作 */
+
+  /* 職員画面のテーブル列幅固定 */
+  #staffLayout table {
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  #staffLayout th, #staffLayout td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* 職員画面の列幅指定（管理者より少し広く） */
+  #staffLayout th:nth-child(1) { width: 100px; }  /* 画像 */
+  #staffLayout th:nth-child(2) { width: 180px; }  /* 備品名 */
+  #staffLayout th:nth-child(3) { width: 90px; }   /* ID */
+  #staffLayout th:nth-child(4) { width: 120px; }  /* 保管場所 */
+  #staffLayout th:nth-child(5) { width: 120px; }  /* 現在地 */
+  #staffLayout th:nth-child(6) { width: 120px; }  /* 使用者 */
+  #staffLayout th:nth-child(7) { width: 100px; }  /* 状態 */
+  #staffLayout th:nth-child(8) { width: 180px; }  /* 備考 */
+  #staffLayout th:nth-child(9) { width: 140px; }  /* 種別 */
+  #staffLayout th:nth-child(10) { width: 160px; } /* 操作 */
+
+  /* 状態列の「使用中」が確実に1行で表示されるよう調整 */
+  .status-in-use, .status-available {
+    white-space: nowrap !important;
+    display: inline-block;
+    min-width: 60px;
+  }
+
+  /* 備考欄の入力フィールド */
+  #adminLayout td input[type="text"], 
+  #staffLayout td input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+    white-space: nowrap;
+  }
+
+  /* タブ切り替え時の幅変動防止 */
+  .tab-navigation {
+    margin-bottom: 1rem !important;
+  }
   </style>
 </head>
 <body>
