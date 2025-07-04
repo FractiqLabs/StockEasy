@@ -1392,7 +1392,16 @@
   .tab-navigation {
     margin-bottom: 1rem !important;
   }
-  /* 全体を70%に縮小 */
+  
+  /* トップページ（ログイン画面）を80%に縮小 */
+  #loginArea {
+    transform: scale(0.8);
+    transform-origin: top left;
+    width: 125%; /* 100% ÷ 0.8 = 125% */
+    height: 125%;
+  }
+
+  /* ログイン後の画面全体を70%に縮小 */
   #mainContent {
     transform: scale(0.7);
     transform-origin: top left;
