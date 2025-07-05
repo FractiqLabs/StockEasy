@@ -1307,6 +1307,7 @@
   #adminLayout table {
     width: 100%;
     table-layout: fixed; /* 重要：列幅を固定 */
+    min-width: 1200px; /* 最小幅を設定して横スクロール対応 */
   }
 
   #adminLayout th, #adminLayout td {
@@ -1315,17 +1316,17 @@
     text-overflow: ellipsis;
   }
 
-  /* 管理者画面の列幅指定（画像も広く） */
-  #adminLayout th:nth-child(1) { width: 80px; }   /* 画像（広く） */
-  #adminLayout th:nth-child(2) { width: 120px; }  /* 備品名 */
-  #adminLayout th:nth-child(3) { width: 50px; }   /* ID */
-  #adminLayout th:nth-child(4) { width: 80px; }   /* 保管場所 */
-  #adminLayout th:nth-child(5) { width: 60px; }   /* 現在地 */
-  #adminLayout th:nth-child(6) { width: 60px; }   /* 使用者 */
-  #adminLayout th:nth-child(7) { width: 60px; }   /* 状態 */
-  #adminLayout th:nth-child(8) { width: 80px; }   /* 備考 */
-  #adminLayout th:nth-child(9) { width: 80px; }   /* 種別 */
-  #adminLayout th:nth-child(10) { width: 250px; } /* 操作（広く） */
+  /* 管理者画面の列幅指定（画像見切れ防止） */
+  #adminLayout th:nth-child(1) { width: 110px; }  /* 画像（拡大：80px→110px） */
+  #adminLayout th:nth-child(2) { width: 140px; }  /* 備品名（拡大：120px→140px） */
+  #adminLayout th:nth-child(3) { width: 70px; }   /* ID（拡大：50px→70px） */
+  #adminLayout th:nth-child(4) { width: 90px; }   /* 保管場所（拡大：80px→90px） */
+  #adminLayout th:nth-child(5) { width: 80px; }   /* 現在地（拡大：60px→80px） */
+  #adminLayout th:nth-child(6) { width: 80px; }   /* 使用者（拡大：60px→80px） */
+  #adminLayout th:nth-child(7) { width: 80px; }   /* 状態（拡大：60px→80px） */
+  #adminLayout th:nth-child(8) { width: 100px; }  /* 備考（拡大：80px→100px） */
+  #adminLayout th:nth-child(9) { width: 100px; }  /* 種別（拡大：80px→100px） */
+  #adminLayout th:nth-child(10) { width: 250px; } /* 操作（維持） */
     
   /* 管理者画面の操作列：絶対に見切れないように */
   #adminLayout td:nth-child(10) {
