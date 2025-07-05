@@ -60,7 +60,6 @@
       font-family: "Noto Sans JP", "Segoe UI", sans-serif;
       margin: 0;
       background: linear-gradient(to bottom right, #f3e8ff, #ede9fe);
-      zoom: 0.72; /* 72%に縮小表示 */
     }
 
     .sub-heading {
@@ -1313,6 +1312,111 @@
         font-size: 13px;
       }
     }
+    /* 管理者画面のテーブル列幅固定 */
+  #adminLayout table {
+    width: 100%;
+    table-layout: fixed; /* 重要：列幅を固定 */
+  }
+
+  #adminLayout th, #adminLayout td {
+    white-space: nowrap; /* テキストの改行を防ぐ */
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* 管理者画面の列幅指定（画像も広く） */
+  #adminLayout th:nth-child(1) { width: 80px; }   /* 画像（広く） */
+  #adminLayout th:nth-child(2) { width: 120px; }  /* 備品名 */
+  #adminLayout th:nth-child(3) { width: 50px; }   /* ID */
+  #adminLayout th:nth-child(4) { width: 80px; }   /* 保管場所 */
+  #adminLayout th:nth-child(5) { width: 60px; }   /* 現在地 */
+  #adminLayout th:nth-child(6) { width: 60px; }   /* 使用者 */
+  #adminLayout th:nth-child(7) { width: 60px; }   /* 状態 */
+  #adminLayout th:nth-child(8) { width: 80px; }   /* 備考 */
+  #adminLayout th:nth-child(9) { width: 80px; }   /* 種別 */
+  #adminLayout th:nth-child(10) { width: 250px; } /* 操作（広く） */
+    
+  /* 管理者画面の操作列：絶対に見切れないように */
+  #adminLayout td:nth-child(10) {
+    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    min-width: 200px !important;
+  }
+
+  /* 管理者画面のボタンサイズ調整 */
+  #adminLayout button {
+    font-size: 0.75rem !important;
+    padding: 0.3rem 0.6rem !important;
+    margin: 0.1rem !important;
+  }
+
+  /* 備品名列も少し余裕を持たせる */
+  #adminLayout td:nth-child(2) {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  /* 職員画面のテーブル列幅固定 */
+  #staffLayout table {
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  #staffLayout th, #staffLayout td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* 職員画面の列幅指定（コンパクト版） */
+  #staffLayout th:nth-child(1) { width: 80px; }   /* 画像 */
+  #staffLayout th:nth-child(2) { width: 140px; }  /* 備品名（少し小さく） */
+  #staffLayout th:nth-child(3) { width: 70px; }   /* ID */
+  #staffLayout th:nth-child(4) { width: 100px; }  /* 保管場所 */
+  #staffLayout th:nth-child(5) { width: 80px; }   /* 現在地 */
+  #staffLayout th:nth-child(6) { width: 80px; }   /* 使用者 */
+  #staffLayout th:nth-child(7) { width: 80px; }   /* 状態 */
+  #staffLayout th:nth-child(8) { width: 120px; }  /* 備考 */
+  #staffLayout th:nth-child(9) { width: 120px; }  /* 種別 */
+  #staffLayout th:nth-child(10) { width: 140px; } /* 操作 */
+
+  /* 状態列の「使用中」が確実に1行で表示されるよう調整 */
+  .status-in-use, .status-available {
+    white-space: nowrap !important;
+    display: inline-block;
+    min-width: 60px;
+  }
+
+  /* 備考欄の入力フィールド */
+  #adminLayout td input[type="text"], 
+  #staffLayout td input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+    white-space: nowrap;
+  }
+
+  /* タブ切り替え時の幅変動防止 */
+  .tab-navigation {
+    margin-bottom: 1rem !important;
+  }
+  
+  /* トップページ（ログイン画面）を80%に縮小 */
+  #loginArea {
+    transform: scale(0.8);
+    transform-origin: top left;
+    width: 125%; /* 100% ÷ 0.8 = 125% */
+    height: 125%;
+  }
+
+  /* ログイン後の画面全体を70%に縮小 */
+  #mainContent {
+    transform: scale(0.7);
+    transform-origin: top left;
+    width: 142.86%; /* 100% ÷ 0.7 = 142.86% */
+    height: 142.86%;
+  }
   </style>
 </head>
 <body>
@@ -1586,67 +1690,100 @@
       <button class="retry-button" onclick="retryConnection()">再試行</button>
     </div>
 
-   <!-- メインレイアウト -->
-    <div id="mainLayout" style="display: flex; gap: 2rem; align-items: flex-start;">
-      <!-- 左側：新規登録フォーム（管理者のみ） -->
-      <div id="adminRegistrationForm" style="flex: 0 0 400px; position: sticky; top: 1rem; display: none;">
-        <div class="admin-section">
-          <h2>新規登録</h2>
-          <div style="display: grid; grid-template-columns: 1fr; gap: 1rem; margin-bottom: 1rem;">
-            <input type="text" id="itemName" placeholder="備品名" />
-            <input type="text" id="itemId" placeholder="ID" />
-            <select id="itemLocation">
-              <option value="事務所">事務所</option>
-              <option value="1F">1F</option>
-              <option value="2F">2F</option>
-              <option value="3F">3F</option>
-              <option value="4F">4F</option>
-              <option value="5F">5F</option>
-              <option value="地域交流室">地域交流室</option>
-              <option value="機能訓練室">機能訓練室</option>
-            </select>
-            <select id="itemCategory">
-              <option value="車いす">車いす</option>
-              <option value="歩行器・シルバーカー">歩行器・シルバーカー</option>
-              <option value="家具・家電">家具・家電</option>
-              <option value="エアマット">エアマット</option>
-              <option value="その他">その他</option>
-            </select>
-            <input type="file" id="itemImage" accept="image/*" />
-            <button onclick="registerItem()">登録</button>
+<<<<<<< HEAD
+   <!-- 管理者レイアウト -->
+    <div id="adminLayout" style="display: none;">
+      <div style="display: flex; gap: 1.5rem; align-items: flex-start;">
+        <!-- 左側：新規登録フォーム（コンパクト） -->
+        <div style="flex: 0 0 320px; position: sticky; top: 1rem;">
+          <div class="admin-section">
+            <h2>新規登録</h2>
+            <div style="display: grid; grid-template-columns: 1fr; gap: 0.8rem; margin-bottom: 1rem;">
+              <input type="text" id="itemName" placeholder="備品名" style="padding: 0.5rem; font-size: 0.9rem;" />
+              <input type="text" id="itemId" placeholder="ID" style="padding: 0.5rem; font-size: 0.9rem;" />
+              <select id="itemLocation" style="padding: 0.5rem; font-size: 0.9rem;">
+                <option value="事務所">事務所</option>
+                <option value="1F">1F</option>
+                <option value="2F">2F</option>
+                <option value="3F">3F</option>
+                <option value="4F">4F</option>
+                <option value="5F">5F</option>
+                <option value="地域交流室">地域交流室</option>
+                <option value="機能訓練室">機能訓練室</option>
+              </select>
+              <select id="itemCategory" style="padding: 0.5rem; font-size: 0.9rem;">
+                <option value="車いす">車いす</option>
+                <option value="歩行器・シルバーカー">歩行器・シルバーカー</option>
+                <option value="家具・家電">家具・家電</option>
+                <option value="エアマット">エアマット</option>
+                <option value="その他">その他</option>
+              </select>
+              <input type="file" id="itemImage" accept="image/*" style="padding: 0.3rem; font-size: 0.85rem;" />
+              <button onclick="registerItem()" style="padding: 0.6rem; font-size: 0.9rem;">登録</button>
+            </div>
           </div>
         </div>
-      </div>
-      
-      <!-- 右側：メイン表示エリア -->
-      <div style="flex: 1;">
-        <div class="tab-navigation" style="margin-bottom: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
-          <button class="tab-button active" data-category="" onclick="filterByTab('')">全て</button>
-          <button class="tab-button" data-category="車いす" onclick="filterByTab('車いす')">車いす</button>
-          <button class="tab-button" data-category="歩行器・シルバーカー" onclick="filterByTab('歩行器・シルバーカー')">歩行器・シルバーカー</button>
-          <button class="tab-button" data-category="家具・家電" onclick="filterByTab('家具・家電')">家具・家電</button>
-          <button class="tab-button" data-category="エアマット" onclick="filterByTab('エアマット')">エアマット</button>
-          <button class="tab-button" data-category="その他" onclick="filterByTab('その他')">その他</button>
-        </div>
+        
+        <!-- 右側：メイン表示エリア -->
+        <div style="flex: 1;">
+          <div class="tab-navigation" style="margin-bottom: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button class="tab-button active" data-category="" onclick="filterByTab('')">全て</button>
+            <button class="tab-button" data-category="車いす" onclick="filterByTab('車いす')">車いす</button>
+            <button class="tab-button" data-category="歩行器・シルバーカー" onclick="filterByTab('歩行器・シルバーカー')">歩行器・シルバーカー</button>
+            <button class="tab-button" data-category="家具・家電" onclick="filterByTab('家具・家電')">家具・家電</button>
+            <button class="tab-button" data-category="エアマット" onclick="filterByTab('エアマット')">エアマット</button>
+            <button class="tab-button" data-category="その他" onclick="filterByTab('その他')">その他</button>
+          </div>
 
-        <table>
-          <thead>
-            <tr>
-              <th class="image-column">画像</th>
-              <th onclick="sortTable('name')" style="cursor: pointer;">備品名 ↕</th>
-              <th onclick="sortTable('id')" style="cursor: pointer;">ID ↕</th>
-              <th onclick="sortTable('location')" style="cursor: pointer;">保管場所 ↕</th>
-              <th onclick="sortTable('current')" style="cursor: pointer;">現在地 ↕</th>
-              <th onclick="sortTable('user')" style="cursor: pointer;">使用者 ↕</th>
-              <th onclick="sortTable('status')" style="cursor: pointer;">状態 ↕</th>
-              <th>備考</th>
-              <th onclick="sortTable('category')" style="cursor: pointer;">種別 ↕</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody id="itemTable"></tbody>
-        </table>
+          <table style="font-size: 0.85rem;">
+            <thead>
+              <tr>
+                <th class="image-column">画像</th>
+                <th onclick="sortTable('name')" style="cursor: pointer;">備品名 ↕</th>
+                <th onclick="sortTable('id')" style="cursor: pointer; width: 80px;">ID ↕</th>
+                <th onclick="sortTable('location')" style="cursor: pointer; width: 100px;">保管場所 ↕</th>
+                <th onclick="sortTable('current')" style="cursor: pointer; width: 100px;">現在地 ↕</th>
+                <th onclick="sortTable('user')" style="cursor: pointer; width: 100px;">使用者 ↕</th>
+                <th onclick="sortTable('status')" style="cursor: pointer; width: 80px;">状態 ↕</th>
+                <th style="width: 120px;">備考</th>
+                <th onclick="sortTable('category')" style="cursor: pointer; width: 120px;">種別 ↕</th>
+                <th style="width: 150px;">操作</th>
+              </tr>
+            </thead>
+            <tbody id="adminItemTable"></tbody>
+          </table>
+        </div>
       </div>
+    </div>
+        
+    <!-- 職員レイアウト -->
+    <div id="staffLayout" style="display: none;">
+      <div class="tab-navigation" style="margin-bottom: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <button class="tab-button active" data-category="" onclick="filterByTab('')">全て</button>
+        <button class="tab-button" data-category="車いす" onclick="filterByTab('車いす')">車いす</button>
+        <button class="tab-button" data-category="歩行器・シルバーカー" onclick="filterByTab('歩行器・シルバーカー')">歩行器・シルバーカー</button>
+        <button class="tab-button" data-category="家具・家電" onclick="filterByTab('家具・家電')">家具・家電</button>
+        <button class="tab-button" data-category="エアマット" onclick="filterByTab('エアマット')">エアマット</button>
+        <button class="tab-button" data-category="その他" onclick="filterByTab('その他')">その他</button>
+      </div>
+
+      <table style="width: 100%;">
+        <thead>
+          <tr>
+            <th class="image-column">画像</th>
+            <th onclick="sortTable('name')" style="cursor: pointer;">備品名 ↕</th>
+            <th onclick="sortTable('id')" style="cursor: pointer;">ID ↕</th>
+            <th onclick="sortTable('location')" style="cursor: pointer;">保管場所 ↕</th>
+            <th onclick="sortTable('current')" style="cursor: pointer;">現在地 ↕</th>
+            <th onclick="sortTable('user')" style="cursor: pointer;">使用者 ↕</th>
+            <th onclick="sortTable('status')" style="cursor: pointer;">状態 ↕</th>
+            <th>備考</th>
+            <th onclick="sortTable('category')" style="cursor: pointer;">種別 ↕</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="staffItemTable"></tbody>
+      </table>
     </div>
 
     <div class="modal" id="borrowModal">
@@ -1679,11 +1816,107 @@
           <option>4F</option>
           <option>5F</option>
           <option>地域交流室</option>
-          <option>機能訓練室</option>
+          <option value="機能訓練室">機能訓練室</option>
         </select>
         <button onclick="confirmReturn()">決定</button>
         <button onclick="closeReturnModal()">キャンセル</button>
       </div>
+    </div>
+=======
+   <!-- 管理者レイアウト -->
+    <div id="adminLayout" style="display: none;">
+      <div style="display: flex; gap: 1.5rem; align-items: flex-start;">
+        <!-- 左側：新規登録フォーム（コンパクト） -->
+        <div style="flex: 0 0 320px; position: sticky; top: 1rem;">
+          <div class="admin-section">
+            <h2>新規登録</h2>
+            <div style="display: grid; grid-template-columns: 1fr; gap: 0.8rem; margin-bottom: 1rem;">
+              <input type="text" id="itemName" placeholder="備品名" style="padding: 0.5rem; font-size: 0.9rem;" />
+              <input type="text" id="itemId" placeholder="ID" style="padding: 0.5rem; font-size: 0.9rem;" />
+              <select id="itemLocation" style="padding: 0.5rem; font-size: 0.9rem;">
+                <option value="事務所">事務所</option>
+                <option value="1F">1F</option>
+                <option value="2F">2F</option>
+                <option value="3F">3F</option>
+                <option value="4F">4F</option>
+                <option value="5F">5F</option>
+                <option value="地域交流室">地域交流室</option>
+                <option value="機能訓練室">機能訓練室</option>
+              </select>
+              <select id="itemCategory" style="padding: 0.5rem; font-size: 0.9rem;">
+                <option value="車いす">車いす</option>
+                <option value="歩行器・シルバーカー">歩行器・シルバーカー</option>
+                <option value="家具・家電">家具・家電</option>
+                <option value="エアマット">エアマット</option>
+                <option value="その他">その他</option>
+              </select>
+              <input type="file" id="itemImage" accept="image/*" style="padding: 0.3rem; font-size: 0.85rem;" />
+              <button onclick="registerItem()" style="padding: 0.6rem; font-size: 0.9rem;">登録</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 右側：メイン表示エリア -->
+        <div style="flex: 1;">
+          <div class="tab-navigation" style="margin-bottom: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button class="tab-button active" data-category="" onclick="filterByTab('')">全て</button>
+            <button class="tab-button" data-category="車いす" onclick="filterByTab('車いす')">車いす</button>
+            <button class="tab-button" data-category="歩行器・シルバーカー" onclick="filterByTab('歩行器・シルバーカー')">歩行器・シルバーカー</button>
+            <button class="tab-button" data-category="家具・家電" onclick="filterByTab('家具・家電')">家具・家電</button>
+            <button class="tab-button" data-category="エアマット" onclick="filterByTab('エアマット')">エアマット</button>
+            <button class="tab-button" data-category="その他" onclick="filterByTab('その他')">その他</button>
+          </div>
+
+          <table style="font-size: 0.85rem;">
+            <thead>
+              <tr>
+                <th style="width: 80px;">画像</th>
+                <th onclick="sortTable('name')" style="cursor: pointer;">備品名 ↕</th>
+                <th onclick="sortTable('id')" style="cursor: pointer; width: 80px;">ID ↕</th>
+                <th onclick="sortTable('location')" style="cursor: pointer; width: 100px;">保管場所 ↕</th>
+                <th onclick="sortTable('current')" style="cursor: pointer; width: 100px;">現在地 ↕</th>
+                <th onclick="sortTable('user')" style="cursor: pointer; width: 100px;">使用者 ↕</th>
+                <th onclick="sortTable('status')" style="cursor: pointer; width: 80px;">状態 ↕</th>
+                <th style="width: 120px;">備考</th>
+                <th onclick="sortTable('category')" style="cursor: pointer; width: 120px;">種別 ↕</th>
+                <th style="width: 150px;">操作</th>
+              </tr>
+            </thead>
+            <tbody id="adminItemTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+        
+    <!-- 職員レイアウト -->
+    <div id="staffLayout" style="display: none;">
+      <div class="tab-navigation" style="margin-bottom: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <button class="tab-button active" data-category="" onclick="filterByTab('')">全て</button>
+        <button class="tab-button" data-category="車いす" onclick="filterByTab('車いす')">車いす</button>
+        <button class="tab-button" data-category="歩行器・シルバーカー" onclick="filterByTab('歩行器・シルバーカー')">歩行器・シルバーカー</button>
+        <button class="tab-button" data-category="家具・家電" onclick="filterByTab('家具・家電')">家具・家電</button>
+        <button class="tab-button" data-category="エアマット" onclick="filterByTab('エアマット')">エアマット</button>
+        <button class="tab-button" data-category="その他" onclick="filterByTab('その他')">その他</button>
+      </div>
+
+      <table style="width: 100%;">
+        <thead>
+          <tr>
+            <th>画像</th>
+            <th onclick="sortTable('name')" style="cursor: pointer;">備品名 ↕</th>
+            <th onclick="sortTable('id')" style="cursor: pointer;">ID ↕</th>
+            <th onclick="sortTable('location')" style="cursor: pointer;">保管場所 ↕</th>
+            <th onclick="sortTable('current')" style="cursor: pointer;">現在地 ↕</th>
+            <th onclick="sortTable('user')" style="cursor: pointer;">使用者 ↕</th>
+            <th onclick="sortTable('status')" style="cursor: pointer;">状態 ↕</th>
+            <th>備考</th>
+            <th onclick="sortTable('category')" style="cursor: pointer;">種別 ↕</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="staffItemTable"></tbody>
+      </table>
+>>>>>>> 0e14e0bf3cd5f909628933679d522ab0fc2b5d99
     </div>
 
     <!-- 編集モーダル -->
@@ -2010,47 +2243,54 @@
     }
 
     function renderItems(filterCategory = '', searchTerm = '') {
-      const tbody = document.getElementById('itemTable');
-      
-      if (!tbody) {
-        console.error(`テーブル要素が見つかりません: ${tableId}`);
+    // 現在のレイアウトに応じて適切なテーブルを選択
+    let tbody;
+    if (isAdmin) {
+        tbody = document.getElementById('adminItemTable'); // ✅ 管理者専用
+    } else {
+        tbody = document.getElementById('staffItemTable');  // ✅ 職員専用
+    }
+    
+    if (!tbody) {
+        console.error('テーブル要素が見つかりません', 'isAdmin:', isAdmin);
         return;
-      }
-      
-      tbody.innerHTML = '';
-      
-      // フィルタリングと検索
-      let filteredItems = items;
-      
-      // カテゴリフィルタ
-      if (filterCategory) {
+    }
+    
+    tbody.innerHTML = '';
+    
+    // フィルタリングと検索
+    let filteredItems = items;
+    
+    // カテゴリフィルタ
+    if (filterCategory) {
         filteredItems = filteredItems.filter(item => item.category === filterCategory);
-      }
-      
-      // 検索フィルタ
-      if (searchTerm) {
+    }
+    
+    // 検索フィルタ
+    if (searchTerm) {
         filteredItems = filteredItems.filter(item => 
-          (item.name && item.name.toLowerCase().includes(searchTerm)) ||
-          (item.id && item.id.toLowerCase().includes(searchTerm)) ||
-          (item.location && item.location.toLowerCase().includes(searchTerm)) ||
-          (item.current && item.current.toLowerCase().includes(searchTerm)) ||
-          (item.user && item.user.toLowerCase().includes(searchTerm))
+            (item.name && item.name.toLowerCase().includes(searchTerm)) ||
+            (item.id && item.id.toLowerCase().includes(searchTerm)) ||
+            (item.location && item.location.toLowerCase().includes(searchTerm)) ||
+            (item.current && item.current.toLowerCase().includes(searchTerm)) ||
+            (item.user && item.user.toLowerCase().includes(searchTerm))
         );
-      }
-      
-      if (filteredItems.length === 0) {
+    }
+    
+    if (filteredItems.length === 0) {
         const tr = document.createElement('tr');
         tr.innerHTML = '<td colspan="10" style="text-align: center; padding: 2rem;">データがありません</td>';
         tbody.appendChild(tr);
         return;
-      }
-      
-      filteredItems.forEach((item, originalIndex) => {
+    }
+    
+    filteredItems.forEach((item, originalIndex) => {
         // 元の配列でのインデックスを取得
         const actualIndex = items.findIndex(i => i.id === item.id);
         
         const tr = document.createElement('tr');
         tr.innerHTML = `
+<<<<<<< HEAD
           <td class="image-column-td">
             <div class="image-wrapper">
               <img src="${item.image || ''}" class="image-preview" onerror="this.style.display='none'" />
@@ -2074,10 +2314,35 @@
             <button onclick="openReturn(${actualIndex})">返却</button>
             ${isAdmin ? `<button onclick="openEdit(${actualIndex})">編集</button>` : ''}
           </td>
+=======
+            <td>
+                <div class="image-wrapper">
+                    <img src="${item.image || ''}" class="image-preview" onerror="this.style.display='none'" />
+                    ${isAdmin ? `<button class="edit-button" onclick="editImage(${actualIndex})">編集</button>` : ''}
+                </div>
+            </td>
+            <td>${item.name || ''}</td>
+            <td>${item.id || ''}</td>
+            <td>${item.location || ''}</td>
+            <td>${item.current || ''}</td>
+            <td>${item.user || ''}</td>
+            <td>
+                <span class="${item.status === '待機' ? 'status-available' : 'status-in-use'}">
+                    ${item.status || '待機'}
+                </span>
+            </td>
+            <td><input type="text" value="${item.note || ''}" onchange="updateNote(${actualIndex}, this.value)" /></td>
+            <td>${item.category || ''}</td>
+            <td>
+                <button onclick="openBorrow(${actualIndex})">借用</button>
+                <button onclick="openReturn(${actualIndex})">返却</button>
+                ${isAdmin ? `<button onclick="openEdit(${actualIndex})">編集</button>` : ''}
+            </td>
+>>>>>>> 0e14e0bf3cd5f909628933679d522ab0fc2b5d99
         `;
         tbody.appendChild(tr);
-      });
-    }
+    });
+}
 
     // 備考更新
     async function updateNote(index, note) {
@@ -2722,115 +2987,189 @@
       renderItems(category, searchTerm);
     }
 
-    // セッション状態復元関数
-    async function checkAndRestoreSession() {
-      try {
-        const response = await fetch('/api/session/check', {
-          credentials: 'include'
-        });
-        const result = await response.json();
-        
-        if (result.success && result.logged_in) {
-          // ログイン状態を復元
-          document.getElementById('loginArea').style.display = 'none';
-          document.getElementById('mainContent').style.display = 'block';
-          
-          // ユーザータイプに応じて画面を設定
-          isAdmin = result.user_type === 'admin';
-          
-          if (isAdmin) {
-            document.getElementById('adminArea').style.display = 'block';
-          } else {
-            document.getElementById('adminArea').style.display = 'none';
-          }
-          
-          // 施設IDが保存されている場合は復元
-          if (result.facility_id) {
-            currentFacilityId = result.facility_id;
-            const facilityName = getCurrentFacilityName();
-            if (facilityName) {
-              document.getElementById('facilityNameDisplay').textContent = `${facilityName} - らくらく備品管理システム`;
-            }
-          }
-          
-          // データを読み込み
-          await loadItems();
-          renderItems();
-
-          // AIバッジを表示
-          showAIBadge();
-          
-          debugLog('セッション復元完了:', result.user_type, 'isAdmin:', isAdmin);
-        }
-      } catch (error) {
-        console.error('セッション確認エラー:', error);
-      }
+    // セッション状態復元関数（修正版）
+async function checkAndRestoreSession() {
+  try {
+    debugLog('🔄 セッション状態を確認中...');
+    
+    const response = await fetch('/api/session/check', {
+      credentials: 'include'
+    });
+    
+    if (!response.ok) {
+      console.warn('⚠️ セッション確認APIエラー:', response.status);
+      return; // エラーでも継続
     }
-
-    // 初期化処理
-    function initializeApp() {
-      debugLog('アプリケーション初期化開始');
+    
+    const result = await response.json();
+    
+    if (result.success && result.logged_in) {
+      debugLog('✅ 既存セッションを検出、ログイン状態を復元');
       
-      try {
-        // イベントリスナーの設定
-        const loginButton = document.getElementById('loginButton');
-        const roleSelect = document.getElementById('roleSelect');
-        
-        if (!loginButton) {
-          throw new Error('ログインボタンが見つかりません');
-        }
-        
-        if (!roleSelect) {
-          throw new Error('役割選択が見つかりません');
-        }
-        
-        // クリックイベントとタッチイベントの両方に対応
-        loginButton.addEventListener('click', function(e) {
-          e.preventDefault();
-          login();
-        });
-        
-        // モバイル対応
-        loginButton.addEventListener('touchstart', function(e) {
-          e.preventDefault();
-          login();
-        });
-        
-        debugLog('ログインボタンのイベントリスナーを設定');
-        
-        roleSelect.addEventListener('change', handleRoleChange);
-        debugLog('役割選択のイベントリスナーを設定');
-
-        // モーダルイベントの設定
-        setupModalEvents();
-        
-        // タブイベントの設定
-        setupTabEvents();
-        
-        // Enterキーでログインできるようにする
-        const loginPassword = document.getElementById('loginPassword');
-        if (loginPassword) {
-          loginPassword.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              login();
-            }
-          });
-        }
-        
-        debugLog('アプリケーション初期化完了');
-        
-        // セッション状態を確認してログイン状態を復元
-        checkAndRestoreSession();
-
-        stockEasyAI = new StockEasyAI();
-        debugLog('AI機能を初期化しました');
-        
-      } catch (error) {
-        console.error('初期化エラー:', error);
-        alert('アプリケーションの初期化に失敗しました。ページを再読み込みしてください。');
+      // ログイン状態を復元
+      document.getElementById('loginArea').style.display = 'none';
+      document.getElementById('mainContent').style.display = 'block';
+      
+      // ユーザータイプに応じて画面を設定
+      isAdmin = result.user_type === 'admin';
+      
+      // レイアウト切り替え
+      const adminLayout = document.getElementById('adminLayout');
+      const staffLayout = document.getElementById('staffLayout');
+      
+      if (isAdmin) {
+        if (adminLayout) adminLayout.style.display = 'block';
+        if (staffLayout) staffLayout.style.display = 'none';
+        // 設定ボタンを表示
+        const settingsBtn = document.getElementById('settingsBtn');
+        if (settingsBtn) settingsBtn.style.display = 'flex';
+      } else {
+        if (adminLayout) adminLayout.style.display = 'none';
+        if (staffLayout) staffLayout.style.display = 'block';
       }
+      
+      // 施設IDが保存されている場合は復元
+      if (result.facility_id) {
+        currentFacilityId = result.facility_id;
+        const facilityName = getCurrentFacilityName();
+        if (facilityName) {
+          const facilityDisplay = document.getElementById('facilityNameDisplay');
+          if (facilityDisplay) {
+            facilityDisplay.textContent = `${facilityName} - らくらく備品管理システム`;
+          }
+        }
+      }
+      
+      // AIバッジを表示
+      showAIBadge();
+      
+      // データを読み込み（エラーが起きても継続）
+      try {
+        await loadItems();
+        renderItems();
+        debugLog('✅ セッション復元とデータ読み込み完了');
+      } catch (dataError) {
+        console.warn('⚠️ データ読み込みエラー（セッション復元は成功）:', dataError);
+        renderItems(); // 空のテーブルを表示
+      }
+      
+    } else {
+      debugLog('ℹ️ 既存セッションなし、ログイン画面を表示');
     }
+    
+  } catch (error) {
+    console.warn('⚠️ セッション確認でエラー（アプリは正常動作）:', error);
+    debugLog('セッション復元に失敗しましたが、手動ログインは可能です');
+  }
+}
+
+    // 初期化処理（修正版）
+function initializeApp() {
+  debugLog('アプリケーション初期化開始');
+  
+  try {
+    // 重要な要素の存在確認（エラーを投げずに警告のみ）
+    const loginButton = document.getElementById('loginButton');
+    const roleSelect = document.getElementById('roleSelect');
+    
+    if (!loginButton) {
+      console.warn('⚠️ ログインボタンが見つかりません（DOM読み込み中の可能性）');
+      // エラーを投げる代わりに、少し待ってから再試行
+      setTimeout(() => {
+        console.log('🔄 要素の再取得を試行中...');
+        initializeApp();
+      }, 500);
+      return; // ここで処理を中断（エラーは投げない）
+    }
+    
+    if (!roleSelect) {
+      console.warn('⚠️ 役割選択が見つかりません（DOM読み込み中の可能性）');
+      setTimeout(() => {
+        console.log('🔄 要素の再取得を試行中...');
+        initializeApp();
+      }, 500);
+      return;
+    }
+    
+    debugLog('✅ 必要な要素を確認しました');
+    
+    // クリックイベントとタッチイベントの両方に対応
+    loginButton.addEventListener('click', function(e) {
+      e.preventDefault();
+      login();
+    });
+    
+    // モバイル対応
+    loginButton.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      login();
+    });
+    
+    debugLog('✅ ログインボタンのイベントリスナーを設定');
+    
+    roleSelect.addEventListener('change', handleRoleChange);
+    debugLog('✅ 役割選択のイベントリスナーを設定');
+
+    // モーダルイベントの設定
+    setupModalEvents();
+    
+    // タブイベントの設定
+    setupTabEvents();
+    
+    // Enterキーでログインできるようにする
+    const loginPassword = document.getElementById('loginPassword');
+    if (loginPassword) {
+      loginPassword.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          login();
+        }
+      });
+      debugLog('✅ Enterキーログインを設定');
+    }
+    
+    debugLog('✅ 基本機能の初期化完了');
+    
+    // AI機能の初期化（基本機能完了後）
+    try {
+      // AI関連クラスが全て定義されているかチェック
+      if (typeof IntentAnalyzer !== 'undefined' && 
+          typeof ResponseGenerator !== 'undefined' && 
+          typeof StockEasyAI !== 'undefined') {
+        
+        stockEasyAI = new StockEasyAI();
+        debugLog('✅ AI機能を初期化しました');
+      } else {
+        console.warn('⚠️ AI関連クラスの読み込みが完了していません');
+        // AI機能なしでも動作するように
+        stockEasyAI = null;
+        debugLog('⚠️ AI機能は無効化されました（メイン機能は正常動作）');
+      }
+    } catch (aiError) {
+      console.warn('⚠️ AI機能の初期化に失敗:', aiError);
+      stockEasyAI = null;
+      debugLog('⚠️ AI機能は無効化されました（メイン機能は正常動作）');
+    }
+    
+    debugLog('✅ アプリケーション初期化完了');
+    
+    // セッション状態を確認してログイン状態を復元（最後に実行）
+    checkAndRestoreSession().catch(sessionError => {
+      console.warn('⚠️ セッション復元でエラー（継続可能）:', sessionError);
+    });
+    
+  } catch (error) {
+    console.error('❌ 初期化エラー:', error);
+    // ユーザーにエラーを表示せず、コンソールログのみ
+    debugLog('初期化で問題が発生しましたが、システムは動作します');
+    
+    // 5秒後に再試行
+    setTimeout(() => {
+      console.log('🔄 初期化を再試行します...');
+      initializeApp();
+    }, 5000);
+  }
+}
 
     // DOMが読み込まれた後に初期化
     if (document.readyState === 'loading') {
