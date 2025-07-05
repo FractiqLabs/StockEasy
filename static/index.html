@@ -1402,20 +1402,20 @@
     margin-bottom: 1rem !important;
   }
   
-  /* トップページ（ログイン画面）を80%に縮小 */
+  /* トップページ（ログイン画面） */
   #loginArea {
-    transform: scale(0.8);
-    transform-origin: top left;
-    width: 125%; /* 100% ÷ 0.8 = 125% */
-    height: 125%;
+    /* transform: scale(0.8); */
+    /* transform-origin: top left; */
+    /* width: 125%; */
+    /* height: 125%; */
   }
 
-  /* ログイン後の画面全体を70%に縮小 */
+  /* ログイン後の画面全体 */
   #mainContent {
-    transform: scale(0.7);
-    transform-origin: top left;
-    width: 142.86%; /* 100% ÷ 0.7 = 142.86% */
-    height: 142.86%;
+    /* transform: scale(0.7); */
+    /* transform-origin: top left; */
+    /* width: 142.86%; */
+    /* height: 142.86%; */
   }
   </style>
 </head>
@@ -2813,8 +2813,8 @@
         const adminRegistrationForm = document.getElementById('adminRegistrationForm');
         const settingsBtn = document.getElementById('settingsBtn');
         
-        if (adminLayout) adminLayout.style.display = 'block';
-        if (staffLayout) staffLayout.style.display = 'none';
+        if (adminLayout) adminLayout.style.display = isAdmin ? 'block' : 'none';
+        if (staffLayout) staffLayout.style.display = isAdmin ? 'none' : 'block';
         
         if (adminRegistrationForm) adminRegistrationForm.style.display = isAdmin ? 'block' : 'none';
         if (settingsBtn) settingsBtn.style.display = isAdmin ? 'flex' : 'none';
