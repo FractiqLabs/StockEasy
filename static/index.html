@@ -874,26 +874,35 @@
     
     .modal {
       position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%;
       background: rgba(0,0,0,0.5);
       display: none;
       align-items: center;
       justify-content: center;
-      z-index: 10;
+      z-index: 1000;
     }
+
     .modal-content {
       background: white;
-      padding: 1rem;
-      border-radius: 8px;
-      width: 300px;
+      padding: 2rem;
+      border-radius: 12px;
+      width: 400px;
+      max-width: 90vw;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     }
+
     .edit-modal-content {
       background: white;
       padding: 2rem;
-      border-radius: 8px;
+      border-radius: 12px;
       width: 400px;
+      max-width: 90vw;
       max-height: 80vh;
       overflow-y: auto;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     }
     .form-group {
       margin-bottom: 1rem;
@@ -2489,54 +2498,21 @@
     }
 
     function openBorrow(index) {
+      // 状態確認：使用中の場合はエラーメッセージを表示
+      if (items[index].status === '使用中') {
+        alert('この備品は現在貸し出し中です。先に返却処理を行ってください。');
+        return;
+      }
+      
       currentIndex = index;
-      document.getElementById('borrowModal').style.display = 'flex';
+      const modal = document.getElementById('borrowModal');
+      modal.style.display = 'flex';
     }
 
     function closeBorrowModal() {
-      document.getElementById('borrowModal').style.display = 'none';
-    }
-
-    async function confirmBorrow() {
-      const place = document.getElementById('borrowSelect').value;
-      const timestamp = new Date().toLocaleString('ja-JP');
-      
-      try {
-        const item = items[currentIndex];
-        const newHistory = [...(item.history || []), { 
-          action: '借用', 
-          place: place, 
-          timestamp: timestamp 
-        }];
-
-        const body = {
-          user: place,
-          current: place,
-          status: '使用中',
-          history: newHistory
-        };
-        
-        if (currentFacilityId) {
-          body.facility_id = currentFacilityId;
-        }
-
-        await apiCall(`${API_BASE}/equipment/${item.id}`, {
-          method: 'PUT',
-          body: JSON.stringify(body)
-        });
-
-        items[currentIndex].user = place;
-        items[currentIndex].current = place;
-        items[currentIndex].status = '使用中';
-        items[currentIndex].history = newHistory;
-        
-        renderItems();
-        closeBorrowModal();
-        alert('借用処理が完了しました');
-      } catch (error) {
-        console.error('借用処理に失敗しました:', error);
-        alert('借用処理に失敗しました');
-      }
+      const modal = document.getElementById('borrowModal');
+      modal.style.display = 'none';
+      currentIndex = null;
     }
 
     function openReturn(index) {
@@ -2549,11 +2525,14 @@
       currentIndex = index;
       const location = items[index].location;
       document.getElementById('suggestedReturn').textContent = `推奨返却場所：${location}`;
-      document.getElementById('returnModal').style.display = 'flex';
+      const modal = document.getElementById('returnModal');
+      modal.style.display = 'flex';
     }
 
     function closeReturnModal() {
-      document.getElementById('returnModal').style.display = 'none';
+      const modal = document.getElementById('returnModal');
+      modal.style.display = 'none';
+      currentIndex = null;
     }
 
     async function confirmReturn() {
