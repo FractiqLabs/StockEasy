@@ -872,28 +872,43 @@
       display: block;
     }
     
+    /* モーダル全体の位置調整 */
     .modal {
       position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5);
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
       display: none;
       align-items: center;
       justify-content: center;
-      z-index: 10;
+      z-index: 1000;
+      backdrop-filter: blur(4px);
     }
-    .modal-content {
-      background: white;
-      padding: 1rem;
-      border-radius: 8px;
-      width: 300px;
-    }
+
+    /* 編集モーダル専用（既存機能維持） */
     .edit-modal-content {
       background: white;
       padding: 2rem;
-      border-radius: 8px;
+      border-radius: 16px;
       width: 400px;
       max-height: 80vh;
       overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    /* 借用・返却モーダル用の新しいスタイル */
+    .modal-content {
+      background: white;
+      border-radius: 16px;
+      width: 450px;
+      max-width: 90vw;
+      max-height: 80vh;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(139, 92, 246, 0.2);
+      animation: modalSlideIn 0.3s ease-out;
     }
     .form-group {
       margin-bottom: 1rem;
@@ -1401,6 +1416,7 @@
     width: 142.86%; /* 100% ÷ 0.7 = 142.86% */
     height: 142.86%;
   }
+  
   </style>
 </head>
 <body>
@@ -1780,23 +1796,39 @@
     <!-- 借用モーダル -->
     <div class="modal" id="borrowModal">
       <div class="modal-content">
-        <h3>備品借用</h3>
-        <div class="form-group">
-          <label for="borrowSelect">使用場所を選択してください</label>
-          <select id="borrowSelect" class="role-select">
-            <option value="事務所">事務所</option>
-            <option value="1F">1F</option>
-            <option value="2F">2F</option>
-            <option value="3F">3F</option>
-            <option value="4F">4F</option>
-            <option value="5F">5F</option>
-            <option value="地域交流室">地域交流室</option>
-            <option value="機能訓練室">機能訓練室</option>
-          </select>
+        <div class="modal-header">
+          <h3>備品借用</h3>
+          <button class="close-btn" onclick="closeBorrowModal()">×</button>
         </div>
-        <div class="button-group">
-          <button onclick="confirmBorrow()">借用する</button>
-          <button onclick="closeBorrowModal()">キャンセル</button>
+        
+        <div class="modal-body">
+          <div id="borrowItemInfo" class="item-info-display">
+            <!-- 備品情報が動的に表示される -->
+          </div>
+          
+          <div class="form-group">
+            <label for="borrowSelect">使用場所を選択してください</label>
+            <select id="borrowSelect" class="modal-select">
+              <option value="">-- 場所を選択 --</option>
+              <option value="事務所">事務所</option>
+              <option value="1F">1F</option>
+              <option value="2F">2F</option>
+              <option value="3F">3F</option>
+              <option value="4F">4F</option>
+              <option value="5F">5F</option>
+              <option value="地域交流室">地域交流室</option>
+              <option value="機能訓練室">機能訓練室</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button class="btn-primary" onclick="confirmBorrow()">
+            借用する
+          </button>
+          <button class="btn-secondary" onclick="closeBorrowModal()">
+            キャンセル
+          </button>
         </div>
       </div>
     </div>
@@ -1804,26 +1836,43 @@
     <!-- 返却モーダル -->
     <div class="modal" id="returnModal">
       <div class="modal-content">
-        <h3>備品返却</h3>
-        <div class="form-group">
-          <div id="suggestedReturn" style="background: #f0f9ff; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; color: #0369a1; font-weight: 500;">
+        <div class="modal-header">
+          <h3>備品返却</h3>
+          <button class="close-btn" onclick="closeReturnModal()">×</button>
+        </div>
+        
+        <div class="modal-body">
+          <div id="returnItemInfo" class="item-info-display">
+            <!-- 備品情報が動的に表示される -->
+          </div>
+          
+          <div id="suggestedReturn" class="suggested-location">
             推奨返却場所が表示されます
           </div>
-          <label for="returnSelect">返却場所を選択してください</label>
-          <select id="returnSelect" class="role-select">
-            <option value="事務所">事務所</option>
-            <option value="1F">1F</option>
-            <option value="2F">2F</option>
-            <option value="3F">3F</option>
-            <option value="4F">4F</option>
-            <option value="5F">5F</option>
-            <option value="地域交流室">地域交流室</option>
-            <option value="機能訓練室">機能訓練室</option>
-          </select>
+          
+          <div class="form-group">
+            <label for="returnSelect">返却場所を選択してください</label>
+            <select id="returnSelect" class="modal-select">
+              <option value="">-- 場所を選択 --</option>
+              <option value="事務所">事務所</option>
+              <option value="1F">1F</option>
+              <option value="2F">2F</option>
+              <option value="3F">3F</option>
+              <option value="4F">4F</option>
+              <option value="5F">5F</option>
+              <option value="地域交流室">地域交流室</option>
+              <option value="機能訓練室">機能訓練室</option>
+            </select>
+          </div>
         </div>
-        <div class="button-group">
-          <button onclick="confirmReturn()">返却する</button>
-          <button onclick="closeReturnModal()">キャンセル</button>
+        
+        <div class="modal-footer">
+          <button class="btn-primary" onclick="confirmReturn()">
+            返却する
+          </button>
+          <button class="btn-secondary" onclick="closeReturnModal()">
+            キャンセル
+          </button>
         </div>
       </div>
     </div>
