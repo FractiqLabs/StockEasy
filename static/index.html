@@ -1777,6 +1777,57 @@
       </div>
     </div>
 
+    <!-- 借用モーダル -->
+    <div class="modal" id="borrowModal">
+      <div class="modal-content">
+        <h3>備品借用</h3>
+        <div class="form-group">
+          <label for="borrowSelect">使用場所を選択してください</label>
+          <select id="borrowSelect" class="role-select">
+            <option value="事務所">事務所</option>
+            <option value="1F">1F</option>
+            <option value="2F">2F</option>
+            <option value="3F">3F</option>
+            <option value="4F">4F</option>
+            <option value="5F">5F</option>
+            <option value="地域交流室">地域交流室</option>
+            <option value="機能訓練室">機能訓練室</option>
+          </select>
+        </div>
+        <div class="button-group">
+          <button onclick="confirmBorrow()">借用する</button>
+          <button onclick="closeBorrowModal()">キャンセル</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 返却モーダル -->
+    <div class="modal" id="returnModal">
+      <div class="modal-content">
+        <h3>備品返却</h3>
+        <div class="form-group">
+          <div id="suggestedReturn" style="background: #f0f9ff; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; color: #0369a1; font-weight: 500;">
+            推奨返却場所が表示されます
+          </div>
+          <label for="returnSelect">返却場所を選択してください</label>
+          <select id="returnSelect" class="role-select">
+            <option value="事務所">事務所</option>
+            <option value="1F">1F</option>
+            <option value="2F">2F</option>
+            <option value="3F">3F</option>
+            <option value="4F">4F</option>
+            <option value="5F">5F</option>
+            <option value="地域交流室">地域交流室</option>
+            <option value="機能訓練室">機能訓練室</option>
+          </select>
+        </div>
+        <div class="button-group">
+          <button onclick="confirmReturn()">返却する</button>
+          <button onclick="closeReturnModal()">キャンセル</button>
+        </div>
+      </div>
+    </div>
+
     <!-- 設定モーダル -->
     <div class="modal" id="settingsModal">
       <div class="settings-modal-content">
@@ -1801,8 +1852,8 @@
         <div class="settings-section">
           <h4>詳細設定</h4>
           <div class="settings-grid">
-            <button onclick="openLocationSettings()" class="settings-item-btn">📍 保管場所編集</button>
-            <button onclick="openCategorySettings()" class="settings-item-btn">📋 種別編集</button>
+            <button onclick="openLocationSettings()" class="settings-item-btn">📍 保管場所姪編集</button>
+            <button onclick="openCategorySettings()" class="settings-item-btn">📋 種別名編集</button>
             <button onclick="openDisplaySettings()" class="settings-item-btn">📊 表示設定</button>
           </div>
         </div>
