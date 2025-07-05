@@ -1778,80 +1778,38 @@
 
     <!-- 借用モーダル -->
     <div class="modal" id="borrowModal">
-      <div class="modern-modal-content">
-        <div class="modal-header">
-          <h3>📦 備品借用</h3>
-          <button class="close-btn" onclick="closeBorrowModal()">×</button>
+      <div class="modal-content">
+        <h3>備品借用</h3>
+        <p>使用場所を選択してください</p>
+        <div class="form-group">
+          <label for="borrowSelect">使用場所</label>
+          <select id="borrowSelect">
+            <option value="事務所">事務所</option>
+            <option value="1F">1F</option>
+            <option value="2F">2F</option>
+            <option value="3F">3F</option>
+            <option value="4F">4F</option>
+            <option value="5F">5F</option>
+            <option value="地域交流室">地域交流室</option>
+            <option value="機能訓練室">機能訓練室</option>
+          </select>
         </div>
-        <div class="modal-body">
-          <p class="modal-description">使用場所を選択してください</p>
-          <div class="form-group">
-            <label for="borrowSelect">使用場所</label>
-            <select id="borrowSelect" class="modern-select">
-              <option value="事務所">事務所</option>
-              <option value="1F">1F</option>
-              <option value="2F">2F</option>
-              <option value="3F">3F</option>
-              <option value="4F">4F</option>
-              <option value="5F">5F</option>
-              <option value="地域交流室">地域交流室</option>
-              <option value="機能訓練室">機能訓練室</option>
-            </select>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="modern-btn cancel" onclick="closeBorrowModal()">キャンセル</button>
-          <button class="modern-btn primary" onclick="confirmBorrow()">決定</button>
+        <div class="button-group">
+          <button onclick="confirmBorrow()">決定</button>
+          <button onclick="closeBorrowModal()">キャンセル</button>
         </div>
       </div>
     </div>
 
     <!-- 返却モーダル -->
     <div class="modal" id="returnModal">
-      <div class="modern-modal-content">
-        <div class="modal-header">
-          <h3>🔄 備品返却</h3>
-          <button class="close-btn" onclick="closeReturnModal()">×</button>
-        </div>
-        <div class="modal-body">
-          <p class="modal-description">返却場所を選択してください</p>
-          <div id="suggestedReturn" class="suggestion-text"></div>
-          <div class="form-group">
-            <label for="returnSelect">返却場所</label>
-            <select id="returnSelect" class="modern-select">
-              <option value="事務所">事務所</option>
-              <option value="1F">1F</option>
-              <option value="2F">2F</option>
-              <option value="3F">3F</option>
-              <option value="4F">4F</option>
-              <option value="5F">5F</option>
-              <option value="地域交流室">地域交流室</option>
-              <option value="機能訓練室">機能訓練室</option>
-            </select>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="modern-btn cancel" onclick="closeReturnModal()">キャンセル</button>
-          <button class="modern-btn primary" onclick="confirmReturn()">決定</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 編集モーダル -->
-    <div class="modal" id="editModal">
-      <div class="edit-modal-content">
-        <h3>備品情報編集</h3>
+      <div class="modal-content">
+        <h3>備品返却</h3>
+        <p>返却場所を選択してください</p>
+        <div id="suggestedReturn" style="background: #f0f9ff; padding: 10px; margin: 10px 0; border-radius: 5px;"></div>
         <div class="form-group">
-          <label for="editItemName">備品名</label>
-          <input type="text" id="editItemName" />
-        </div>
-        <div class="form-group">
-          <label for="editItemId">ID</label>
-          <input type="text" id="editItemId" />
-        </div>
-        <div class="form-group">
-          <label for="editItemLocation">保管場所</label>
-          <select id="editItemLocation">
+          <label for="returnSelect">返却場所</label>
+          <select id="returnSelect">
             <option value="事務所">事務所</option>
             <option value="1F">1F</option>
             <option value="2F">2F</option>
@@ -1862,63 +1820,9 @@
             <option value="機能訓練室">機能訓練室</option>
           </select>
         </div>
-        <div class="form-group">
-          <label for="editItemCategory">種別</label>
-          <select id="editItemCategory">
-            <option value="車いす">車いす</option>
-            <option value="歩行器・シルバーカー">歩行器・シルバーカー</option>
-            <option value="家具・家電">家具・家電</option>
-            <option value="エアマット">エアマット</option>
-            <option value="その他">その他</option>
-          </select>
-        </div>
         <div class="button-group">
-          <button onclick="confirmEdit()">保存</button>
-          <button onclick="closeEditModal()">キャンセル</button>
-          <button class="delete-button" onclick="confirmDelete()">削除</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 編集モーダル -->
-    <div class="modal" id="editModal">
-      <div class="edit-modal-content">
-        <h3>備品情報編集</h3>
-        <div class="form-group">
-          <label for="editItemName">備品名</label>
-          <input type="text" id="editItemName" />
-        </div>
-        <div class="form-group">
-          <label for="editItemId">ID</label>
-          <input type="text" id="editItemId" />
-        </div>
-        <div class="form-group">
-          <label for="editItemLocation">保管場所</label>
-          <select id="editItemLocation">
-            <option value="事務所">事務所</option>
-            <option value="1F">1F</option>
-            <option value="2F">2F</option>
-            <option value="3F">3F</option>
-            <option value="4F">4F</option>
-            <option value="5F">5F</option>
-            <option value="地域交流室">地域交流室</option>
-            <option value="機能訓練室">機能訓練室</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="editItemCategory">種別</label>
-          <select id="editItemCategory">
-            <option value="車いす">車いす</option>
-            <option value="歩行器・シルバーカー">歩行器・シルバーカー</option>
-            <option value="家具・家電">家具・家電</option>
-            <option value="エアマット">エアマット</option>
-            <option value="その他">その他</option>
-          </select>
-        </div>
-        <div class="button-group">
-          <button onclick="confirmEdit()">保存</button>
-          <button onclick="closeEditModal()">キャンセル</button>
-          <button class="delete-button" onclick="confirmDelete()">削除</button>
+          <button onclick="confirmReturn()">決定</button>
+          <button onclick="closeReturnModal()">キャンセル</button>
         </div>
       </div>
     </div>
