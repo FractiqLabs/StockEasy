@@ -244,8 +244,18 @@ def test_api():
 def health_check():
     return jsonify({'status': 'healthy', 'timestamp': datetime.now().isoformat()})
 
+# ログイン必須デコレータ
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_type' not in session:
+            return jsonify({'success': False, 'message': 'ログインが必要です'}), 401
+        return f(*args, **kwargs)
+    return decorated_function
+
 # 全備品データ取得
 @app.route('/api/equipment', methods=['GET'])
+@login_required
 def get_equipment():
     try:
         conn = get_db_connection()
@@ -828,6 +838,15 @@ def check_session():
         print(f"=== セッション確認エラー: {e} ===", flush=True)
         return jsonify({'success': False, 'message': 'セッション確認に失敗しました'}), 500
 
+# ログイン必須デコレータ
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_type' not in session:
+            return jsonify({'success': False, 'message': 'ログインが必要です'}), 401
+        return f(*args, **kwargs)
+    return decorated_function
+
 # 管理者権限チェック用デコレータ
 def require_admin():
     if not session.get('logged_in') or session.get('user_type') != 'admin':
@@ -952,5 +971,5 @@ def init_admin_table():
 if __name__ == '__main__':
     init_db()
     port = int(os.environ.get('PORT', 8080))
-    host = '0.0.0.0' if os.environ.get('ENVIRONMENT') == 'production' else '127.0.0.1'
+    host = '0.0.0.0' # ローカル開発用に0.0.0.0に設定
     app.run(debug=app.config['DEBUG'], host=host, port=port)

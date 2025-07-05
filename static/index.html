@@ -884,17 +884,45 @@
     .modal {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5);
-      display: none;
+      background: rgba(0, 0, 0, 0.6);
+      display: none; /* Changed to none initially */
       align-items: center;
       justify-content: center;
-      z-index: 10;
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .modal.show {
+        display: flex;
+        opacity: 1;
     }
     .modal-content {
       background: white;
-      padding: 1rem;
-      border-radius: 8px;
-      width: 300px;
+      padding: 2rem;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+      transform: scale(0.95);
+      transition: transform 0.3s ease;
+      text-align: center;
+    }
+    .modal.show .modal-content {
+        transform: scale(1);
+    }
+    .modal-content h3 {
+      margin: 0 0 1.5rem 0;
+      color: #7c3aed;
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+    .modal-content p {
+        margin-bottom: 1.5rem;
+        color: #6b7280;
+    }
+    .modal-content select {
+        width: 100%;
+        margin-bottom: 1.5rem;
     }
     .edit-modal-content {
       background: white;
@@ -1690,7 +1718,6 @@
       <button class="retry-button" onclick="retryConnection()">再試行</button>
     </div>
 
-<<<<<<< HEAD
    <!-- 管理者レイアウト -->
     <div id="adminLayout" style="display: none;">
       <div style="display: flex; gap: 1.5rem; align-items: flex-start;">
@@ -1822,101 +1849,6 @@
         <button onclick="closeReturnModal()">キャンセル</button>
       </div>
     </div>
-=======
-   <!-- 管理者レイアウト -->
-    <div id="adminLayout" style="display: none;">
-      <div style="display: flex; gap: 1.5rem; align-items: flex-start;">
-        <!-- 左側：新規登録フォーム（コンパクト） -->
-        <div style="flex: 0 0 320px; position: sticky; top: 1rem;">
-          <div class="admin-section">
-            <h2>新規登録</h2>
-            <div style="display: grid; grid-template-columns: 1fr; gap: 0.8rem; margin-bottom: 1rem;">
-              <input type="text" id="itemName" placeholder="備品名" style="padding: 0.5rem; font-size: 0.9rem;" />
-              <input type="text" id="itemId" placeholder="ID" style="padding: 0.5rem; font-size: 0.9rem;" />
-              <select id="itemLocation" style="padding: 0.5rem; font-size: 0.9rem;">
-                <option value="事務所">事務所</option>
-                <option value="1F">1F</option>
-                <option value="2F">2F</option>
-                <option value="3F">3F</option>
-                <option value="4F">4F</option>
-                <option value="5F">5F</option>
-                <option value="地域交流室">地域交流室</option>
-                <option value="機能訓練室">機能訓練室</option>
-              </select>
-              <select id="itemCategory" style="padding: 0.5rem; font-size: 0.9rem;">
-                <option value="車いす">車いす</option>
-                <option value="歩行器・シルバーカー">歩行器・シルバーカー</option>
-                <option value="家具・家電">家具・家電</option>
-                <option value="エアマット">エアマット</option>
-                <option value="その他">その他</option>
-              </select>
-              <input type="file" id="itemImage" accept="image/*" style="padding: 0.3rem; font-size: 0.85rem;" />
-              <button onclick="registerItem()" style="padding: 0.6rem; font-size: 0.9rem;">登録</button>
-            </div>
-          </div>
-        </div>
-        
-        <!-- 右側：メイン表示エリア -->
-        <div style="flex: 1;">
-          <div class="tab-navigation" style="margin-bottom: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
-            <button class="tab-button active" data-category="" onclick="filterByTab('')">全て</button>
-            <button class="tab-button" data-category="車いす" onclick="filterByTab('車いす')">車いす</button>
-            <button class="tab-button" data-category="歩行器・シルバーカー" onclick="filterByTab('歩行器・シルバーカー')">歩行器・シルバーカー</button>
-            <button class="tab-button" data-category="家具・家電" onclick="filterByTab('家具・家電')">家具・家電</button>
-            <button class="tab-button" data-category="エアマット" onclick="filterByTab('エアマット')">エアマット</button>
-            <button class="tab-button" data-category="その他" onclick="filterByTab('その他')">その他</button>
-          </div>
-
-          <table style="font-size: 0.85rem;">
-            <thead>
-              <tr>
-                <th style="width: 80px;">画像</th>
-                <th onclick="sortTable('name')" style="cursor: pointer;">備品名 ↕</th>
-                <th onclick="sortTable('id')" style="cursor: pointer; width: 80px;">ID ↕</th>
-                <th onclick="sortTable('location')" style="cursor: pointer; width: 100px;">保管場所 ↕</th>
-                <th onclick="sortTable('current')" style="cursor: pointer; width: 100px;">現在地 ↕</th>
-                <th onclick="sortTable('user')" style="cursor: pointer; width: 100px;">使用者 ↕</th>
-                <th onclick="sortTable('status')" style="cursor: pointer; width: 80px;">状態 ↕</th>
-                <th style="width: 120px;">備考</th>
-                <th onclick="sortTable('category')" style="cursor: pointer; width: 120px;">種別 ↕</th>
-                <th style="width: 150px;">操作</th>
-              </tr>
-            </thead>
-            <tbody id="adminItemTable"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-        
-    <!-- 職員レイアウト -->
-    <div id="staffLayout" style="display: none;">
-      <div class="tab-navigation" style="margin-bottom: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
-        <button class="tab-button active" data-category="" onclick="filterByTab('')">全て</button>
-        <button class="tab-button" data-category="車いす" onclick="filterByTab('車いす')">車いす</button>
-        <button class="tab-button" data-category="歩行器・シルバーカー" onclick="filterByTab('歩行器・シルバーカー')">歩行器・シルバーカー</button>
-        <button class="tab-button" data-category="家具・家電" onclick="filterByTab('家具・家電')">家具・家電</button>
-        <button class="tab-button" data-category="エアマット" onclick="filterByTab('エアマット')">エアマット</button>
-        <button class="tab-button" data-category="その他" onclick="filterByTab('その他')">その他</button>
-      </div>
-
-      <table style="width: 100%;">
-        <thead>
-          <tr>
-            <th>画像</th>
-            <th onclick="sortTable('name')" style="cursor: pointer;">備品名 ↕</th>
-            <th onclick="sortTable('id')" style="cursor: pointer;">ID ↕</th>
-            <th onclick="sortTable('location')" style="cursor: pointer;">保管場所 ↕</th>
-            <th onclick="sortTable('current')" style="cursor: pointer;">現在地 ↕</th>
-            <th onclick="sortTable('user')" style="cursor: pointer;">使用者 ↕</th>
-            <th onclick="sortTable('status')" style="cursor: pointer;">状態 ↕</th>
-            <th>備考</th>
-            <th onclick="sortTable('category')" style="cursor: pointer;">種別 ↕</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody id="staffItemTable"></tbody>
-      </table>
->>>>>>> 0e14e0bf3cd5f909628933679d522ab0fc2b5d99
     </div>
 
     <!-- 編集モーダル -->
@@ -2290,7 +2222,6 @@
         
         const tr = document.createElement('tr');
         tr.innerHTML = `
-<<<<<<< HEAD
           <td class="image-column-td">
             <div class="image-wrapper">
               <img src="${item.image || ''}" class="image-preview" onerror="this.style.display='none'" />
@@ -2314,31 +2245,6 @@
             <button onclick="openReturn(${actualIndex})">返却</button>
             ${isAdmin ? `<button onclick="openEdit(${actualIndex})">編集</button>` : ''}
           </td>
-=======
-            <td>
-                <div class="image-wrapper">
-                    <img src="${item.image || ''}" class="image-preview" onerror="this.style.display='none'" />
-                    ${isAdmin ? `<button class="edit-button" onclick="editImage(${actualIndex})">編集</button>` : ''}
-                </div>
-            </td>
-            <td>${item.name || ''}</td>
-            <td>${item.id || ''}</td>
-            <td>${item.location || ''}</td>
-            <td>${item.current || ''}</td>
-            <td>${item.user || ''}</td>
-            <td>
-                <span class="${item.status === '待機' ? 'status-available' : 'status-in-use'}">
-                    ${item.status || '待機'}
-                </span>
-            </td>
-            <td><input type="text" value="${item.note || ''}" onchange="updateNote(${actualIndex}, this.value)" /></td>
-            <td>${item.category || ''}</td>
-            <td>
-                <button onclick="openBorrow(${actualIndex})">借用</button>
-                <button onclick="openReturn(${actualIndex})">返却</button>
-                ${isAdmin ? `<button onclick="openEdit(${actualIndex})">編集</button>` : ''}
-            </td>
->>>>>>> 0e14e0bf3cd5f909628933679d522ab0fc2b5d99
         `;
         tbody.appendChild(tr);
     });
@@ -2607,12 +2513,17 @@
     }
 
     function openBorrow(index) {
+      const item = items[index];
+      if (item.status === '使用中') {
+        alert('この備品は現在貸し出されています。');
+        return;
+      }
       currentIndex = index;
-      document.getElementById('borrowModal').style.display = 'flex';
+      document.getElementById('borrowModal').classList.add('show');
     }
 
     function closeBorrowModal() {
-      document.getElementById('borrowModal').style.display = 'none';
+      document.getElementById('borrowModal').classList.remove('show');
     }
 
     async function confirmBorrow() {
@@ -2667,11 +2578,11 @@
       currentIndex = index;
       const location = items[index].location;
       document.getElementById('suggestedReturn').textContent = `推奨返却場所：${location}`;
-      document.getElementById('returnModal').style.display = 'flex';
+      document.getElementById('returnModal').classList.add('show');
     }
 
     function closeReturnModal() {
-      document.getElementById('returnModal').style.display = 'none';
+      document.getElementById('returnModal').classList.remove('show');
     }
 
     async function confirmReturn() {
@@ -2942,6 +2853,12 @@
       document.getElementById('editModal').addEventListener('click', function(e) {
         if (e.target === this) {
           closeEditModal();
+        }
+      });
+
+      document.getElementById('settingsModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+          closeSettings();
         }
       });
     }
