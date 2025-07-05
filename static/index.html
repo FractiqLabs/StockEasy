@@ -2807,12 +2807,17 @@
         document.getElementById('mainContent').style.display = 'block';
         isAdmin = role === 'admin';
         
-        // レイアウト切り替え（確実な方法）
+        // レイアウト切り替え
         const adminLayout = document.getElementById('adminLayout');
         const staffLayout = document.getElementById('staffLayout');
+        const adminRegistrationForm = document.getElementById('adminRegistrationForm');
+        const settingsBtn = document.getElementById('settingsBtn');
         
-        document.getElementById('adminRegistrationForm').style.display = isAdmin ? 'block' : 'none';
-        document.getElementById('settingsBtn').style.display = isAdmin ? 'block' : 'none';
+        if (adminLayout) adminLayout.style.display = 'block';
+        if (staffLayout) staffLayout.style.display = 'none';
+        
+        if (adminRegistrationForm) adminRegistrationForm.style.display = isAdmin ? 'block' : 'none';
+        if (settingsBtn) settingsBtn.style.display = isAdmin ? 'flex' : 'none';
         
         // AIバッジを表示
         showAIBadge();
