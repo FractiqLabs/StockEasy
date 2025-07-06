@@ -3045,6 +3045,11 @@ async function checkAndRestoreSession() {
       } else {
         if (adminLayout) adminLayout.style.display = 'none';
         if (staffLayout) staffLayout.style.display = 'block';
+        // 職員画面では設定ボタンと新規登録ボタンを非表示
+        const settingsBtn = document.getElementById('settingsBtn');
+        const newItemBtn = document.getElementById('newItemBtn');
+        if (settingsBtn) settingsBtn.style.display = 'none';
+        if (newItemBtn) newItemBtn.style.display = 'none';
       }
       
       // 施設IDが保存されている場合は復元
