@@ -2507,13 +2507,6 @@
       }
       
       const item = items[currentIndex];
-      
-      // 状態チェック：既に借用中の場合
-      if (item.status === '使用中') {
-        alert('この備品は現在貸し出されています');
-        return;
-      }
-      
       const place = document.getElementById('borrowSelect').value;
       const timestamp = new Date().toLocaleString('ja-JP');
       
@@ -2562,13 +2555,6 @@
       }
       
       const item = items[currentIndex];
-      
-      // 状態チェック：既に待機中の場合
-      if (item.status === '待機') {
-        alert('この備品は現在貸し出されていません');
-        return;
-      }
-      
       const place = document.getElementById('returnSelect').value;
       const timestamp = new Date().toLocaleString('ja-JP');
       
@@ -2610,6 +2596,14 @@
     }
 
     function openBorrow(index) {
+      const item = items[index];
+      
+      // 状態チェック：既に借用中の場合
+      if (item.status === '使用中') {
+        alert('この備品は現在貸し出されています');
+        return;
+      }
+      
       currentIndex = index;
       const modal = document.getElementById('borrowModal');
       modal.style.display = 'flex';
@@ -2622,6 +2616,14 @@
     }
 
     function openReturn(index) {
+      const item = items[index];
+      
+      // 状態チェック：既に待機中の場合
+      if (item.status === '待機') {
+        alert('この備品は現在貸し出されていません');
+        return;
+      }
+      
       currentIndex = index;
       const location = items[index].location;
       document.getElementById('suggestedReturn').textContent = `推奨返却場所：${location}`;
