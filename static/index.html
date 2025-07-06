@@ -2606,47 +2606,6 @@
       currentIndex = null;
     }
 
-    async function confirmReturn() {
-      const place = document.getElementById('returnSelect').value;
-      const timestamp = new Date().toLocaleString('ja-JP');
-      
-      try {
-        const item = items[currentIndex];
-        const newHistory = [...(item.history || []), { 
-          action: '返却', 
-          place: place, 
-          timestamp: timestamp 
-        }];
-
-        const body = {
-          user: '',
-          current: place,
-          status: '待機',
-          history: newHistory
-        };
-        
-        if (currentFacilityId) {
-          body.facility_id = currentFacilityId;
-        }
-
-        await apiCall(`${API_BASE}/equipment/${item.id}`, {
-          method: 'PUT',
-          body: JSON.stringify(body)
-        });
-
-        items[currentIndex].user = '';
-        items[currentIndex].current = place;
-        items[currentIndex].status = '待機';
-        items[currentIndex].history = newHistory;
-        
-        renderItems();
-        closeReturnModal();
-        alert('返却処理が完了しました');
-      } catch (error) {
-        console.error('返却処理に失敗しました:', error);
-        alert('返却処理に失敗しました');
-      }
-    }
 
     async function login() {
       try {

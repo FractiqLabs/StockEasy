@@ -3,6 +3,7 @@ from flask_cors import CORS
 from flask_session import Session
 import json
 import os
+import sqlite3
 from datetime import datetime
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -54,7 +55,6 @@ def get_db_connection():
             conn = psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
         else:
             # ローカル開発用（SQLiteフォールバック）
-            import sqlite3
             conn = sqlite3.connect('equipment.db')
             conn.row_factory = sqlite3.Row
         return conn
@@ -525,31 +525,6 @@ def delete_equipment(item_id):
     conn = None
     try:
         # 以下は既存コードのまま
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        
-        if DATABASE_URL:
-            cursor.execute('DELETE FROM equipment WHERE item_id = %s', (item_id,))
-        else:
-            cursor.execute('DELETE FROM equipment WHERE item_id = ?', (item_id,))
-        
-        if cursor.rowcount == 0:
-            conn.close()
-            return jsonify({'success': False, 'message': '備品が見つかりません'}), 404
-        
-        conn.commit()
-        cursor.close()
-        conn.close()
-        return jsonify({'success': True, 'message': '備品が削除されました'})
-        
-    except Exception as e:
-        if conn:
-            conn.rollback()
-            conn.close()
-        print(f"削除エラー: {e}")
-        return jsonify({'success': False, 'message': f'削除に失敗しました: {str(e)}'}), 500
-    conn = None
-    try:
         conn = get_db_connection()
         cursor = conn.cursor()
         
