@@ -2748,12 +2748,25 @@
           setTimeout(() => {
             console.log('職員テーブル強制表示');
             renderItems();
+            // 職員画面でボタンを確実に非表示
+            const settingsBtn = document.getElementById('settingsBtn');
+            const newItemBtn = document.getElementById('newItemBtn');
+            if (settingsBtn) settingsBtn.style.display = 'none';
+            if (newItemBtn) newItemBtn.style.display = 'none';
           }, 100);
         }
         
         // 設定ボタンと新規登録ボタンを管理者の時だけ表示
-        document.getElementById('settingsBtn').style.display = isAdmin ? 'flex' : 'none';
-        document.getElementById('newItemBtn').style.display = isAdmin ? 'flex' : 'none';
+        const settingsBtn = document.getElementById('settingsBtn');
+        const newItemBtn = document.getElementById('newItemBtn');
+        if (isAdmin) {
+          if (settingsBtn) settingsBtn.style.display = 'flex';
+          if (newItemBtn) newItemBtn.style.display = 'flex';
+        } else {
+          // 職員の場合は確実に非表示
+          if (settingsBtn) settingsBtn.style.display = 'none';
+          if (newItemBtn) newItemBtn.style.display = 'none';
+        }
         
         // AIバッジを表示
         showAIBadge();
