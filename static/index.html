@@ -2834,8 +2834,10 @@
       const adminButtonsArea = document.getElementById('adminButtonsArea');
       adminButtonsArea.innerHTML = `
         <div class="settings-separator"></div>
-        <button id="newItemBtn" onclick="openNewItemModal()" class="settings-btn">新規登録</button>
-        <button id="settingsBtn" onclick="openSettings()" class="settings-btn">設定</button>
+        <div style="display: flex; gap: 0.5rem;">
+          <button id="newItemBtn" onclick="openNewItemModal()" class="settings-btn">新規登録</button>
+          <button id="settingsBtn" onclick="openSettings()" class="settings-btn">設定</button>
+        </div>
       `;
     }
 
