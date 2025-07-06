@@ -2592,7 +2592,8 @@
         alert('返却処理に失敗しました');
       }
     }
-      
+
+    function openReturn(index) {
       currentIndex = index;
       const location = items[index].location;
       document.getElementById('suggestedReturn').textContent = `推奨返却場所：${location}`;
