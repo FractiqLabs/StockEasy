@@ -1679,10 +1679,8 @@
         <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData()" />
         <button onclick="document.getElementById('importFile').click()">インポート</button>
         <button onclick="logout()">ログアウト</button>
-        <!-- 設定ボタン（管理者のみ表示） -->
-        <div class="settings-separator"></div>
-        <button id="newItemBtn" onclick="openNewItemModal()" class="settings-btn" style="display: none;">新規登録</button>
-        <button id="settingsBtn" onclick="openSettings()" class="settings-btn" style="display: none;">設定</button>
+        <!-- 管理者専用ボタンエリア -->
+        <div id="adminButtonsArea"></div>
       </div>
 
     <!-- エラー表示エリア -->
@@ -2748,24 +2746,14 @@
           setTimeout(() => {
             console.log('職員テーブル強制表示');
             renderItems();
-            // 職員画面でボタンを確実に非表示
-            const settingsBtn = document.getElementById('settingsBtn');
-            const newItemBtn = document.getElementById('newItemBtn');
-            if (settingsBtn) settingsBtn.style.display = 'none';
-            if (newItemBtn) newItemBtn.style.display = 'none';
           }, 100);
         }
         
-        // 設定ボタンと新規登録ボタンを管理者の時だけ表示
-        const settingsBtn = document.getElementById('settingsBtn');
-        const newItemBtn = document.getElementById('newItemBtn');
+        // 管理者専用ボタンの表示/非表示
         if (isAdmin) {
-          if (settingsBtn) settingsBtn.style.display = 'flex';
-          if (newItemBtn) newItemBtn.style.display = 'flex';
+          createAdminButtons();
         } else {
-          // 職員の場合は確実に非表示
-          if (settingsBtn) settingsBtn.style.display = 'none';
-          if (newItemBtn) newItemBtn.style.display = 'none';
+          removeAdminButtons();
         }
         
         // AIバッジを表示
@@ -2822,6 +2810,9 @@
         closeAIChat();
       }
       
+      // 管理者ボタンを削除
+      removeAdminButtons();
+      
       // フォームをリセット
       document.getElementById('roleSelect').value = 'staff';
       document.getElementById('loginPassword').value = '';
@@ -2836,6 +2827,21 @@
     function closeSettings() {
       document.getElementById('settingsModal').style.display = 'none';
       console.log('設定モーダルを閉じました');
+    }
+
+    // 管理者専用ボタンを動的に作成/削除
+    function createAdminButtons() {
+      const adminButtonsArea = document.getElementById('adminButtonsArea');
+      adminButtonsArea.innerHTML = `
+        <div class="settings-separator"></div>
+        <button id="newItemBtn" onclick="openNewItemModal()" class="settings-btn">新規登録</button>
+        <button id="settingsBtn" onclick="openSettings()" class="settings-btn">設定</button>
+      `;
+    }
+
+    function removeAdminButtons() {
+      const adminButtonsArea = document.getElementById('adminButtonsArea');
+      adminButtonsArea.innerHTML = '';
     }
 
     // 新規登録モーダル関連
@@ -3050,19 +3056,13 @@ async function checkAndRestoreSession() {
       if (isAdmin) {
         if (adminLayout) adminLayout.style.display = 'block';
         if (staffLayout) staffLayout.style.display = 'none';
-        // 設定ボタンと新規登録ボタンを表示
-        const settingsBtn = document.getElementById('settingsBtn');
-        const newItemBtn = document.getElementById('newItemBtn');
-        if (settingsBtn) settingsBtn.style.display = 'flex';
-        if (newItemBtn) newItemBtn.style.display = 'flex';
+        // 管理者専用ボタンを作成
+        createAdminButtons();
       } else {
         if (adminLayout) adminLayout.style.display = 'none';
         if (staffLayout) staffLayout.style.display = 'block';
-        // 職員画面では設定ボタンと新規登録ボタンを非表示
-        const settingsBtn = document.getElementById('settingsBtn');
-        const newItemBtn = document.getElementById('newItemBtn');
-        if (settingsBtn) settingsBtn.style.display = 'none';
-        if (newItemBtn) newItemBtn.style.display = 'none';
+        // 管理者専用ボタンを削除
+        removeAdminButtons();
       }
       
       // 施設IDが保存されている場合は復元
