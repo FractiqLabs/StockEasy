@@ -1681,6 +1681,7 @@
         <button onclick="logout()">ログアウト</button>
         <!-- 設定ボタン（管理者のみ表示） -->
         <div class="settings-separator"></div>
+        <button id="newItemBtn" onclick="openNewItemModal()" class="settings-btn" style="display: none;">新規登録</button>
         <button id="settingsBtn" onclick="openSettings()" class="settings-btn" style="display: none;">設定</button>
       </div>
 
@@ -1692,39 +1693,8 @@
 
    <!-- 管理者レイアウト -->
     <div id="adminLayout" style="display: none;">
-      <div style="display: flex; gap: 1.5rem; align-items: flex-start;">
-        <!-- 左側：新規登録フォーム（コンパクト） -->
-        <div style="flex: 0 0 320px; position: sticky; top: 1rem;">
-          <div class="admin-section">
-            <h2>新規登録</h2>
-            <div style="display: grid; grid-template-columns: 1fr; gap: 0.8rem; margin-bottom: 1rem;">
-              <input type="text" id="itemName" placeholder="備品名" style="padding: 0.5rem; font-size: 0.9rem;" />
-              <input type="text" id="itemId" placeholder="ID" style="padding: 0.5rem; font-size: 0.9rem;" />
-              <select id="itemLocation" style="padding: 0.5rem; font-size: 0.9rem;">
-                <option value="事務所">事務所</option>
-                <option value="1F">1F</option>
-                <option value="2F">2F</option>
-                <option value="3F">3F</option>
-                <option value="4F">4F</option>
-                <option value="5F">5F</option>
-                <option value="地域交流室">地域交流室</option>
-                <option value="機能訓練室">機能訓練室</option>
-              </select>
-              <select id="itemCategory" style="padding: 0.5rem; font-size: 0.9rem;">
-                <option value="車いす">車いす</option>
-                <option value="歩行器・シルバーカー">歩行器・シルバーカー</option>
-                <option value="家具・家電">家具・家電</option>
-                <option value="エアマット">エアマット</option>
-                <option value="その他">その他</option>
-              </select>
-              <input type="file" id="itemImage" accept="image/*" style="padding: 0.3rem; font-size: 0.85rem;" />
-              <button onclick="registerItem()" style="padding: 0.6rem; font-size: 0.9rem;">登録</button>
-            </div>
-          </div>
-        </div>
-        
-        <!-- 右側：メイン表示エリア -->
-        <div style="flex: 1;">
+      <!-- メイン表示エリア（全幅） -->
+      <div>
           <div class="tab-navigation" style="margin-bottom: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
             <button class="tab-button active" data-category="" onclick="filterByTab('')">全て</button>
             <button class="tab-button" data-category="車いす" onclick="filterByTab('車いす')">車いす</button>
@@ -1751,7 +1721,6 @@
             </thead>
             <tbody id="adminItemTable"></tbody>
           </table>
-        </div>
       </div>
     </div>
         
@@ -1907,6 +1876,39 @@
             <button onclick="openCategorySettings()" class="settings-item-btn">📋 種別編集</button>
             <button onclick="openDisplaySettings()" class="settings-item-btn">📊 表示設定</button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 新規登録モーダル -->
+    <div class="modal" id="newItemModal">
+      <div class="modal-content">
+        <h3>新規登録</h3>
+        <div style="display: grid; grid-template-columns: 1fr; gap: 0.8rem; margin-bottom: 1rem;">
+          <input type="text" id="modalItemName" placeholder="備品名" style="padding: 0.5rem; font-size: 0.9rem;" />
+          <input type="text" id="modalItemId" placeholder="ID" style="padding: 0.5rem; font-size: 0.9rem;" />
+          <select id="modalItemLocation" style="padding: 0.5rem; font-size: 0.9rem;">
+            <option value="事務所">事務所</option>
+            <option value="1F">1F</option>
+            <option value="2F">2F</option>
+            <option value="3F">3F</option>
+            <option value="4F">4F</option>
+            <option value="5F">5F</option>
+            <option value="地域交流室">地域交流室</option>
+            <option value="機能訓練室">機能訓練室</option>
+          </select>
+          <select id="modalItemCategory" style="padding: 0.5rem; font-size: 0.9rem;">
+            <option value="車いす">車いす</option>
+            <option value="歩行器・シルバーカー">歩行器・シルバーカー</option>
+            <option value="家具・家電">家具・家電</option>
+            <option value="エアマット">エアマット</option>
+            <option value="その他">その他</option>
+          </select>
+          <input type="file" id="modalItemImage" accept="image/*" style="padding: 0.3rem; font-size: 0.85rem;" />
+        </div>
+        <div class="button-group">
+          <button onclick="registerItemFromModal()">登録</button>
+          <button onclick="closeNewItemModal()">キャンセル</button>
         </div>
       </div>
     </div>
@@ -2747,8 +2749,9 @@
           }, 100);
         }
         
-        // 設定ボタンを管理者の時だけ表示
+        // 設定ボタンと新規登録ボタンを管理者の時だけ表示
         document.getElementById('settingsBtn').style.display = isAdmin ? 'flex' : 'none';
+        document.getElementById('newItemBtn').style.display = isAdmin ? 'flex' : 'none';
         
         // AIバッジを表示
         showAIBadge();
@@ -2818,6 +2821,82 @@
     function closeSettings() {
       document.getElementById('settingsModal').style.display = 'none';
       console.log('設定モーダルを閉じました');
+    }
+
+    // 新規登録モーダル関連
+    function openNewItemModal() {
+      document.getElementById('newItemModal').style.display = 'flex';
+    }
+
+    function closeNewItemModal() {
+      document.getElementById('newItemModal').style.display = 'none';
+      // フォームをリセット
+      document.getElementById('modalItemName').value = '';
+      document.getElementById('modalItemId').value = '';
+      document.getElementById('modalItemLocation').value = '事務所';
+      document.getElementById('modalItemCategory').value = '車いす';
+      document.getElementById('modalItemImage').value = '';
+    }
+
+    async function registerItemFromModal() {
+      const name = document.getElementById('modalItemName').value;
+      const id = document.getElementById('modalItemId').value;
+      const location = document.getElementById('modalItemLocation').value;
+      const category = document.getElementById('modalItemCategory').value;
+      const imageFile = document.getElementById('modalItemImage').files[0];
+
+      if (!name || !id || !location) {
+        alert('必要な情報を入力してください');
+        return;
+      }
+
+      const item = {
+        name: name,
+        id: id,
+        location: location,
+        category: category,
+        history: []
+      };
+
+      if (currentFacilityId) {
+        item.facility_id = currentFacilityId;
+      }
+
+      if (imageFile) {
+        try {
+          console.log('画像を圧縮中...');
+          const compressedImage = await compressImage(imageFile, 300, 0.6);
+          console.log(`圧縮完了: ${compressedImage.length} 文字`);
+          
+          item.image = compressedImage;
+          
+          await apiCall(`${API_BASE}/equipment`, {
+            method: 'POST',
+            body: JSON.stringify(item)
+          });
+          await loadItems();
+          renderItems();
+          closeNewItemModal();
+          alert('備品を登録しました（画像圧縮済み）');
+        } catch (error) {
+          console.error('登録に失敗しました:', error);
+          alert(`登録に失敗しました: ${error.message}`);
+        }
+      } else {
+        try {
+          await apiCall(`${API_BASE}/equipment`, {
+            method: 'POST',
+            body: JSON.stringify(item)
+          });
+          await loadItems();
+          renderItems();
+          closeNewItemModal();
+          alert('備品を登録しました');
+        } catch (error) {
+          console.error('登録に失敗しました:', error);
+          alert(`登録に失敗しました: ${error.message}`);
+        }
+      }
     }
     
     // テーマカラー変更
@@ -2956,9 +3035,11 @@ async function checkAndRestoreSession() {
       if (isAdmin) {
         if (adminLayout) adminLayout.style.display = 'block';
         if (staffLayout) staffLayout.style.display = 'none';
-        // 設定ボタンを表示
+        // 設定ボタンと新規登録ボタンを表示
         const settingsBtn = document.getElementById('settingsBtn');
+        const newItemBtn = document.getElementById('newItemBtn');
         if (settingsBtn) settingsBtn.style.display = 'flex';
+        if (newItemBtn) newItemBtn.style.display = 'flex';
       } else {
         if (adminLayout) adminLayout.style.display = 'none';
         if (staffLayout) staffLayout.style.display = 'block';
