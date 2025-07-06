@@ -2593,6 +2593,18 @@
       }
     }
 
+    function openBorrow(index) {
+      currentIndex = index;
+      const modal = document.getElementById('borrowModal');
+      modal.style.display = 'flex';
+    }
+
+    function closeBorrowModal() {
+      const modal = document.getElementById('borrowModal');
+      modal.style.display = 'none';
+      currentIndex = null;
+    }
+
     function openReturn(index) {
       currentIndex = index;
       const location = items[index].location;
