@@ -1680,7 +1680,7 @@
         <button onclick="document.getElementById('importFile').click()">インポート</button>
         <button onclick="logout()">ログアウト</button>
         <!-- 管理者専用ボタンエリア -->
-        <div id="adminButtonsArea"></div>
+        <span id="adminButtonsArea"></span>
       </div>
 
     <!-- エラー表示エリア -->
@@ -2833,11 +2833,9 @@
     function createAdminButtons() {
       const adminButtonsArea = document.getElementById('adminButtonsArea');
       adminButtonsArea.innerHTML = `
-        <div class="settings-separator"></div>
-        <div style="display: flex; gap: 0.5rem;">
-          <button id="newItemBtn" onclick="openNewItemModal()" class="settings-btn">新規登録</button>
-          <button id="settingsBtn" onclick="openSettings()" class="settings-btn">設定</button>
-        </div>
+        <span class="settings-separator"></span>
+        <button id="newItemBtn" onclick="openNewItemModal()" class="settings-btn">新規登録</button>
+        <button id="settingsBtn" onclick="openSettings()" class="settings-btn">設定</button>
       `;
     }
 
