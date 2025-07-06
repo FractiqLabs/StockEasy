@@ -419,7 +419,7 @@ def update_equipment(item_id):
     data=request.json
 
     # 借用・返却処理（職員も可能）は権限チェックなし
-    if set(data.keys()).issubset({'user', 'current', 'status', 'history', 'note'}):
+    if set(data.keys()).issubset({'user', 'current', 'status', 'history', 'note', 'facility_id'}):
         pass
     else:
         auth_check = require_admin()
@@ -470,7 +470,8 @@ def update_equipment(item_id):
             'status': 'status',
             'note': 'note',
             'image': 'image',
-            'history': 'history'
+            'history': 'history',
+            'facility_id': 'facility_id'
 }
         # 新しい安全なフィールド処理
         update_fields = []
