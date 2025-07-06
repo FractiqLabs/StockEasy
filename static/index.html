@@ -2504,11 +2504,18 @@
         return;
       }
       
+      const item = items[currentIndex];
+      
+      // 状態チェック：既に借用中の場合
+      if (item.status === '使用中') {
+        alert('この備品は現在貸し出されています');
+        return;
+      }
+      
       const place = document.getElementById('borrowSelect').value;
       const timestamp = new Date().toLocaleString('ja-JP');
       
       try {
-        const item = items[currentIndex];
         const newHistory = [...(item.history || []), { 
           action: '借用', 
           place: place, 
@@ -2552,11 +2559,18 @@
         return;
       }
       
+      const item = items[currentIndex];
+      
+      // 状態チェック：既に待機中の場合
+      if (item.status === '待機') {
+        alert('この備品は現在貸し出されていません');
+        return;
+      }
+      
       const place = document.getElementById('returnSelect').value;
       const timestamp = new Date().toLocaleString('ja-JP');
       
       try {
-        const item = items[currentIndex];
         const newHistory = [...(item.history || []), { 
           action: '返却', 
           place: place, 
