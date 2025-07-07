@@ -22,10 +22,10 @@
   </script>
   <style>
     :root {
-      --primary-color: #667eea;
-      --secondary-color: #764ba2;
-      --primary-rgb: 102, 126, 234;
-      --secondary-rgb: 118, 75, 162;
+      --primary-color: #3b82f6;
+      --secondary-color: #1d4ed8;
+      --primary-rgb: 59, 130, 246;
+      --secondary-rgb: 29, 78, 216;
     }
     
     .tab-navigation {
@@ -607,7 +607,7 @@
     }
     
     .settings-btn {
-      background: linear-gradient(45deg, #6366f1, #8b5cf6) !important;
+      background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)) !important;
       color: white !important;
       border: none !important;
       padding: 0.6rem 1.2rem !important;
@@ -621,7 +621,7 @@
     
     .settings-btn:hover {
       transform: translateY(-1px) !important;
-      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4) !important;
+      box-shadow: 0 6px 20px rgba(var(--primary-rgb), 0.4) !important;
     }
     
     .admin-buttons-container {
@@ -1880,10 +1880,10 @@
         <div class="settings-section">
           <h4>テーマカラー</h4>
           <div class="color-palette">
-            <div class="color-option active" data-color="#667eea" style="background: #667eea;" onclick="changeThemeColor('#667eea')"></div>
+            <div class="color-option active" data-color="#3b82f6" style="background: #3b82f6;" onclick="changeThemeColor('#3b82f6')"></div>
             <div class="color-option" data-color="#10b981" style="background: #10b981;" onclick="changeThemeColor('#10b981')"></div>
-            <div class="color-option" data-color="#f59e0b" style="background: #f59e0b;" onclick="changeThemeColor('#f59e0b')"></div>
-            <div class="color-option" data-color="#ef4444" style="background: #ef4444;" onclick="changeThemeColor('#ef4444')"></div>
+            <div class="color-option" data-color="#6b7280" style="background: #6b7280;" onclick="changeThemeColor('#6b7280')"></div>
+            <div class="color-option" data-color="#f87171" style="background: #f87171;" onclick="changeThemeColor('#f87171')"></div>
             <div class="color-option" data-color="#8b5cf6" style="background: #8b5cf6;" onclick="changeThemeColor('#8b5cf6')"></div>
           </div>
         </div>
@@ -2971,13 +2971,13 @@
     // セカンダリカラーを生成する関数
     function generateSecondaryColor(primaryColor) {
       const colorMap = {
-        '#667eea': '#764ba2',  // Blue -> Purple
+        '#3b82f6': '#1d4ed8',  // Light Blue -> Darker Blue
         '#10b981': '#059669',  // Green -> Darker Green
-        '#f59e0b': '#d97706',  // Orange -> Darker Orange
-        '#ef4444': '#dc2626',  // Red -> Darker Red
+        '#6b7280': '#4b5563',  // Gray -> Darker Gray
+        '#f87171': '#ef4444',  // Light Red -> Darker Red
         '#8b5cf6': '#7c3aed'   // Purple -> Darker Purple
       };
-      return colorMap[primaryColor] || '#764ba2';
+      return colorMap[primaryColor] || '#1d4ed8';
     }
     
     // HEXカラーをRGB値に変換する関数
@@ -2985,12 +2985,12 @@
       const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
       return result ? 
         `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : 
-        '102, 126, 234';
+        '59, 130, 246';
     }
     
     // アプリ起動時にテーマカラーを読み込む関数
     function loadThemeColor() {
-      const savedColor = localStorage.getItem('themeColor') || '#667eea';
+      const savedColor = localStorage.getItem('themeColor') || '#3b82f6';
       changeThemeColor(savedColor);
     }
     
