@@ -21,6 +21,13 @@
     console.log('✅ Transformer.js loaded successfully');
   </script>
   <style>
+    :root {
+      --primary-color: #667eea;
+      --secondary-color: #764ba2;
+      --primary-rgb: 102, 126, 234;
+      --secondary-rgb: 118, 75, 162;
+    }
+    
     .tab-navigation {
       margin-bottom: 1rem;
       display: flex;
@@ -73,7 +80,7 @@
     /* ヒーローセクション */
     .hero-section {
       min-height: 100vh;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
       display: flex;
       align-items: center;
       position: relative;
@@ -183,8 +190,8 @@
     
     .facility-id-input:focus {
       outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
     }
     .facility-tab {
       padding: 0.5rem 1rem;
@@ -251,8 +258,8 @@
     }
     .role-select:focus, .facility-input:focus {
       outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
     }
     .password-area {
       margin-bottom: 1.5rem;
@@ -268,13 +275,13 @@
     }
     .password-area input:focus {
       outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
     }
     .login-btn, .facility-btn {
       width: 100%;
       padding: 1rem 2rem;
-      background: linear-gradient(45deg, #667eea, #764ba2);
+      background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
       color: white;
       border: none;
       border-radius: 12px;
@@ -288,7 +295,7 @@
     }
     .login-btn:hover, .facility-btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 10px 30px rgba(var(--primary-rgb), 0.4);
     }
     
     .facility-btn.secondary {
@@ -347,7 +354,7 @@
     /* 利用者の声セクション */
     .testimonials-section {
       padding: 6rem 0;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
       color: white;
     }
     
@@ -407,7 +414,7 @@
     }
     
     .author-info h4 {
-      color: #667eea;
+      color: var(--primary-color);
       font-size: 1.1rem;
       font-weight: 600;
       margin-bottom: 0.3rem;
@@ -509,7 +516,7 @@
     
     .compact-header h1 {
       font-size: 1.8rem;
-      background: linear-gradient(45deg, #667eea, #764ba2);
+      background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -1070,12 +1077,12 @@
       position: fixed;
       bottom: 20px;
       right: 20px;
-      background: linear-gradient(45deg, #667eea, #764ba2);
+      background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
       color: white;
       padding: 12px 20px;
       border-radius: 25px;
       cursor: pointer;
-      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+      box-shadow: 0 4px 20px rgba(var(--primary-rgb), 0.3);
       transition: all 0.3s ease;
       z-index: 1000;
       font-weight: 600;
@@ -1093,7 +1100,7 @@
     
     .ai-badge:hover {
       transform: translateY(-3px) scale(1.05);
-      box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 8px 30px rgba(var(--primary-rgb), 0.4);
       background: linear-gradient(45deg, #5a67d8, #667eea);
     }
     
@@ -1140,7 +1147,7 @@
       background: white;
       border-radius: 20px;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-      border: 2px solid rgba(102, 126, 234, 0.2);
+      border: 2px solid rgba(var(--primary-rgb), 0.2);
       transform: scale(0) translateY(50px);
       opacity: 0;
       visibility: hidden;
@@ -1159,7 +1166,7 @@
     
     /* AIチャットヘッダー */
     .ai-chat-header {
-      background: linear-gradient(45deg, #667eea, #764ba2);
+      background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
       color: white;
       padding: 15px 20px;
       display: flex;
@@ -1258,12 +1265,12 @@
     
     .ai-input-field:focus {
       outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
     }
     
     .ai-send-btn {
-      background: linear-gradient(45deg, #667eea, #764ba2);
+      background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
       color: white;
       border: none;
       width: 40px;
@@ -1278,7 +1285,7 @@
     
     .ai-send-btn:hover {
       transform: scale(1.1);
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 4px 15px rgba(var(--primary-rgb), 0.4);
     }
     
     .ai-send-btn:disabled {
@@ -2949,10 +2956,45 @@
       // 選択された色にactiveクラスを追加
       document.querySelector(`[data-color="${color}"]`).classList.add('active');
       
-      // CSS変数を更新（実際のテーマ変更は後で実装）
-      console.log(`テーマカラーを ${color} に変更`);
+      // テーマカラーに基づいてセカンダリカラーを生成
+      const secondaryColor = generateSecondaryColor(color);
       
-      // TODO: 実際のテーマ適用処理
+      // CSS変数を更新してテーマを適用
+      document.documentElement.style.setProperty('--primary-color', color);
+      document.documentElement.style.setProperty('--secondary-color', secondaryColor);
+      document.documentElement.style.setProperty('--primary-rgb', hexToRgb(color));
+      document.documentElement.style.setProperty('--secondary-rgb', hexToRgb(secondaryColor));
+      
+      // ローカルストレージに保存
+      localStorage.setItem('themeColor', color);
+      
+      console.log(`テーマカラーを ${color} に変更しました`);
+    }
+    
+    // セカンダリカラーを生成する関数
+    function generateSecondaryColor(primaryColor) {
+      const colorMap = {
+        '#667eea': '#764ba2',  // Blue -> Purple
+        '#10b981': '#059669',  // Green -> Darker Green
+        '#f59e0b': '#d97706',  // Orange -> Darker Orange
+        '#ef4444': '#dc2626',  // Red -> Darker Red
+        '#8b5cf6': '#7c3aed'   // Purple -> Darker Purple
+      };
+      return colorMap[primaryColor] || '#764ba2';
+    }
+    
+    // HEXカラーをRGB値に変換する関数
+    function hexToRgb(hex) {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? 
+        `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : 
+        '102, 126, 234';
+    }
+    
+    // アプリ起動時にテーマカラーを読み込む関数
+    function loadThemeColor() {
+      const savedColor = localStorage.getItem('themeColor') || '#667eea';
+      changeThemeColor(savedColor);
     }
     
     // 詳細設定モーダル（ダミー）
@@ -3148,6 +3190,10 @@ function initializeApp() {
     }
     
     debugLog('✅ 必要な要素を確認しました');
+    
+    // テーマカラーを読み込み
+    loadThemeColor();
+    debugLog('✅ テーマカラーを読み込みました');
     
     // クリックイベントとタッチイベントの両方に対応
     loginButton.addEventListener('click', function(e) {
