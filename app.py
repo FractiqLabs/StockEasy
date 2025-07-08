@@ -488,6 +488,16 @@ def update_equipment(item_id):
                 if field_key == 'history':
                     update_fields.append(f'{db_column} = {param_placeholder}')
                     values.append(json.dumps(data[field_key]))
+                elif field_key == 'facility_id':
+                    # facility_idは整数型に変換
+                    try:
+                        if data[field_key] and str(data[field_key]).strip():
+                            facility_id_value = int(data[field_key])
+                            update_fields.append(f'{db_column} = {param_placeholder}')
+                            values.append(facility_id_value)
+                    except (ValueError, TypeError):
+                        # 無効な値の場合はスキップ
+                        continue
                 else:
                     update_fields.append(f'{db_column} = {param_placeholder}')
                     values.append(data[field_key])
