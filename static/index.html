@@ -26,6 +26,16 @@
       --secondary-color: #1d4ed8;
       --primary-rgb: 59, 130, 246;
       --secondary-rgb: 29, 78, 216;
+      
+      /* Font size variables - slightly increased */
+      --font-size-xs: 0.9rem;     /* was 0.85rem */
+      --font-size-sm: 1rem;       /* was 0.9rem */
+      --font-size-base: 1.1rem;   /* was 1rem */
+      --font-size-lg: 1.3rem;     /* was 1.1rem */
+      --font-size-xl: 1.7rem;     /* was 1.5rem */
+      --font-size-2xl: 2.2rem;    /* was 2rem */
+      --font-size-3xl: 2.7rem;    /* was 2.5rem */
+      --font-size-4xl: 3.7rem;    /* was 3.5rem */
     }
     
     .tab-navigation {
@@ -44,7 +54,7 @@
       color: var(--secondary-color);
       cursor: pointer;
       transition: all 0.3s ease;
-      font-size: 0.85rem;
+      font-size: var(--font-size-xs);
       font-weight: 500;
     }
     
@@ -65,6 +75,7 @@
     }
     body {
       font-family: "Noto Sans JP", "Segoe UI", sans-serif;
+      font-size: 1.1rem;
       margin: 0;
       background: linear-gradient(to bottom right, #f3e8ff, #ede9fe);
     }
@@ -201,7 +212,7 @@
       color: var(--secondary-color);
       cursor: pointer;
       transition: all 0.3s ease;
-      font-size: 0.85rem;
+      font-size: var(--font-size-xs);
       font-weight: 500;
     }
     
@@ -430,7 +441,7 @@
     .author-info .role {
       color: var(--secondary-color);
       font-weight: 500;
-      font-size: 0.85rem;
+      font-size: var(--font-size-xs);
     }
     
     /* 利用者別機能セクション */
@@ -527,7 +538,7 @@
     .compact-header .sub-heading {
       color: var(--primary-color);
       margin: 0;
-      font-size: 0.85rem;
+      font-size: var(--font-size-xs);
     }
     
     .header-controls {
@@ -742,7 +753,7 @@
       background: rgba(124, 58, 237, 0.1);
       padding: 0.3rem 0.8rem;
       border-radius: 20px;
-      font-size: 0.85rem;
+      font-size: var(--font-size-xs);
     }
     
     .status-in-use {
@@ -751,7 +762,7 @@
       background: rgba(220, 38, 38, 0.1);
       padding: 0.3rem 0.8rem;
       border-radius: 20px;
-      font-size: 0.85rem;
+      font-size: var(--font-size-xs);
     }
     
     button {
@@ -764,7 +775,7 @@
       cursor: pointer;
       transition: all 0.3s ease;
       font-weight: 500;
-      font-size: 0.85rem;
+      font-size: var(--font-size-xs);
       white-space: nowrap;
     }
     button:hover {
@@ -836,7 +847,7 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      font-size: 0.85rem;
+      font-size: var(--font-size-xs);
     }
     th:hover {
       background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
@@ -1035,7 +1046,7 @@
       }
       
       table {
-        font-size: 0.85rem;
+        font-size: var(--font-size-xs);
       }
       
       th, td {
