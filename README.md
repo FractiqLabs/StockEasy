@@ -1,5 +1,8 @@
 # StockEasy - らくらく備品管理システム
 
+> ⚠️ **重要なお知らせ**: このプロジェクトはSupabase + Vercel/Netlifyアーキテクチャに移行中です。
+> 詳細は [DEPLOYMENT.md](DEPLOYMENT.md) を参照してください。
+
 ## 📋 概要
 
 StockEasyは、介護施設や医療機関向けに開発された備品管理システムです。車いす、歩行器、エアマットなどの備品の貸出・返却を簡単に管理し、施設運営の効率化を実現します。
@@ -12,20 +15,92 @@ StockEasyは、介護施設や医療機関向けに開発された備品管理�
 - 👥 **権限管理** - 職員用と管理者用の2つのアクセスレベル
 - 💾 **データ保護** - 自動保存とバックアップ機能
 - 📱 **レスポンシブデザイン** - PC、タブレット、スマートフォンに対応
+- 🔒 **施設ごとのデータ分離** - Row Level Security (RLS) による完全な分離
+- ☁️ **クラウドストレージ** - Supabase Storageで画像を安全に保存
+
+## 🏗️ アーキテクチャ
+
+### 新アーキテクチャ（Supabase移行版）
+
+```
+┌─────────────────┐
+│  Vercel/Netlify │  ← フロントエンドホスティング
+│   (Frontend)    │
+└────────┬────────┘
+         │
+         ↓
+┌─────────────────┐
+│    Supabase     │  ← バックエンド・データベース
+│  ┌───────────┐  │
+│  │ PostgreSQL │  │  ← データベース + RLS
+│  ├───────────┤  │
+│  │   Auth    │  │  ← 認証管理
+│  ├───────────┤  │
+│  │  Storage  │  │  ← 画像保存
+│  └───────────┘  │
+└─────────────────┘
+```
+
+### 旧アーキテクチャ（Flask版）
+
+```
+┌─────────────────┐
+│     Render      │
+│ ┌─────────────┐ │
+│ │   Flask     │ │  ← Pythonバックエンド
+│ ├─────────────┤ │
+│ │ PostgreSQL  │ │  ← データベース
+│ └─────────────┘ │
+└─────────────────┘
+```
 
 ## 🚀 クイックスタート
 
-### 必要な環境
+### オプションA: Supabase版（推奨）
+
+#### 必要な環境
+
+- Node.js 18以上（開発時のみ）
+- Supabaseアカウント（無料プラン可）
+- Vercel または Netlifyアカウント（無料プラン可）
+
+#### デプロイ手順
+
+詳細な手順は [DEPLOYMENT.md](DEPLOYMENT.md) を参照してください。
+
+**概要:**
+
+1. Supabaseプロジェクトを作成
+2. データベースマイグレーションを実行
+3. フロントエンドをVercel/Netlifyにデプロイ
+
+```bash
+# 1. リポジトリのクローン
+git clone https://github.com/yourusername/stockeasy.git
+cd stockeasy
+
+# 2. Supabaseでマイグレーションを実行
+# （SupabaseダッシュボードのSQL Editorで実行）
+
+# 3. Vercel/Netlifyにデプロイ
+# （ダッシュボードからGitHubリポジトリを連携）
+```
+
+### オプションB: Flask版（旧バージョン）
+
+⚠️ **非推奨**: この方法はRenderの無料プラン終了に伴い利用できなくなりました。
+
+#### 必要な環境
 
 - Python 3.8以上
 - pip（Pythonパッケージマネージャー）
 
-### インストール手順
+#### インストール手順
 
 1. **リポジトリのクローン**
 ```bash
-git clone https://github.com/yourusername/stockeasy-system.git
-cd stockeasy-system
+git clone https://github.com/yourusername/stockeasy.git
+cd stockeasy
 ```
 
 2. **依存関係のインストール**
@@ -40,7 +115,7 @@ python app.py
 
 4. **ブラウザでアクセス**
 ```
-https://stockeasy-new.onrender.com
+http://localhost:8080
 ```
 
 ## 📖 使い方
@@ -71,40 +146,112 @@ https://stockeasy-new.onrender.com
 
 ## 🏗️ システム構成
 
+### Supabase版（新）
+
 ```
-stockeasy-system/
+StockEasy/
+├── supabase/
+│   └── migrations/
+│       ├── 20250101000000_initial_schema.sql   # テーブル作成
+│       ├── 20250101000001_rls_policies.sql     # RLS設定
+│       └── 20250101000002_storage_setup.sql    # Storage設定
+├── frontend/
+│   ├── index.html                              # メインHTML
+│   ├── js/
+│   │   ├── supabase-client.js                  # Supabase接続
+│   │   ├── auth.js                             # 認証処理
+│   │   └── equipment.js                        # 備品管理
+│   ├── css/
+│   │   └── styles.css
+│   └── assets/
+│       └── *.png
+├── .env.example                                # 環境変数テンプレート
+├── vercel.json                                 # Vercelデプロイ設定
+├── netlify.toml                                # Netlifyデプロイ設定
+├── DEPLOYMENT.md                               # デプロイ手順書
+└── README.md                                   # このファイル
+```
+
+### Flask版（旧）
+
+```
+StockEasy/
 ├── app.py              # Flaskアプリケーション本体
 ├── requirements.txt    # Python依存関係
-├── Procfile           # デプロイ設定
-├── README.md          # このファイル
+├── Procfile           # Renderデプロイ設定
 ├── static/            # 静的ファイル
-│   ├── index.html     # フロントエンドUI
-│   ├── favicon-16x16.png
-│   ├── favicon-32x32.png
-│   └── apple-touch-icon.png
-└── equipment.db       # SQLiteデータベース（自動生成）
+│   └── index.html     # フロントエンドUI
+└── equipment.db       # SQLiteデータベース（廃止予定）
 ```
 
 ## 🛠️ 技術スタック
 
-### バックエンド
+### Supabase版（新）
+
+#### バックエンド
+- **Supabase** - BaaS（Backend as a Service）
+  - **PostgreSQL** - リレーショナルデータベース + RLS
+  - **Supabase Auth** - 認証管理
+  - **Supabase Storage** - オブジェクトストレージ
+  - **Row Level Security (RLS)** - 施設ごとのデータ分離
+
+#### フロントエンド
+- **HTML5/CSS3** - モダンなUI構築
+- **JavaScript (Vanilla)** - インタラクティブな操作
+- **Supabase JavaScript Client** - データベース操作
+- **Transformer.js** - ローカルAI機能（オプション）
+- **レスポンシブデザイン** - 全デバイス対応
+
+#### インフラ
+- **Vercel / Netlify** - 静的サイトホスティング
+- **GitHub** - ソースコード管理とCI/CD
+
+### Flask版（旧）
+
+#### バックエンド
 - **Flask** (2.3.3) - Pythonウェブフレームワーク
-- **SQLite** - 軽量データベース
+- **PostgreSQL / SQLite** - データベース
 - **Flask-CORS** - クロスオリジンリクエスト対応
 
-### フロントエンド
+#### フロントエンド
 - **HTML5/CSS3** - モダンなUI構築
-- **JavaScript** (Vanilla) - インタラクティブな操作
+- **JavaScript (Vanilla)** - インタラクティブな操作
 - **レスポンシブデザイン** - 全デバイス対応
 
 ## 🌐 デプロイ
 
-### Heroku/Renderへのデプロイ
+### Supabase版のデプロイ（推奨）
+
+詳細な手順は [DEPLOYMENT.md](DEPLOYMENT.md) を参照してください。
+
+**簡単な流れ:**
+
+1. **Supabaseプロジェクトの作成**
+   - [Supabaseダッシュボード](https://app.supabase.com/)で新規プロジェクト作成
+   - APIキーを取得
+
+2. **データベースマイグレーション**
+   - SQL Editorでマイグレーションファイルを実行
+   - RLSポリシーを設定
+   - Storageバケットを作成
+
+3. **Vercel/Netlifyでデプロイ**
+   - GitHubリポジトリを連携
+   - 環境変数を設定（SUPABASE_URL, SUPABASE_ANON_KEY）
+   - デプロイ実行
+
+### Flask版のデプロイ（非推奨）
+
+⚠️ **Renderの無料プラン終了に伴い、この方法は利用できなくなりました。**
+
+<details>
+<summary>参考：Render/Herokuへのデプロイ手順（廃止予定）</summary>
 
 1. **環境変数の設定**
 ```bash
 ENVIRONMENT=production
 PORT=8080
+DATABASE_URL=postgresql://...
 ```
 
 2. **Procfileの確認**
@@ -121,6 +268,8 @@ git push heroku main
 # Render
 # Render.comのダッシュボードから設定
 ```
+
+</details>
 
 ## 🔒 セキュリティ
 

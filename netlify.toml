@@ -1,0 +1,52 @@
+# StockEasy - Netlify Configuration
+
+[build]
+  # ビルドコマンド（静的サイトなのでビルド不要）
+  command = "echo 'No build required for static site'"
+
+  # 公開ディレクトリ
+  publish = "frontend"
+
+  # Node.jsバージョン
+  environment = { NODE_VERSION = "18" }
+
+# リダイレクト設定（SPAルーティング対応）
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = false
+
+# ヘッダー設定（セキュリティ）
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+
+# 静的アセットのキャッシュ設定
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/js/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/css/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# 環境変数（Netlifyダッシュボードで設定してください）
+# SUPABASE_URL
+# SUPABASE_ANON_KEY
+
+# ビルドプラグイン（オプション）
+# [[plugins]]
+#   package = "@netlify/plugin-lighthouse"
