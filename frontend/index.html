@@ -18,13 +18,9 @@
     // Vercel/Netlifyの環境変数から読み込む
     // ローカル開発時はここに直接記入してテスト可能
     window.ENV = {
-      SUPABASE_URL: typeof process !== 'undefined' && process.env?.SUPABASE_URL
-        ? process.env.SUPABASE_URL
-        : (window.location.hostname === 'localhost' ? 'YOUR_LOCAL_SUPABASE_URL' : ''),
-      SUPABASE_ANON_KEY: typeof process !== 'undefined' && process.env?.SUPABASE_ANON_KEY
-        ? process.env.SUPABASE_ANON_KEY
-        : (window.location.hostname === 'localhost' ? 'YOUR_LOCAL_SUPABASE_ANON_KEY' : '')
-    };
+  SUPABASE_URL: 'https://xzzrmrbgarzfvxscfici.supabase.co',  // ← ステップ1-3で取得したURL
+  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh6enJtcmJnYXJ6ZnZ4c2NmaWNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIzODk5MjYsImV4cCI6MjA3Nzk2NTkyNn0.Q5mux4ziWBCh8fO_AJb9uZu9NG1Q9ImOFLRKvSpbT8Q'  // ← ステップ1-3で取得したキー
+};
 
     // Vercel/Netlifyの環境変数を注入（ビルド時に置換される）
     if (!window.ENV.SUPABASE_URL) {
